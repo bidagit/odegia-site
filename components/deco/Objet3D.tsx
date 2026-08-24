@@ -1,0 +1,41 @@
+import Image from "next/image";
+
+/* Objets 3D bas-polygone, generes puis detoures. Purement decoratifs, donc
+   aria-hidden et alt vide, ils ne transportent aucune information.
+
+   Ils sont volontairement poses en absolu et debordent de leur section, c est
+   ce chevauchement qui fait decor plutot qu illustration rangee dans une boite.
+   Tous sont masques sous md, ils encombreraient l ecran etroit sans rien
+   apporter. */
+
+const OBJETS = {
+  palmier: { src: "/images/3d/palmier.png", w: 424, h: 655 },
+  bras: { src: "/images/3d/bras.png", w: 417, h: 695 },
+  paperasse: { src: "/images/3d/paperasse.png", w: 194, h: 365 },
+  sablier: { src: "/images/3d/sablier.png", w: 122, h: 258 },
+  avion: { src: "/images/3d/avion.png", w: 585, h: 354 },
+  tampon: { src: "/images/3d/tampon.png", w: 304, h: 456 },
+} as const;
+
+export function Objet3D({
+  nom,
+  className = "",
+  priority = false,
+}: {
+  nom: keyof typeof OBJETS;
+  className?: string;
+  priority?: boolean;
+}) {
+  const o = OBJETS[nom];
+  return (
+    <Image
+      src={o.src}
+      alt=""
+      aria-hidden
+      width={o.w}
+      height={o.h}
+      priority={priority}
+      className={`pointer-events-none select-none ${className}`}
+    />
+  );
+}

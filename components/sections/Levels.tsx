@@ -1,4 +1,5 @@
 import { LEVELS, LEVEL_RULE } from "@/lib/content";
+import { Objet3D } from "@/components/deco/Objet3D";
 
 /* Section en menthe pleine, l equivalent de la bande saturee de la reference.
    Elle casse la page en deux et donne le ton. Le texte passe en charbon, la
@@ -11,7 +12,8 @@ export function Levels() {
         id="niveaux"
         className="scroll-mt-20 bg-vert-vif py-16 text-charbon md:py-20"
       >
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
+          <Objet3D nom="sablier" className="absolute right-6 -top-2 hidden h-[135px] w-auto -rotate-6 lg:block xl:right-16" />
           <div className="max-w-2xl">
             <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-charbon/60">
               L&apos;échelle

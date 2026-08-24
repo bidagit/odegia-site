@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check } from "lucide-react";
 import { TRACKS, SITE } from "@/lib/content";
+import { Objet3D } from "@/components/deco/Objet3D";
 
 /* Deux pistes tarifaires exposées via un sélecteur, plutôt que deux pages.
    Le visiteur doit voir qu'il existe une entrée à son échelle avant de partir,
@@ -13,7 +14,8 @@ export function Pricing() {
 
   return (
     <section id="tarifs" className="scroll-mt-20 bg-paper-alt/45 py-20 md:py-28">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
+        <Objet3D nom="avion" className="absolute right-2 -top-6 hidden h-[110px] w-auto -rotate-12 lg:block xl:right-8" />
         <div className="max-w-2xl">
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
             Tarifs

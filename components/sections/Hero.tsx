@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { HeroMedia } from "./HeroMedia";
-import { Palmier, Eclat, Onde } from "@/components/deco/Formes";
+import { Eclat, Onde } from "@/components/deco/Formes";
+import { Objet3D } from "@/components/deco/Objet3D";
 import { HERO, SITE } from "@/lib/content";
 
 /* Hero sur fond charbon, titre d affichage tres lourd, annotations manuscrites
@@ -85,6 +86,11 @@ export function Hero() {
               <HeroMedia />
             </div>
 
+            <Objet3D
+              nom="bras"
+              className="absolute -bottom-16 -left-14 z-0 hidden h-[210px] w-auto -rotate-6 lg:block"
+            />
+
             <p
               aria-hidden
               className="annotation absolute -bottom-5 -right-3 z-20 hidden max-w-[190px] rotate-2 rounded-2xl border-2 border-ink bg-rose px-3.5 py-2.5 font-bold text-paper lg:block ombre-dure-sm"
@@ -116,7 +122,7 @@ export function Hero() {
       {/* Le palmier chevauche la vague, c est ce debordement qui donne l effet
           de decor plutot que d illustration posee dans une boite. */}
       <div aria-hidden className="pointer-events-none relative">
-        <Palmier className="absolute -top-[190px] right-4 hidden h-[240px] w-[185px] md:block lg:right-16 xl:right-28" />
+        <Objet3D nom="palmier" className="absolute -top-[210px] right-2 hidden h-[260px] w-auto md:block lg:right-10 xl:right-24" />
         <Eclat className="absolute -top-[70px] left-[8%] hidden h-7 w-7 text-vert-vif md:block" />
         <Eclat className="absolute -top-[120px] left-[26%] hidden h-5 w-5 text-banane lg:block" />
         <div className="vague -mb-px bg-paper" />

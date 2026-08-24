@@ -127,3 +127,16 @@ body {
   line-height: 1.45;
   letter-spacing: 0.01em;
 }
+
+/* Cartes legerement de travers, redressees au survol. Angles faibles, au-dela
+   de deux degres la lecture souffre et l effet tourne au gadget. */
+.penche { transition: transform .18s ease; }
+.penche:nth-child(3n+1) { transform: rotate(-1.1deg); }
+.penche:nth-child(3n+2) { transform: rotate(0.7deg); }
+.penche:nth-child(3n+3) { transform: rotate(-0.5deg); }
+.penche:hover { transform: rotate(0deg) translateY(-3px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .penche, .penche:hover { transform: none; transition: none; }
+  .bouton-relief { transition: none; }
+}

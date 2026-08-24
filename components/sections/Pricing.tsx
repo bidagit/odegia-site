@@ -67,7 +67,7 @@ export function Pricing() {
           {track.offers.map((o) => (
             <article
               key={o.name}
-              className={`flex flex-col rounded-[22px] border p-6 ${
+              className={`penche flex flex-col rounded-[22px] border p-6 ${
                 o.highlight
                   ? "ombre-dure border-2 border-ink bg-charbon text-paper"
                   : "ombre-dure-sm border-2 border-ink bg-surface"

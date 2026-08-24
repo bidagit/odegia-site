@@ -2,15 +2,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { NAV_LINKS, SITE } from "@/lib/content";
 
-/* Barre haute inspirée de la référence, logo à gauche, liens centrés, action à
-   droite. Fond translucide pour laisser respirer le média du hero au scroll. */
+/* Barre haute sur charbon, dans la continuite du hero. Le mot-marque doit
+   porter sa couleur explicitement, il heriterait sinon de l encre foncee du
+   body et disparaitrait sur le fond sombre. */
 export function Nav() {
   return (
     <header className="sticky top-0 z-50 bg-charbon">
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-3.5 sm:px-8">
         <Link
           href="/"
-          className="display flex shrink-0 items-center gap-2.5 text-[20px]"
+          className="display flex shrink-0 items-center gap-2.5 text-[20px] text-paper"
         >
           <Image
             src="/images/logo.png"

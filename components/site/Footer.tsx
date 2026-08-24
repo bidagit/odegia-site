@@ -8,7 +8,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
-            <span className="display flex items-center gap-2.5 text-[22px]">
+            <span className="display flex items-center gap-2.5 text-[22px] text-paper">
               <Image
                 src="/images/logo.png"
                 alt=""

@@ -25,7 +25,7 @@ export function Briques() {
 
         <ul className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {BRIQUES.map((b) => (
-            <li key={b.name} className="ombre-dure-sm rounded-[20px] border-2 border-ink bg-paper p-6">
+            <li key={b.name} className="penche ombre-dure-sm rounded-[20px] border-2 border-ink bg-paper p-6">
               <h3 className="text-[15.5px] font-semibold tracking-[-0.01em]">
                 {b.name}
               </h3>

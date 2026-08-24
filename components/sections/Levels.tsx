@@ -33,7 +33,7 @@ export function Levels() {
             {LEVELS.map((l) => (
               <li
                 key={l.level}
-                className={`rounded-[22px] border-2 p-6 ${
+                className={`penche rounded-[22px] border-2 p-6 ${
                   l.target
                     ? "ombre-dure border-ink bg-banane"
                     : l.sellable

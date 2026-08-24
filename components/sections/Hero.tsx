@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { HeroMedia } from "./HeroMedia";
+import { Palmier, Eclat, Onde } from "@/components/deco/Formes";
 import { HERO, SITE } from "@/lib/content";
 
 /* Hero sur fond charbon, titre d affichage tres lourd, annotations manuscrites
@@ -18,6 +19,13 @@ export function Hero() {
               {HERO.eyebrow}
             </span>
 
+            <div className="relative">
+              <Eclat
+                aria-hidden
+                className="pointer-events-none absolute -left-8 -top-4 hidden h-10 w-10 text-banane lg:block"
+              />
+            </div>
+
             <h1 className="display mt-7 text-[46px] sm:text-[58px] lg:text-[66px] xl:text-[76px]">
               {HERO.title[0]}
               <br />
@@ -31,6 +39,7 @@ export function Hero() {
             <p className="display mt-7 text-[22px] text-vert-vif md:text-[26px]">
               {HERO.claim}
             </p>
+            <Onde aria-hidden className="mt-2 h-4 w-40 text-rose-vif" />
 
             <p className="mt-4 max-w-md text-[14.5px] leading-[1.75] text-paper/60">
               {HERO.body}
@@ -66,7 +75,7 @@ export function Hero() {
           <div className="relative">
             <p
               aria-hidden
-              className="annotation absolute -left-2 -top-3 z-10 hidden max-w-[150px] -rotate-3 text-vert-vif lg:block"
+              className="annotation absolute -left-4 -top-4 z-20 hidden max-w-[190px] -rotate-3 rounded-2xl border-2 border-ink bg-vert-vif px-3.5 py-2.5 font-bold text-charbon lg:block ombre-dure-sm"
             >
               ↘ pendant que vous lisez ça, un système tourne quelque part sans
               personne
@@ -78,7 +87,7 @@ export function Hero() {
 
             <p
               aria-hidden
-              className="annotation absolute -bottom-4 -right-1 z-10 hidden max-w-[160px] rotate-2 text-rose-vif lg:block"
+              className="annotation absolute -bottom-5 -right-3 z-20 hidden max-w-[190px] rotate-2 rounded-2xl border-2 border-ink bg-rose px-3.5 py-2.5 font-bold text-paper lg:block ombre-dure-sm"
             >
               vous gardez la barre, c est tout l intérêt ↖
             </p>
@@ -104,8 +113,14 @@ export function Hero() {
         </p>
       </div>
 
-      {/* vague de sortie, elle porte la couleur de la section suivante */}
-      <div aria-hidden className="vague -mb-px bg-paper" />
+      {/* Le palmier chevauche la vague, c est ce debordement qui donne l effet
+          de decor plutot que d illustration posee dans une boite. */}
+      <div aria-hidden className="pointer-events-none relative">
+        <Palmier className="absolute -top-[190px] right-4 hidden h-[240px] w-[185px] md:block lg:right-16 xl:right-28" />
+        <Eclat className="absolute -top-[70px] left-[8%] hidden h-7 w-7 text-vert-vif md:block" />
+        <Eclat className="absolute -top-[120px] left-[26%] hidden h-5 w-5 text-banane lg:block" />
+        <div className="vague -mb-px bg-paper" />
+      </div>
     </section>
   );
 }

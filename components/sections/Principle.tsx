@@ -1,9 +1,16 @@
 import { STEPS } from "@/lib/content";
+import { Objet3D } from "@/components/deco/Objet3D";
 
 export function Principle() {
   return (
     <section id="principe" className="scroll-mt-20 border-t border-ink/10 py-20 md:py-28">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
+        {/* Le tampon dit la validation humaine, ce qui reste au niveau 3 quand
+            le cout d une erreur est eleve. Il tombe donc juste ici. */}
+        <Objet3D
+          nom="tampon"
+          className="absolute right-4 -top-10 hidden h-[150px] w-auto rotate-6 lg:block xl:right-10"
+        />
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
           <div>
             <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">

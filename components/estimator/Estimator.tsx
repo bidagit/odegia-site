@@ -473,6 +473,17 @@ function Resultat({
         </a>
       </section>
 
+      {/* Le contexte ne change pas le prix, mais le prospect doit savoir qu il
+          allongera le cadrage. Le dire ici evite la mauvaise surprise au devis. */}
+      {res.cadrageAlourdi && (
+        <p className="mt-8 rounded-2xl border border-ink/12 bg-surface p-5 text-[13px] leading-[1.7] text-ink-soft">
+          Vos règles de fonctionnement ne sont pas encore écrites, ou vos outils
+          sont peu connectés. Cela n&apos;augmente pas le prix, mais il faudra
+          compter une étape de cadrage avant de construire. Le diagnostic la
+          chiffre précisément.
+        </p>
+      )}
+
       <p className="mt-10 border-t border-ink/10 pt-5 text-[12px] leading-[1.6] text-ink-soft">
         Estimation indicative calculée à partir de vos réponses. Elle ne constitue
         pas un devis et n&apos;engage pas Odegia. Seul le diagnostic permet un

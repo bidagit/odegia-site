@@ -83,7 +83,7 @@ export const HERO = {
   stats: [
     { value: "jusqu'à 20 h", label: "récupérables chaque semaine" },
     { value: "70 %", label: "du temps d'une tâche automatisée, récupéré" },
-    { value: "2 mois", label: "pour rembourser votre investissement" },
+    { value: "dès 2 mois", label: "pour rembourser votre investissement" },
   ],
   statsNote:
     "Estimations issues de notre grille de diagnostic. Le chiffre qui compte est le vôtre, il sort du rapport.",

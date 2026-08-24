@@ -14,18 +14,23 @@ export type TacheDef = {
      n'apparaissent jamais à l'écran. */
   label: string;
   bareme: Record<Frequence, number>; // heures par mois
+  /* La complexité est une propriété de la tâche, pas du contexte. Seuls les
+     appels d'offres la portent, sources multiples, règles à écrire et
+     validation humaine obligatoire. Tout le reste est du chantier simple, y
+     compris les devis, dont la règle est stable et la sortie unique. */
+  complexe: boolean;
 };
 
 export const TACHES: TacheDef[] = [
-  { id: "devis", label: "Refaire mes devis à la main", bareme: { mois: 1.5, semaine: 4, jour: 10 } },
-  { id: "facturation", label: "Émettre mes factures et courir après les règlements", bareme: { mois: 2, semaine: 5, jour: 12 } },
-  { id: "appels-offres", label: "Répondre à des appels d'offres ou des dossiers de subvention", bareme: { mois: 4, semaine: 10, jour: 20 } },
-  { id: "onboarding", label: "La paperasse à chaque nouveau client", bareme: { mois: 1.5, semaine: 4, jour: 10 } },
-  { id: "rendez-vous", label: "Caler et rappeler des rendez-vous", bareme: { mois: 1, semaine: 3, jour: 8 } },
-  { id: "comptes-rendus", label: "Rédiger mes comptes rendus", bareme: { mois: 1, semaine: 3, jour: 8 } },
-  { id: "mails", label: "Répondre vingt fois la même chose par mail", bareme: { mois: 2, semaine: 6, jour: 15 } },
-  { id: "pieces", label: "Rassembler les pièces pour mon comptable", bareme: { mois: 2, semaine: 4, jour: 8 } },
-  { id: "reporting", label: "Savoir où j'en suis sans attendre la fin du mois", bareme: { mois: 2, semaine: 3, jour: 6 } },
+  { id: "devis", label: "Refaire mes devis à la main", bareme: { mois: 3, semaine: 7, jour: 16 }, complexe: false },
+  { id: "facturation", label: "Émettre mes factures et courir après les règlements", bareme: { mois: 3, semaine: 8, jour: 18 }, complexe: false },
+  { id: "appels-offres", label: "Répondre à des appels d'offres ou des dossiers de subvention", bareme: { mois: 6, semaine: 15, jour: 30 }, complexe: true },
+  { id: "onboarding", label: "La paperasse à chaque nouveau client", bareme: { mois: 3, semaine: 7, jour: 16 }, complexe: false },
+  { id: "rendez-vous", label: "Caler et rappeler des rendez-vous", bareme: { mois: 2, semaine: 5, jour: 12 }, complexe: false },
+  { id: "comptes-rendus", label: "Rédiger mes comptes rendus", bareme: { mois: 2, semaine: 5, jour: 12 }, complexe: false },
+  { id: "mails", label: "Répondre vingt fois la même chose par mail", bareme: { mois: 3, semaine: 10, jour: 22 }, complexe: false },
+  { id: "pieces", label: "Rassembler les pièces pour mon comptable", bareme: { mois: 3, semaine: 7, jour: 13 }, complexe: false },
+  { id: "reporting", label: "Savoir où j'en suis sans attendre la fin du mois", bareme: { mois: 3, semaine: 5, jour: 10 }, complexe: false },
 ];
 
 export const FREQUENCES: { value: Frequence; label: string }[] = [
@@ -120,19 +125,22 @@ export type Resultat = {
   coutHaut: number;
   roiMois: number;
   sousLePlancher: boolean;
+  cadrageAlourdi: boolean;
 };
 
 export function calculer(r: Reponses): Resultat {
   const taux = r.taux ?? 60;
 
-  /* Une tâche est complexe si rien n'est outillé en ligne, ou si la règle
-     n'existe nulle part ailleurs que dans la tête du dirigeant. */
+  /* Le contexte n'inflige plus de surcoût. Un parc d'outils pauvre ou des
+     règles non écrites allongent le cadrage, mais ne transforment pas une tâche
+     simple en chantier complexe. On le signale dans le résultat, sans toucher au
+     prix, et le diagnostic tranche pour de bon. */
   const aucunOutilEnLigne = !r.outils.some(
     (id) => OUTILS.find((o) => o.id === id)?.enLigne
   );
   const regleFloue =
     DOCUMENTATION.find((d) => d.id === r.documentation)?.flou ?? false;
-  const complexe = aucunOutilEnLigne || regleFloue;
+  const cadrageAlourdi = aucunOutilEnLigne || regleFloue;
 
   const choisies = TACHES.filter((t) => r.taches.includes(t.id));
   const brut = choisies.map((t) => ({
@@ -151,14 +159,14 @@ export function calculer(r: Reponses): Resultat {
     const heuresMois = heures * facteur;
     const heuresRecuperees = heuresMois * PART_RECUPERABLE;
     const gainAnnuel = heuresRecuperees * 12 * taux;
-    const cout = complexe ? PRIX_COMPLEXE : PRIX_SIMPLE;
+    const cout = def.complexe ? PRIX_COMPLEXE : PRIX_SIMPLE;
     return {
       id: def.id,
       label: def.label,
       heuresMois,
       heuresRecuperees,
       gainAnnuel,
-      complexe,
+      complexe: def.complexe,
       cout,
       roiMois: gainAnnuel > 0 ? cout / (gainAnnuel / 12) : Infinity,
     };
@@ -206,6 +214,7 @@ export function calculer(r: Reponses): Resultat {
     coutHaut: Math.round((coutChantier * 1.25) / 100) * 100,
     roiMois,
     sousLePlancher: coutAnnuel < SEUIL_PLANCHER,
+    cadrageAlourdi,
   };
 }
 

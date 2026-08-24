@@ -36,12 +36,8 @@ export function Nav() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <Link
-            href="/#tarifs"
-            className="hidden rounded-full border border-ink/15 px-4 py-2 text-[13.5px] font-medium transition-colors hover:border-petrol hover:text-petrol sm:inline-block"
-          >
-            Tarifs
-          </Link>
+          {/* Pas de bouton Tarifs ici, l entree existe deja dans NAV_LINKS.
+              L action de droite reste unique, la prise de rendez-vous. */}
           <a
             href={SITE.booking}
             target="_blank"

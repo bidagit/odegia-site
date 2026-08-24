@@ -6,7 +6,7 @@ import { NAV_LINKS, SITE } from "@/lib/content";
    droite. Fond translucide pour laisser respirer le média du hero au scroll. */
 export function Nav() {
   return (
-    <header className="sticky top-0 z-50 border-b border-ink/10 bg-sand/85 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-ink/10 bg-paper/85 backdrop-blur-md">
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-3.5 sm:px-8">
         <Link
           href="/"
@@ -28,7 +28,7 @@ export function Nav() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-[14px] text-ink-soft transition-colors hover:text-petrol"
+              className="text-[14px] text-ink-soft transition-colors hover:text-violet"
             >
               {l.label}
             </Link>
@@ -42,7 +42,7 @@ export function Nav() {
             href={SITE.booking}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-full bg-petrol px-4 py-2 text-[13.5px] font-medium text-white transition-colors hover:bg-petrol-deep"
+            className="rounded-full bg-violet px-4 py-2 text-[13.5px] font-medium text-white transition-colors hover:bg-violet-deep"
           >
             Prendre rendez-vous
           </a>

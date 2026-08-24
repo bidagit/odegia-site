@@ -21,13 +21,13 @@ export function Faq() {
                 href={SITE.booking}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block rounded-full bg-petrol px-6 py-3.5 text-[14px] font-medium text-white transition-colors hover:bg-petrol-deep"
+                className="inline-block rounded-full bg-violet px-6 py-3.5 text-[14px] font-medium text-white transition-colors hover:bg-violet-deep"
               >
                 Réserver 15 minutes
               </a>
               <a
                 href={`mailto:${SITE.email}`}
-                className="inline-block rounded-full border border-ink/15 px-6 py-3.5 text-[14px] font-medium transition-colors hover:border-petrol hover:text-petrol"
+                className="inline-block rounded-full border border-ink/15 px-6 py-3.5 text-[14px] font-medium transition-colors hover:border-violet hover:text-violet"
               >
                 Écrire un mail
               </a>

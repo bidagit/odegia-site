@@ -4,7 +4,7 @@ import { NAV_LINKS, SITE, LEGAL_LINKS } from "@/lib/content";
 
 export function Footer() {
   return (
-    <footer className="bg-petrol-deep text-sand">
+    <footer className="bg-violet-deep text-paper">
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
@@ -14,11 +14,11 @@ export function Footer() {
                 alt=""
                 width={554}
                 height={506}
-                className="h-8 w-8 rounded-lg bg-sand object-contain p-0.5"
+                className="h-8 w-8 rounded-lg bg-paper object-contain p-0.5"
               />
               {SITE.name}
             </span>
-            <p className="mt-5 max-w-xs text-[13.5px] leading-[1.75] text-sand/60">
+            <p className="mt-5 max-w-xs text-[13.5px] leading-[1.75] text-paper/60">
               L&apos;IA exécute, vous gouvernez. Odegia automatise votre
               administratif brique par brique, du niveau 2 au niveau 4.
             </p>
@@ -27,13 +27,13 @@ export function Footer() {
                 href={SITE.booking}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block rounded-full bg-ocre px-5 py-2.5 text-[13.5px] font-medium text-ink transition-colors hover:bg-ocre-deep"
+                className="inline-block rounded-full bg-jaune px-5 py-2.5 text-[13.5px] font-medium text-ink transition-colors hover:bg-jaune-deep"
               >
                 Prendre rendez-vous
               </a>
               <a
                 href={`mailto:${SITE.email}`}
-                className="inline-block rounded-full border border-sand/25 px-5 py-2.5 text-[13.5px] font-medium text-sand/80 transition-colors hover:border-sand hover:text-sand"
+                className="inline-block rounded-full border border-paper/25 px-5 py-2.5 text-[13.5px] font-medium text-paper/80 transition-colors hover:border-paper hover:text-paper"
               >
                 {SITE.email}
               </a>
@@ -41,7 +41,7 @@ export function Footer() {
           </div>
 
           <div>
-            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-sand/45">
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-paper/45">
               Le site
             </span>
             <ul className="mt-4 space-y-2.5">
@@ -49,7 +49,7 @@ export function Footer() {
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="text-[13.5px] text-sand/70 transition-colors hover:text-sand"
+                    className="text-[13.5px] text-paper/70 transition-colors hover:text-paper"
                   >
                     {l.label}
                   </Link>
@@ -59,14 +59,14 @@ export function Footer() {
           </div>
 
           <div>
-            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-sand/45">
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-paper/45">
               Le groupe
             </span>
             <ul className="mt-4 space-y-2.5">
               <li>
                 <a
                   href="https://orbisoptima.com"
-                  className="text-[13.5px] text-sand/70 transition-colors hover:text-sand"
+                  className="text-[13.5px] text-paper/70 transition-colors hover:text-paper"
                 >
                   Orbis Optima Group
                 </a>
@@ -74,7 +74,7 @@ export function Footer() {
               <li>
                 <a
                   href="https://orbisoptima.com/entreprises-autonomes"
-                  className="text-[13.5px] text-sand/70 transition-colors hover:text-sand"
+                  className="text-[13.5px] text-paper/70 transition-colors hover:text-paper"
                 >
                   Entreprises autonomes
                 </a>
@@ -83,7 +83,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col gap-2 border-t border-sand/15 pt-6 text-[12px] text-sand/40 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col gap-2 border-t border-paper/15 pt-6 text-[12px] text-paper/40 sm:flex-row sm:items-center sm:justify-between">
           <span>
             {SITE.city} · © {new Date().getFullYear()} {SITE.name}
           </span>
@@ -92,7 +92,7 @@ export function Footer() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="transition-colors hover:text-sand"
+                className="transition-colors hover:text-paper"
               >
                 {l.label}
               </Link>

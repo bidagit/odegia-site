@@ -28,7 +28,7 @@ export default function Page() {
         <h1 className="mt-3 text-[30px] font-semibold leading-[1.08] tracking-[-0.03em] md:text-[40px]">
           Combien vous coûte
           <br />
-          <span className="text-petrol">votre administratif ?</span>
+          <span className="text-violet">votre administratif ?</span>
         </h1>
         <p className="mt-4 max-w-xl text-[14.5px] leading-[1.7] text-ink-soft">
           Neuf questions, deux minutes. Vous obtenez le coût réel de votre

@@ -12,7 +12,7 @@ export function Pricing() {
   const track = TRACKS.find((t) => t.id === active) ?? TRACKS[0];
 
   return (
-    <section id="tarifs" className="scroll-mt-20 bg-sand-deep/45 py-20 md:py-28">
+    <section id="tarifs" className="scroll-mt-20 bg-paper-alt/45 py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="max-w-2xl">
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
@@ -42,7 +42,7 @@ export function Pricing() {
               onClick={() => setActive(t.id)}
               className={`rounded-full px-5 py-2.5 text-[13.5px] font-medium transition-colors ${
                 active === t.id
-                  ? "bg-petrol text-white"
+                  ? "bg-violet text-white"
                   : "text-ink-soft hover:text-ink"
               }`}
             >
@@ -69,7 +69,7 @@ export function Pricing() {
               key={o.name}
               className={`flex flex-col rounded-[22px] border p-6 ${
                 o.highlight
-                  ? "border-petrol bg-petrol text-sand"
+                  ? "border-violet bg-violet text-paper"
                   : "border-ink/12 bg-surface"
               }`}
             >
@@ -80,7 +80,7 @@ export function Pricing() {
                   </h3>
                   <p
                     className={`mt-0.5 text-[12.5px] ${
-                      o.highlight ? "text-sand/65" : "text-ink-soft"
+                      o.highlight ? "text-paper/65" : "text-ink-soft"
                     }`}
                   >
                     {o.duration}
@@ -90,8 +90,8 @@ export function Pricing() {
                   <span
                     className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.06em] ${
                       o.highlight
-                        ? "bg-ocre text-ink"
-                        : "bg-sand-deep text-ink-soft"
+                        ? "bg-jaune text-ink"
+                        : "bg-paper-alt text-ink-soft"
                     }`}
                   >
                     {o.badge}
@@ -101,7 +101,7 @@ export function Pricing() {
 
               <p
                 className={`mt-4 text-[13px] leading-[1.65] ${
-                  o.highlight ? "text-sand/80" : "text-ink-soft"
+                  o.highlight ? "text-paper/80" : "text-ink-soft"
                 }`}
               >
                 {o.tagline}
@@ -112,7 +112,7 @@ export function Pricing() {
                   <li key={d.text} className="flex gap-2.5">
                     <Check
                       className={`mt-0.5 h-4 w-4 shrink-0 ${
-                        o.highlight ? "text-ocre" : "text-petrol"
+                        o.highlight ? "text-jaune" : "text-violet"
                       }`}
                       aria-hidden
                     />
@@ -121,7 +121,7 @@ export function Pricing() {
                         d.strong
                           ? "font-medium"
                           : o.highlight
-                            ? "text-sand/75"
+                            ? "text-paper/75"
                             : "text-ink-soft"
                       }`}
                     >
@@ -133,7 +133,7 @@ export function Pricing() {
 
               <div
                 className={`mt-6 border-t pt-5 ${
-                  o.highlight ? "border-sand/20" : "border-ink/10"
+                  o.highlight ? "border-paper/20" : "border-ink/10"
                 }`}
               >
                 <div className="flex items-baseline gap-1.5">
@@ -143,7 +143,7 @@ export function Pricing() {
                   {o.priceSuffix && (
                     <span
                       className={`text-[13px] ${
-                        o.highlight ? "text-sand/65" : "text-ink-soft"
+                        o.highlight ? "text-paper/65" : "text-ink-soft"
                       }`}
                     >
                       {o.priceSuffix}
@@ -152,7 +152,7 @@ export function Pricing() {
                 </div>
                 <p
                   className={`mt-1 text-[12px] ${
-                    o.highlight ? "text-sand/60" : "text-ink-soft"
+                    o.highlight ? "text-paper/60" : "text-ink-soft"
                   }`}
                 >
                   {o.priceNote}
@@ -170,8 +170,8 @@ export function Pricing() {
                     : {})}
                   className={`mt-5 block rounded-full px-5 py-3 text-center text-[13.5px] font-medium transition-colors ${
                     o.highlight
-                      ? "bg-ocre text-ink hover:bg-ocre-deep"
-                      : "border border-ink/15 hover:border-petrol hover:text-petrol"
+                      ? "bg-jaune text-ink hover:bg-jaune-deep"
+                      : "border border-ink/15 hover:border-violet hover:text-violet"
                   }`}
                 >
                   {o.cta}

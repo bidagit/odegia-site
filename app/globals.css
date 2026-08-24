@@ -1,30 +1,42 @@
 @import "tailwindcss";
 
 /*
-  Odegia — jetons de design.
+  Odegia, jetons de design, revision du 24/08/2026.
 
-  Variante B de la maquette du 21/07/2026. Pétrole profond et ocre chaud,
-  aucune teinte partagée avec le groupe. L'orange appartient à TeachingCrew,
-  le bleu électrique à Orbis Optima, le bleu franc à Foot on the Moon.
+  Violet profond, blanc, accents jaunes. La variante petrole et ocre est
+  abandonnee, elle etait trop proche de Chamil France, qui tient deja le couple
+  creme, or et vert.
 
-  Règle de contraste, l'ocre ne sert jamais de couleur de texte sur le fond
-  crème (ratio insuffisant). Il ne vit qu'en aplat, avec l'encre par-dessus.
+  Separation des marques du groupe. Bleu electrique pour Orbis Optima, bleu
+  franc pour Foot on the Moon, orange pour TeachingCrew, or et vert pour
+  Chamil, violet pour Odegia. Le violet retenu est volontairement plus sombre
+  et plus sature que le mauve d Alteria (#6a4b8a), qui est un client et non une
+  marque du groupe.
+
+  Regle de contraste. Le jaune ne sert jamais de couleur de texte, son ratio
+  sur blanc est insuffisant. Il ne vit qu en aplat, avec l encre par-dessus.
 */
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-  --color-sand: #f6efe2;
-  --color-sand-deep: #eadfcb;
+  /* fonds */
+  --color-paper: #ffffff;
+  --color-paper-alt: #f7f4fc;
   --color-surface: #ffffff;
 
-  --color-ink: #12262c;
-  --color-ink-soft: #556a71;
+  /* texte */
+  --color-ink: #1c1526;
+  --color-ink-soft: #5f5570;
 
-  --color-petrol: #0e4a52;
-  --color-petrol-deep: #093237;
-  --color-ocre: #e8a427;
-  --color-ocre-deep: #c9861a;
+  /* marque */
+  --color-violet: #5b2c9e;
+  --color-violet-deep: #3d1c6b;
+  --color-violet-soft: #ece4f7;
+
+  /* accent */
+  --color-jaune: #f5c518;
+  --color-jaune-deep: #d4a409;
 }
 
 html {
@@ -37,24 +49,22 @@ html {
 }
 
 body {
-  background-color: #f6efe2;
-  color: #12262c;
+  background-color: #ffffff;
+  color: #1c1526;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background-color: #0e4a52;
-  color: #f6efe2;
+  background-color: #5b2c9e;
+  color: #ffffff;
 }
 
 :focus-visible {
-  outline: 2px solid #0e4a52;
+  outline: 2px solid #5b2c9e;
   outline-offset: 3px;
 }
 
-/* Filets structurants, l'équivalent des règles de composition du groupe,
-   mais en pétrole translucide plutôt qu'en encre pleine. */
-.rule-t { border-top: 1px solid rgba(18, 38, 44, 0.14); }
-.rule-b { border-bottom: 1px solid rgba(18, 38, 44, 0.14); }
-.rule-box { border: 1px solid rgba(18, 38, 44, 0.14); }
+.rule-t { border-top: 1px solid rgba(28, 21, 38, 0.12); }
+.rule-b { border-bottom: 1px solid rgba(28, 21, 38, 0.12); }
+.rule-box { border: 1px solid rgba(28, 21, 38, 0.12); }

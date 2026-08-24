@@ -22,7 +22,7 @@ export default function Page() {
           Contact pour toute question relative aux données,{" "}
           <a
             href={`mailto:${SITE.email}`}
-            className="font-medium text-petrol underline underline-offset-2"
+            className="font-medium text-violet underline underline-offset-2"
           >
             {SITE.email}
           </a>
@@ -116,7 +116,7 @@ export default function Page() {
           Écrivez à{" "}
           <a
             href={`mailto:${SITE.email}`}
-            className="font-medium text-petrol underline underline-offset-2"
+            className="font-medium text-violet underline underline-offset-2"
           >
             {SITE.email}
           </a>

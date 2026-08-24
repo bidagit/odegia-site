@@ -37,7 +37,7 @@ export function Nav() {
 
         <div className="flex items-center gap-2.5">
           <Link
-            href="#tarifs"
+            href="/#tarifs"
             className="hidden rounded-full border border-ink/15 px-4 py-2 text-[13.5px] font-medium transition-colors hover:border-petrol hover:text-petrol sm:inline-block"
           >
             Tarifs

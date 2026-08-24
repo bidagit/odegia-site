@@ -54,11 +54,14 @@ export const LEGAL_LINKS = [
   { label: "CGV", href: "/cgv" },
 ];
 
+/* Chemins absolus, une ancre nue casserait depuis /estimation ou les pages
+   legales, ou elle pointerait une section inexistante. */
 export const NAV_LINKS = [
-  { label: "Le principe", href: "#principe" },
-  { label: "Niveaux", href: "#niveaux" },
-  { label: "Briques", href: "#briques" },
-  { label: "Tarifs", href: "#tarifs" },
+  { label: "Le principe", href: "/#principe" },
+  { label: "Niveaux", href: "/#niveaux" },
+  { label: "Briques", href: "/#briques" },
+  { label: "Tarifs", href: "/#tarifs" },
+  { label: "Estimation", href: "/estimation" },
 ];
 
 export const HERO = {
@@ -67,7 +70,7 @@ export const HERO = {
   claim: "L'IA exécute, vous gouvernez.",
   body: "On mesure ce que votre administratif vous coûte, on automatise tâche par tâche, et on vous rend la barre. Vous n'intervenez plus que sur exception.",
   ctaPrimary: { label: "Réserver 15 minutes", href: SITE.booking },
-  ctaSecondary: { label: "Voir les briques", href: "#briques" },
+  ctaSecondary: { label: "Estimer mon coût", href: "/estimation" },
   /* Le rendez-vous de 15 minutes n'est pas un diagnostic gratuit, il sert a
      dire si le diagnostic vaut le coup. Le dire ici evite les rendez-vous
      mal calibres et protege l'offre a 290 EUR. */

@@ -82,7 +82,7 @@ export default function Page() {
           Pour toute question relative au site, écrivez à{" "}
           <a
             href={`mailto:${SITE.email}`}
-            className="font-medium text-violet underline underline-offset-2"
+            className="font-medium text-vert underline underline-offset-2"
           >
             {SITE.email}
           </a>

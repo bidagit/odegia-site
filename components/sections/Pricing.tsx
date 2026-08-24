@@ -42,7 +42,7 @@ export function Pricing() {
               onClick={() => setActive(t.id)}
               className={`rounded-full px-5 py-2.5 text-[13.5px] font-medium transition-colors ${
                 active === t.id
-                  ? "bg-violet text-white"
+                  ? "bg-vert text-white"
                   : "text-ink-soft hover:text-ink"
               }`}
             >
@@ -69,7 +69,7 @@ export function Pricing() {
               key={o.name}
               className={`flex flex-col rounded-[22px] border p-6 ${
                 o.highlight
-                  ? "border-violet bg-violet text-paper"
+                  ? "border-vert bg-vert text-paper"
                   : "border-ink/12 bg-surface"
               }`}
             >
@@ -90,7 +90,7 @@ export function Pricing() {
                   <span
                     className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.06em] ${
                       o.highlight
-                        ? "bg-jaune text-ink"
+                        ? "bg-banane text-ink"
                         : "bg-paper-alt text-ink-soft"
                     }`}
                   >
@@ -112,7 +112,7 @@ export function Pricing() {
                   <li key={d.text} className="flex gap-2.5">
                     <Check
                       className={`mt-0.5 h-4 w-4 shrink-0 ${
-                        o.highlight ? "text-jaune" : "text-violet"
+                        o.highlight ? "text-banane" : "text-vert"
                       }`}
                       aria-hidden
                     />
@@ -170,8 +170,8 @@ export function Pricing() {
                     : {})}
                   className={`mt-5 block rounded-full px-5 py-3 text-center text-[13.5px] font-medium transition-colors ${
                     o.highlight
-                      ? "bg-jaune text-ink hover:bg-jaune-deep"
-                      : "border border-ink/15 hover:border-violet hover:text-violet"
+                      ? "bg-banane text-ink hover:bg-banane-deep"
+                      : "border border-ink/15 hover:border-vert hover:text-vert"
                   }`}
                 >
                   {o.cta}

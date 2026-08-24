@@ -23,8 +23,8 @@ import {
 
 const cardBase =
   "w-full rounded-2xl border px-5 py-4 text-left text-[14.5px] transition-colors";
-const cardOff = "border-ink/12 bg-surface hover:border-violet/50";
-const cardOn = "border-violet bg-violet text-white";
+const cardOff = "border-ink/12 bg-surface hover:border-vert/50";
+const cardOn = "border-vert bg-vert text-white";
 
 function Choice({
   label,
@@ -118,7 +118,7 @@ export function Estimator() {
           hint="À vous et à votre équipe, toutes personnes confondues."
         >
           <div className="rounded-2xl border border-ink/12 bg-surface px-5 py-6">
-            <div className="text-[34px] font-semibold tracking-[-0.03em] text-violet">
+            <div className="text-[34px] font-semibold tracking-[-0.03em] text-vert">
               {r.heuresSemaine} h
               <span className="ml-1.5 text-[15px] font-normal text-ink-soft">
                 par semaine
@@ -132,7 +132,7 @@ export function Estimator() {
               value={r.heuresSemaine}
               onChange={(e) => set("heuresSemaine", Number(e.target.value))}
               aria-label="Heures d'administratif par semaine"
-              className="mt-5 w-full accent-[#5b2c9e]"
+              className="mt-5 w-full accent-[#0f7a5c]"
             />
             <div className="mt-1.5 flex justify-between text-[12px] text-ink-soft">
               <span>1 h</span>
@@ -270,7 +270,7 @@ export function Estimator() {
               onChange={(e) => setPrenom(e.target.value)}
               placeholder="Prénom"
               aria-label="Prénom"
-              className="w-full rounded-2xl border border-ink/12 bg-surface px-5 py-4 text-[14.5px] outline-none focus:border-violet"
+              className="w-full rounded-2xl border border-ink/12 bg-surface px-5 py-4 text-[14.5px] outline-none focus:border-vert"
             />
             <input
               type="email"
@@ -278,7 +278,7 @@ export function Estimator() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Adresse email"
               aria-label="Adresse email"
-              className="w-full rounded-2xl border border-ink/12 bg-surface px-5 py-4 text-[14.5px] outline-none focus:border-violet"
+              className="w-full rounded-2xl border border-ink/12 bg-surface px-5 py-4 text-[14.5px] outline-none focus:border-vert"
             />
             <p className="text-[12.5px] leading-[1.6] text-ink-soft">
               Votre estimation vous est envoyée à cette adresse. Vos réponses sont
@@ -292,7 +292,7 @@ export function Estimator() {
                 type="checkbox"
                 checked={optin}
                 onChange={(e) => setOptin(e.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-[#5b2c9e]"
+                className="mt-0.5 h-4 w-4 shrink-0 accent-[#0f7a5c]"
               />
               <span className="text-[13px] leading-[1.6] text-ink-soft">
                 Je veux aussi recevoir les quatre emails d&apos;Odegia sur
@@ -322,7 +322,7 @@ export function Estimator() {
         </div>
         <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-ink/10">
           <div
-            className="h-full bg-violet transition-all duration-300"
+            className="h-full bg-vert transition-all duration-300"
             style={{ width: `${((etape + 1) / ecrans.length) * 100}%` }}
           />
         </div>
@@ -344,7 +344,7 @@ export function Estimator() {
           type="button"
           disabled={!courant.valide}
           onClick={() => (dernier ? setFini(true) : setEtape((e) => e + 1))}
-          className="inline-flex items-center gap-2 rounded-full bg-violet px-7 py-3.5 text-[14.5px] font-medium text-white transition-colors hover:bg-violet-deep disabled:cursor-not-allowed disabled:opacity-35"
+          className="inline-flex items-center gap-2 rounded-full bg-vert px-7 py-3.5 text-[14.5px] font-medium text-white transition-colors hover:bg-vert-deep disabled:cursor-not-allowed disabled:opacity-35"
         >
           {dernier ? "Voir mon estimation" : "Continuer"}
           <ArrowRight className="h-4 w-4" aria-hidden />
@@ -378,7 +378,7 @@ function Resultat({
           href={SITE.booking}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-8 inline-block rounded-full border border-ink/15 px-6 py-3.5 text-[14px] font-medium transition-colors hover:border-violet hover:text-violet"
+          className="mt-8 inline-block rounded-full border border-ink/15 px-6 py-3.5 text-[14px] font-medium transition-colors hover:border-vert hover:text-vert"
         >
           En parler quand même, 15 minutes
         </a>
@@ -394,9 +394,9 @@ function Resultat({
 
       <h2 className="mt-4 text-[28px] font-semibold leading-[1.12] tracking-[-0.03em] md:text-[38px]">
         Votre administratif vous coûte environ{" "}
-        <span className="text-violet">{heures(res.heuresMois)} heures</span> par
+        <span className="text-vert">{heures(res.heuresMois)} heures</span> par
         mois, soit{" "}
-        <span className="text-violet">{euros(res.coutAnnuel)}</span> par an.
+        <span className="text-vert">{euros(res.coutAnnuel)}</span> par an.
       </h2>
       <p className="mt-4 text-[14px] leading-[1.7] text-ink-soft">
         Calculé sur une heure de votre temps valorisée à {euros(res.taux)}. Environ
@@ -425,7 +425,7 @@ function Resultat({
             <li
               key={l.id}
               className={`rounded-2xl border p-5 ${
-                i === 0 ? "border-violet bg-violet/[0.06]" : "border-ink/12 bg-surface"
+                i === 0 ? "border-vert bg-vert/[0.06]" : "border-ink/12 bg-surface"
               }`}
             >
               <div className="flex items-baseline justify-between gap-4">
@@ -442,7 +442,7 @@ function Resultat({
         </ol>
       </section>
 
-      <section className="mt-12 rounded-2xl bg-violet p-7 text-white md:p-9">
+      <section className="mt-12 rounded-2xl bg-vert p-7 text-white md:p-9">
         <h3 className="text-[17px] font-semibold">Ce que ça représente</h3>
         <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
           Traiter les {res.recommandees.length} tâches se situe entre{" "}
@@ -452,7 +452,7 @@ function Resultat({
         </p>
         <p className="mt-5 text-[26px] font-semibold leading-tight tracking-[-0.02em] md:text-[32px]">
           Cette première tâche se rembourse en{" "}
-          <span className="text-jaune">{res.roiMois} mois</span>.
+          <span className="text-banane">{res.roiMois} mois</span>.
         </p>
       </section>
 
@@ -467,7 +467,7 @@ function Resultat({
           href={SITE.booking}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-6 inline-block rounded-full bg-violet px-7 py-3.5 text-[14.5px] font-medium text-white transition-colors hover:bg-violet-deep"
+          className="mt-6 inline-block rounded-full bg-vert px-7 py-3.5 text-[14.5px] font-medium text-white transition-colors hover:bg-vert-deep"
         >
           Réserver le diagnostic
         </a>

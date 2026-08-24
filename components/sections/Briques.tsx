@@ -14,7 +14,7 @@ export function Briques() {
           <h2 className="mt-3 text-[30px] font-semibold leading-[1.08] tracking-[-0.03em] md:text-[40px]">
             On automatise
             <br />
-            <span className="text-violet">une tâche à la fois.</span>
+            <span className="text-vert">une tâche à la fois.</span>
           </h2>
           <p className="mt-4 text-[14.5px] leading-[1.7] text-ink-soft">
             Pas de forfait, pas de périmètre flou. Chaque tâche répétitive
@@ -44,7 +44,7 @@ export function Briques() {
             >
               <div className="flex items-baseline justify-between gap-4">
                 <h3 className="text-[15.5px] font-semibold">{t.label}</h3>
-                <span className="text-[19px] font-semibold tracking-[-0.02em] text-violet">
+                <span className="text-[19px] font-semibold tracking-[-0.02em] text-vert">
                   {t.price}
                 </span>
               </div>

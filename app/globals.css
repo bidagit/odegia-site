@@ -3,18 +3,18 @@
 /*
   Odegia, jetons de design, revision du 24/08/2026.
 
-  Violet profond, blanc, accents jaunes. La variante petrole et ocre est
-  abandonnee, elle etait trop proche de Chamil France, qui tient deja le couple
-  creme, or et vert.
+  Palette tiree d un debardeur Munich « Banana Beach », charbon, vert menthe,
+  rose magenta et jaune banane. C est le charbon qui rend les trois accents
+  credibles, sans lui l ensemble bascule du cote streetwear et perd le B2B.
+
+  Deux niveaux par accent. La version vive vit sur fond sombre, la version
+  profonde sert de couleur de texte et de bouton sur fond clair, ou elle passe
+  le seuil AA. Le jaune n a pas de version texte, il ne vit qu en aplat avec
+  l encre par-dessus, son ratio sur blanc est insuffisant quoi qu il arrive.
 
   Separation des marques du groupe. Bleu electrique pour Orbis Optima, bleu
-  franc pour Foot on the Moon, orange pour TeachingCrew, or et vert pour
-  Chamil, violet pour Odegia. Le violet retenu est volontairement plus sombre
-  et plus sature que le mauve d Alteria (#6a4b8a), qui est un client et non une
-  marque du groupe.
-
-  Regle de contraste. Le jaune ne sert jamais de couleur de texte, son ratio
-  sur blanc est insuffisant. Il ne vit qu en aplat, avec l encre par-dessus.
+  franc pour Foot on the Moon, orange pour TeachingCrew, or et vert sapin pour
+  Chamil, charbon et menthe pour Odegia.
 */
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
@@ -22,21 +22,28 @@
 
   /* fonds */
   --color-paper: #ffffff;
-  --color-paper-alt: #f7f4fc;
+  --color-paper-alt: #f3f7f5;
   --color-surface: #ffffff;
+  --color-charbon: #2f3333;
+  --color-charbon-deep: #1f2222;
 
   /* texte */
-  --color-ink: #1c1526;
-  --color-ink-soft: #5f5570;
+  --color-ink: #1f2222;
+  --color-ink-soft: #5c6462;
 
-  /* marque */
-  --color-violet: #5b2c9e;
-  --color-violet-deep: #3d1c6b;
-  --color-violet-soft: #ece4f7;
+  /* vert menthe, la couleur de marque */
+  --color-vert: #0f7a5c;
+  --color-vert-deep: #0a5c45;
+  --color-vert-vif: #6fdcb8;
+  --color-vert-soft: #e3f7ef;
 
-  /* accent */
-  --color-jaune: #f5c518;
-  --color-jaune-deep: #d4a409;
+  /* rose magenta, l accent secondaire */
+  --color-rose: #b02472;
+  --color-rose-vif: #d9509b;
+
+  /* jaune banane, aplat uniquement */
+  --color-banane: #f5d130;
+  --color-banane-deep: #d4ae0a;
 }
 
 html {
@@ -50,21 +57,21 @@ html {
 
 body {
   background-color: #ffffff;
-  color: #1c1526;
+  color: #1f2222;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background-color: #5b2c9e;
-  color: #ffffff;
+  background-color: #6fdcb8;
+  color: #1f2222;
 }
 
 :focus-visible {
-  outline: 2px solid #5b2c9e;
+  outline: 2px solid #0f7a5c;
   outline-offset: 3px;
 }
 
-.rule-t { border-top: 1px solid rgba(28, 21, 38, 0.12); }
-.rule-b { border-bottom: 1px solid rgba(28, 21, 38, 0.12); }
-.rule-box { border: 1px solid rgba(28, 21, 38, 0.12); }
+.rule-t { border-top: 1px solid rgba(31, 34, 34, 0.12); }
+.rule-b { border-bottom: 1px solid rgba(31, 34, 34, 0.12); }
+.rule-box { border: 1px solid rgba(31, 34, 34, 0.12); }

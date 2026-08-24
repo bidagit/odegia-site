@@ -126,7 +126,7 @@ export default function Page() {
           notre{" "}
           <a
             href="/confidentialite"
-            className="font-medium text-violet underline underline-offset-2"
+            className="font-medium text-vert underline underline-offset-2"
           >
             politique de confidentialité
           </a>
@@ -156,7 +156,7 @@ export default function Page() {
           Pour toute question, écrivez à{" "}
           <a
             href={`mailto:${SITE.email}`}
-            className="font-medium text-violet underline underline-offset-2"
+            className="font-medium text-vert underline underline-offset-2"
           >
             {SITE.email}
           </a>

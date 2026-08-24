@@ -12,7 +12,7 @@ export function Principle() {
             <h2 className="mt-3 text-[30px] font-semibold leading-[1.08] tracking-[-0.03em] md:text-[40px]">
               Automatiser n&apos;est pas
               <br />
-              <span className="text-violet">rendre autonome.</span>
+              <span className="text-vert">rendre autonome.</span>
             </h2>
             <p className="mt-6 max-w-md text-[14.5px] leading-[1.75] text-ink-soft">
               Automatiser, c&apos;est exécuter plus vite une décision déjà prise
@@ -29,9 +29,9 @@ export function Principle() {
           <div id="methode" className="scroll-mt-20 grid grid-cols-1 gap-px overflow-hidden rounded-[22px] border border-ink/12 bg-ink/10 sm:grid-cols-2">
             {STEPS.map((s) => (
               <div key={s.numeral} className="bg-paper p-6">
-                {/* Pastille pleine plutot que du texte jaune, le jaune sur blanc
+                {/* Pastille pleine plutot que du texte banane, le banane sur blanc
                     ne passe pas le seuil de contraste. */}
-                <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-jaune px-2 font-mono text-[11px] font-medium text-ink">
+                <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-banane px-2 font-mono text-[11px] font-medium text-ink">
                   {s.numeral}
                 </span>
                 <h3 className="mt-3 text-[16px] font-semibold tracking-[-0.01em]">

@@ -28,7 +28,7 @@ export function Nav() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-[14px] text-ink-soft transition-colors hover:text-violet"
+              className="text-[14px] text-ink-soft transition-colors hover:text-vert"
             >
               {l.label}
             </Link>
@@ -42,7 +42,7 @@ export function Nav() {
             href={SITE.booking}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-full bg-violet px-4 py-2 text-[13.5px] font-medium text-white transition-colors hover:bg-violet-deep"
+            className="rounded-full bg-vert px-4 py-2 text-[13.5px] font-medium text-white transition-colors hover:bg-vert-deep"
           >
             Prendre rendez-vous
           </a>

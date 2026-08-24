@@ -8,7 +8,7 @@ export function Levels() {
   return (
     <section
       id="niveaux"
-      className="scroll-mt-20 bg-violet-deep py-20 text-paper md:py-28"
+      className="scroll-mt-20 bg-charbon py-20 text-paper md:py-28"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="max-w-2xl">
@@ -32,7 +32,7 @@ export function Levels() {
               key={l.level}
               className={`rounded-[20px] border p-6 ${
                 l.target
-                  ? "border-jaune bg-jaune/12"
+                  ? "border-banane bg-banane/12"
                   : l.sellable
                     ? "border-paper/25 bg-paper/[0.07]"
                     : "border-paper/12 bg-paper/[0.03]"
@@ -42,7 +42,7 @@ export function Levels() {
                 <span
                   className={`text-[30px] font-semibold leading-none tracking-[-0.03em] ${
                     l.target
-                      ? "text-jaune"
+                      ? "text-banane"
                       : l.sellable
                         ? "text-paper/70"
                         : "text-paper/30"
@@ -69,7 +69,7 @@ export function Levels() {
                 <p
                   className={`mt-4 inline-block rounded-full px-3 py-1 text-[11px] font-medium uppercase tracking-[0.06em] ${
                     l.target
-                      ? "bg-jaune text-ink"
+                      ? "bg-banane text-ink"
                       : "border border-paper/30 text-paper/75"
                   }`}
                 >

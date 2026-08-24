@@ -4,7 +4,7 @@ import { NAV_LINKS, SITE, LEGAL_LINKS } from "@/lib/content";
 
 export function Footer() {
   return (
-    <footer className="bg-violet-deep text-paper">
+    <footer className="bg-charbon text-paper">
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
@@ -27,7 +27,7 @@ export function Footer() {
                 href={SITE.booking}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block rounded-full bg-jaune px-5 py-2.5 text-[13.5px] font-medium text-ink transition-colors hover:bg-jaune-deep"
+                className="inline-block rounded-full bg-banane px-5 py-2.5 text-[13.5px] font-medium text-ink transition-colors hover:bg-banane-deep"
               >
                 Prendre rendez-vous
               </a>

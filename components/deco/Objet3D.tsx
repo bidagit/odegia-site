@@ -12,7 +12,6 @@ const OBJETS = {
   paperasse: { src: "/images/3d/paperasse.png", w: 194, h: 365 },
   sablier: { src: "/images/3d/sablier.png", w: 169, h: 312 },
   avion: { src: "/images/3d/avion.png", w: 585, h: 354 },
-  tampon: { src: "/images/3d/tampon.png", w: 304, h: 456 },
 } as const;
 
 export function Objet3D({

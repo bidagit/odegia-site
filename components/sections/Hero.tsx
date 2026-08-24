@@ -4,16 +4,21 @@ import { HeroMedia } from "./HeroMedia";
 import { Eclat, Onde } from "@/components/deco/Formes";
 import { HERO, SITE } from "@/lib/content";
 
-/* Hero sur fond charbon, titre d affichage tres lourd, annotations manuscrites
-   autour du media, et vague de sortie vers la section claire. La profondeur
-   vient des ombres franches, jamais d un flou. */
+/* Hero sur fond charbon, titre d affichage tres lourd, annotations autour du
+   media, et vague de sortie vers la section claire. La profondeur vient des
+   ombres franches, jamais d un flou.
+
+   Ordre des blocs. Sur mobile l ordre du DOM s applique, accroche puis media
+   puis argumentaire, ce qui remonte la video juste sous le titre au lieu de la
+   renvoyer sous les boutons. En deux colonnes, le placement explicite remet le
+   media a droite sur les deux rangees. */
 export function Hero() {
   return (
     <section className="relative bg-charbon text-paper">
       <div className="relative mx-auto max-w-7xl px-5 pb-4 pt-12 sm:px-8 md:pb-8 md:pt-16">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
-          {/* ── énoncé ── */}
-          <div>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-x-14 lg:gap-y-0">
+          {/* ── accroche ── */}
+          <div className="lg:col-start-1 lg:row-start-1 lg:self-end">
             <span className="inline-flex items-center gap-2.5 rounded-full border border-paper/20 px-3.5 py-1.5 text-[12px] font-medium text-paper/70">
               <span aria-hidden className="h-2 w-2 rounded-full bg-rose-vif" />
               {HERO.eyebrow}
@@ -40,12 +45,37 @@ export function Hero() {
               {HERO.claim}
             </p>
             <Onde aria-hidden className="mt-2 h-4 w-40 text-rose-vif" />
+          </div>
 
-            <p className="mt-4 max-w-md text-[14.5px] leading-[1.75] text-paper/60">
+          {/* ── média ── */}
+          <div className="relative lg:col-start-2 lg:row-span-2 lg:row-start-1">
+            <p
+              aria-hidden
+              className="annotation ombre-dure-sm absolute -left-4 -top-4 z-20 hidden max-w-[190px] -rotate-3 rounded-2xl border-2 border-ink bg-vert-vif px-3.5 py-2.5 font-bold text-charbon lg:block"
+            >
+              ↘ pendant que vous lisez ça, un système tourne quelque part sans
+              personne
+            </p>
+
+            <div className="relative aspect-square overflow-hidden rounded-[32px] border-2 border-paper/15">
+              <HeroMedia />
+            </div>
+
+            <p
+              aria-hidden
+              className="annotation ombre-dure-sm absolute -bottom-5 -right-3 z-20 hidden max-w-[190px] rotate-2 rounded-2xl border-2 border-ink bg-rose px-3.5 py-2.5 font-bold text-paper lg:block"
+            >
+              vous gardez la barre, c est tout l intérêt ↖
+            </p>
+          </div>
+
+          {/* ── argumentaire et actions ── */}
+          <div className="lg:col-start-1 lg:row-start-2 lg:self-start">
+            <p className="max-w-md text-[14.5px] leading-[1.75] text-paper/60">
               {HERO.body}
             </p>
 
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            <div className="mt-7 flex flex-wrap items-center gap-3">
               <a
                 href={HERO.ctaPrimary.href}
                 target="_blank"
@@ -68,28 +98,6 @@ export function Hero() {
 
             <p className="mt-4 max-w-sm text-[12.5px] leading-[1.55] text-paper/45">
               {HERO.ctaNote}
-            </p>
-          </div>
-
-          {/* ── média, entouré d annotations ── */}
-          <div className="relative">
-            <p
-              aria-hidden
-              className="annotation absolute -left-4 -top-4 z-20 hidden max-w-[190px] -rotate-3 rounded-2xl border-2 border-ink bg-vert-vif px-3.5 py-2.5 font-bold text-charbon lg:block ombre-dure-sm"
-            >
-              ↘ pendant que vous lisez ça, un système tourne quelque part sans
-              personne
-            </p>
-
-            <div className="relative aspect-square overflow-hidden rounded-[32px] border-2 border-paper/15">
-              <HeroMedia />
-            </div>
-
-            <p
-              aria-hidden
-              className="annotation absolute -bottom-5 -right-3 z-20 hidden max-w-[190px] rotate-2 rounded-2xl border-2 border-ink bg-rose px-3.5 py-2.5 font-bold text-paper lg:block ombre-dure-sm"
-            >
-              vous gardez la barre, c est tout l intérêt ↖
             </p>
           </div>
         </div>

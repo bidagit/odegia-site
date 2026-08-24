@@ -1,0 +1,17 @@
+# Stack de production du site Odegia (VPS OVH, Docker).
+# Site marketing SSR, sans base de données. Le Caddy unifié de la stack
+# annuaire-essms fait le reverse proxy vers host.docker.internal:3006.
+#
+# Sur le VPS :
+#   docker compose -f docker-compose.prod.yml up -d --build
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    # 3002 = orbisoptima, 3003 = footonthemoon, 3005 = chamil.
+    # 3006 retenu pour Odegia, à confirmer libre sur le VPS avant le premier up.
+    ports:
+      - "3006:3000"

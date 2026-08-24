@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+/*
+  Odegia — jetons de design.
+
+  Variante B de la maquette du 21/07/2026. Pétrole profond et ocre chaud,
+  aucune teinte partagée avec le groupe. L'orange appartient à TeachingCrew,
+  le bleu électrique à Orbis Optima, le bleu franc à Foot on the Moon.
+
+  Règle de contraste, l'ocre ne sert jamais de couleur de texte sur le fond
+  crème (ratio insuffisant). Il ne vit qu'en aplat, avec l'encre par-dessus.
+*/
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-sand: #f6efe2;
+  --color-sand-deep: #eadfcb;
+  --color-surface: #ffffff;
+
+  --color-ink: #12262c;
+  --color-ink-soft: #556a71;
+
+  --color-petrol: #0e4a52;
+  --color-petrol-deep: #093237;
+  --color-ocre: #e8a427;
+  --color-ocre-deep: #c9861a;
+}
+
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  background-color: #f6efe2;
+  color: #12262c;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: #0e4a52;
+  color: #f6efe2;
+}
+
+:focus-visible {
+  outline: 2px solid #0e4a52;
+  outline-offset: 3px;
+}
+
+/* Filets structurants, l'équivalent des règles de composition du groupe,
+   mais en pétrole translucide plutôt qu'en encre pleine. */
+.rule-t { border-top: 1px solid rgba(18, 38, 44, 0.14); }
+.rule-b { border-bottom: 1px solid rgba(18, 38, 44, 0.14); }
+.rule-box { border: 1px solid rgba(18, 38, 44, 0.14); }

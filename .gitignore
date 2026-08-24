@@ -1,0 +1,17 @@
+/node_modules
+/.next
+/out
+/build
+.DS_Store
+*.pem
+npm-debug.log*
+.env*
+next-env.d.ts
+.vercel
+
+# build info
+tsconfig.tsbuildinfo
+
+# design references (not shipped)
+design-refs/
+design-sources/

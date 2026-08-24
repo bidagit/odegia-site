@@ -4,17 +4,17 @@ import { NAV_LINKS, SITE, LEGAL_LINKS } from "@/lib/content";
 
 export function Footer() {
   return (
-    <footer className="bg-charbon text-paper">
+    <footer className="bg-charbon-deep text-paper">
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
-            <span className="flex items-center gap-2.5 text-[17px] font-semibold">
+            <span className="display flex items-center gap-2.5 text-[22px]">
               <Image
                 src="/images/logo.png"
                 alt=""
                 width={554}
                 height={506}
-                className="h-8 w-8 rounded-lg bg-paper object-contain p-0.5"
+                className="h-9 w-9 object-contain"
               />
               {SITE.name}
             </span>

@@ -9,7 +9,7 @@ export function Principle() {
             <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
               Le principe
             </span>
-            <h2 className="mt-3 text-[30px] font-semibold leading-[1.08] tracking-[-0.03em] md:text-[40px]">
+            <h2 className="display mt-3 text-[34px] md:text-[44px] leading-[1.08] tracking-[-0.03em] ">
               Automatiser n&apos;est pas
               <br />
               <span className="text-vert">rendre autonome.</span>

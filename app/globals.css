@@ -19,6 +19,7 @@
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-display), ui-rounded, system-ui, sans-serif;
 
   /* fonds */
   --color-paper: #ffffff;
@@ -75,3 +76,54 @@ body {
 .rule-t { border-top: 1px solid rgba(31, 34, 34, 0.12); }
 .rule-b { border-bottom: 1px solid rgba(31, 34, 34, 0.12); }
 .rule-box { border: 1px solid rgba(31, 34, 34, 0.12); }
+
+/* ── Langage visuel ────────────────────────────────────────────────────────
+   Typo d affichage lourde, ombres franches sans flou, sections separees par
+   des vagues plutot que par des filets. Aucun degrade, aucune ombre douce, la
+   profondeur vient du decalage net. */
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+}
+
+/* Ombre portee franche, l effet autocollant. */
+.ombre-dure { box-shadow: 6px 6px 0 0 var(--color-ink); }
+.ombre-dure-sm { box-shadow: 4px 4px 0 0 var(--color-ink); }
+.ombre-dure-vert { box-shadow: 6px 6px 0 0 var(--color-vert); }
+.ombre-dure-rose { box-shadow: 6px 6px 0 0 var(--color-rose); }
+
+/* Le bouton s enfonce sur le clic, l ombre disparait en meme temps. */
+.bouton-relief { transition: transform .12s ease, box-shadow .12s ease; }
+.bouton-relief:active { transform: translate(4px, 4px); box-shadow: 0 0 0 0; }
+
+/* Vagues de separation. Le bloc porte la couleur de la section qui suit, il se
+   pose en bas de la section precedente et la mord. */
+.vague, .vague-haut {
+  display: block;
+  width: 100%;
+  height: 54px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+@media (min-width: 768px) { .vague, .vague-haut { height: 84px; } }
+
+.vague {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cpath d='M0,52 C240,110 420,4 720,34 C1020,64 1230,104 1440,46 L1440,100 L0,100 Z' fill='%23000'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cpath d='M0,52 C240,110 420,4 720,34 C1020,64 1230,104 1440,46 L1440,100 L0,100 Z' fill='%23000'/%3E%3C/svg%3E");
+}
+
+.vague-haut {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cpath d='M0,48 C260,-10 470,90 760,62 C1050,34 1240,-6 1440,50 L1440,0 L0,0 Z' fill='%23000'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cpath d='M0,48 C260,-10 470,90 760,62 C1050,34 1240,-6 1440,50 L1440,0 L0,0 Z' fill='%23000'/%3E%3C/svg%3E");
+}
+
+/* Annotation manuscrite, pour les apartes du hero. */
+.annotation {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+}

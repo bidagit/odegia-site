@@ -9,7 +9,7 @@ export function Faq() {
             <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
               Questions
             </span>
-            <h2 className="mt-3 text-[30px] font-semibold leading-[1.08] tracking-[-0.03em] md:text-[38px]">
+            <h2 className="display mt-3 text-[34px] md:text-[44px] leading-[1.08] tracking-[-0.03em] ">
               Ce qu&apos;on nous demande.
             </h2>
             <p className="mt-5 max-w-xs text-[14px] leading-[1.7] text-ink-soft">

@@ -11,7 +11,7 @@ export function Briques() {
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
             Les briques
           </span>
-          <h2 className="mt-3 text-[30px] font-semibold leading-[1.08] tracking-[-0.03em] md:text-[40px]">
+          <h2 className="display mt-3 text-[34px] md:text-[44px] leading-[1.08] tracking-[-0.03em] ">
             On automatise
             <br />
             <span className="text-vert">une tâche à la fois.</span>
@@ -23,9 +23,9 @@ export function Briques() {
           </p>
         </div>
 
-        <ul className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-[22px] border border-ink/12 bg-ink/10 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {BRIQUES.map((b) => (
-            <li key={b.name} className="bg-paper p-6">
+            <li key={b.name} className="ombre-dure-sm rounded-[20px] border-2 border-ink bg-paper p-6">
               <h3 className="text-[15.5px] font-semibold tracking-[-0.01em]">
                 {b.name}
               </h3>
@@ -40,11 +40,11 @@ export function Briques() {
           {BRIQUE_TYPES.map((t) => (
             <div
               key={t.label}
-              className="rounded-[22px] border border-ink/12 bg-surface p-6"
+              className="ombre-dure rounded-[22px] border-2 border-ink bg-vert-soft p-6"
             >
               <div className="flex items-baseline justify-between gap-4">
                 <h3 className="text-[15.5px] font-semibold">{t.label}</h3>
-                <span className="text-[19px] font-semibold tracking-[-0.02em] text-vert">
+                <span className="display text-[24px] text-vert">
                   {t.price}
                 </span>
               </div>

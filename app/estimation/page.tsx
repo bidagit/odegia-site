@@ -25,7 +25,7 @@ export default function Page() {
         <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
           Estimation gratuite
         </span>
-        <h1 className="mt-3 text-[30px] font-semibold leading-[1.08] tracking-[-0.03em] md:text-[40px]">
+        <h1 className="display mt-3 text-[34px] md:text-[44px] leading-[1.08] tracking-[-0.03em] ">
           Combien vous coûte
           <br />
           <span className="text-vert">votre administratif ?</span>

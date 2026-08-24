@@ -18,7 +18,7 @@ export function Pricing() {
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
             Tarifs
           </span>
-          <h2 className="mt-3 text-[30px] font-semibold leading-[1.08] tracking-[-0.03em] md:text-[40px]">
+          <h2 className="display mt-3 text-[34px] md:text-[44px] leading-[1.08] tracking-[-0.03em] ">
             Deux façons d&apos;y venir.
           </h2>
           <p className="mt-4 text-[14.5px] leading-[1.7] text-ink-soft">
@@ -32,7 +32,7 @@ export function Pricing() {
         <div
           role="tablist"
           aria-label="Choisir une grille tarifaire"
-          className="mt-10 inline-flex rounded-full border border-ink/12 bg-surface p-1"
+          className="mt-10 inline-flex rounded-full border-2 border-ink bg-surface p-1"
         >
           {TRACKS.map((t) => (
             <button
@@ -42,7 +42,7 @@ export function Pricing() {
               onClick={() => setActive(t.id)}
               className={`rounded-full px-5 py-2.5 text-[13.5px] font-medium transition-colors ${
                 active === t.id
-                  ? "bg-vert text-white"
+                  ? "bg-charbon text-banane"
                   : "text-ink-soft hover:text-ink"
               }`}
             >
@@ -69,8 +69,8 @@ export function Pricing() {
               key={o.name}
               className={`flex flex-col rounded-[22px] border p-6 ${
                 o.highlight
-                  ? "border-vert bg-vert text-paper"
-                  : "border-ink/12 bg-surface"
+                  ? "ombre-dure border-2 border-ink bg-charbon text-paper"
+                  : "ombre-dure-sm border-2 border-ink bg-surface"
               }`}
             >
               <div className="flex items-start justify-between gap-3">
@@ -170,8 +170,8 @@ export function Pricing() {
                     : {})}
                   className={`mt-5 block rounded-full px-5 py-3 text-center text-[13.5px] font-medium transition-colors ${
                     o.highlight
-                      ? "bg-banane text-ink hover:bg-banane-deep"
-                      : "border border-ink/15 hover:border-vert hover:text-vert"
+                      ? "bouton-relief border-2 border-ink bg-banane text-ink"
+                      : "border-2 border-ink hover:bg-ink hover:text-paper"
                   }`}
                 >
                   {o.cta}

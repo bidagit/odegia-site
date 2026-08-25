@@ -65,7 +65,7 @@ export function Hero() {
               aria-hidden
               className="annotation ombre-dure-sm absolute -bottom-5 -right-3 z-20 hidden max-w-[190px] rotate-2 rounded-2xl border-2 border-ink bg-rose px-3.5 py-2.5 font-bold text-paper lg:block"
             >
-              vous gardez la barre, c est tout l intérêt ↖
+              vous gardez la barre, c&apos;est tout l&apos;intérêt ↖
             </p>
           </div>
 

@@ -102,6 +102,19 @@ export const PRIX_PACK_TROIS = 2900;
    ici vaut mieux qu'un client qui ne sera jamais rentable. */
 export const SEUIL_PLANCHER = 1500;
 
+/* Suivi mensuel, indexé à la brique depuis le 25/08/2026. Il entre désormais
+   dans le calcul du retour, ce qui n'était pas le cas jusque-là. L'estimateur
+   comparait un coût d'achat unique à un gain brut et ignorait complètement la
+   charge récurrente, ce qui raccourcissait tous les retours affichés. */
+export const SUIVI_PAR_BRIQUE = 100;
+
+/* Plafond de retour au-delà duquel une brique ne se recommande pas. Une tâche
+   qui met plus de dix-huit mois à se rembourser ne vaut pas le chantier, la
+   situation du client aura changé avant. Sans ce plafond, l'estimateur affiche
+   des retours à quarante mois, qui sont arithmétiquement justes et
+   commercialement absurdes. */
+export const SEUIL_RETOUR_MOIS = 18;
+
 export type LigneResultat = {
   id: string;
   label: string;
@@ -110,7 +123,13 @@ export type LigneResultat = {
   gainAnnuel: number;
   complexe: boolean;
   cout: number;
+  /* Gain mensuel une fois le suivi de la brique déduit. C'est lui qui rembourse
+     le chantier, le gain brut ne rembourse rien. */
+  gainNetMensuel: number;
   roiMois: number;
+  /* Vrai quand le suivi absorbe le gain. La brique ne se rembourse alors jamais
+     et il faut le dire, plutôt que d'afficher un retour à plusieurs années. */
+  absorbee: boolean;
 };
 
 export type Resultat = {
@@ -123,7 +142,12 @@ export type Resultat = {
   coutChantier: number;
   coutBas: number;
   coutHaut: number;
+  /* Suivi mensuel du périmètre recommandé, une fois le chantier livré. */
+  suiviMensuel: number;
   roiMois: number;
+  /* Aucune des briques recommandées ne se rembourse une fois le suivi déduit.
+     Le dire franchement vaut mieux que d'étirer un chiffre. */
+  aucunRetour: boolean;
   sousLePlancher: boolean;
   cadrageAlourdi: boolean;
 };
@@ -160,6 +184,11 @@ export function calculer(r: Reponses): Resultat {
     const heuresRecuperees = heuresMois * PART_RECUPERABLE;
     const gainAnnuel = heuresRecuperees * 12 * taux;
     const cout = def.complexe ? PRIX_COMPLEXE : PRIX_SIMPLE;
+    /* Le suivi de la brique se déduit du gain avant de calculer le retour. Une
+       brique qui libère 100 EUR de temps par mois et coûte 100 EUR de suivi ne
+       rembourse rien, quel que soit son prix d'achat. */
+    const gainNetMensuel = gainAnnuel / 12 - SUIVI_PAR_BRIQUE;
+    const roiMois = gainNetMensuel > 0 ? cout / gainNetMensuel : Infinity;
     return {
       id: def.id,
       label: def.label,
@@ -168,7 +197,9 @@ export function calculer(r: Reponses): Resultat {
       gainAnnuel,
       complexe: def.complexe,
       cout,
-      roiMois: gainAnnuel > 0 ? cout / (gainAnnuel / 12) : Infinity,
+      gainNetMensuel,
+      roiMois,
+      absorbee: gainNetMensuel <= 0 || roiMois > SEUIL_RETOUR_MOIS,
     };
   });
 
@@ -180,7 +211,11 @@ export function calculer(r: Reponses): Resultat {
      retour croissant, puis la tâche citée comme la plus agaçante ne remonte en
      tête que si son retour reste à un mois près du meilleur. Au-delà, le calcul
      reprend la main. */
-  const tri = [...lignes].sort((a, b) => a.roiMois - b.roiMois);
+  /* Une brique dont le suivi absorbe le gain ne se recommande pas, même si le
+     visiteur l'a citée comme la plus agaçante. On l'écarte avant le tri plutôt
+     que de la classer dernière, sans quoi elle remonterait dès que le visiteur
+     n'a coché que trois tâches. */
+  const tri = lignes.filter((l) => !l.absorbee).sort((a, b) => a.roiMois - b.roiMois);
   if (r.agace) {
     const i = tri.findIndex((l) => l.id === r.agace);
     if (i > 0 && tri[i].roiMois - tri[0].roiMois <= 1) {
@@ -212,7 +247,9 @@ export function calculer(r: Reponses): Resultat {
     coutChantier,
     coutBas: Math.round((coutChantier * 0.75) / 100) * 100,
     coutHaut: Math.round((coutChantier * 1.25) / 100) * 100,
+    suiviMensuel: recommandees.length * SUIVI_PAR_BRIQUE,
     roiMois,
+    aucunRetour: recommandees.length === 0,
     sousLePlancher: coutAnnuel < SEUIL_PLANCHER,
     cadrageAlourdi,
   };

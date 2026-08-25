@@ -11,6 +11,7 @@ import {
   OUTILS,
   DOCUMENTATION,
   REPONSES_VIDES,
+  SUIVI_PAR_BRIQUE,
   calculer,
   euros,
   heures,
@@ -386,6 +387,35 @@ function Resultat({
     );
   }
 
+  /* Volume suffisant, mais éclaté sur des tâches trop petites pour qu'une seule
+     couvre son propre suivi. Cas distinct du plancher, et il mérite sa propre
+     réponse plutôt qu'un retour à plusieurs années. */
+  if (res.aucunRetour) {
+    return (
+      <div className="mx-auto max-w-2xl px-5 py-14 sm:px-8">
+        <h2 className="text-[26px] font-semibold leading-[1.15] tracking-[-0.02em] md:text-[32px]">
+          Vos tâches sont trop dispersées pour être automatisées une par une.
+        </h2>
+        <p className="mt-5 text-[15px] leading-[1.75] text-ink-soft">
+          Votre administratif pèse, mais aucune tâche prise isolément ne libère
+          assez de temps pour couvrir son propre suivi à{" "}
+          {euros(SUIVI_PAR_BRIQUE)} par mois. Automatiser dans ces conditions
+          vous coûterait plus que la main. Le diagnostic sert justement à voir si
+          plusieurs de ces tâches se regroupent en une seule brique, et nous
+          préférons le vérifier avant de vous vendre quoi que ce soit.
+        </p>
+        <a
+          href={SITE.booking}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-8 inline-block rounded-full border border-ink/15 px-6 py-3.5 text-[14px] font-medium transition-colors hover:border-vert hover:text-vert"
+        >
+          En parler, 15 minutes
+        </a>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 md:py-16">
       <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
@@ -449,6 +479,13 @@ function Resultat({
           {euros(res.coutBas)} et {euros(res.coutHaut)} hors taxes. Vous
           n&apos;êtes pas obligé de tout prendre, la première seule coûte{" "}
           {euros(res.recommandees[0]?.cout ?? 0)}.
+        </p>
+        {/* Le suivi s'annonce avant le retour et non en bas de page. C'est lui
+            qui allonge le chiffre, le taire rendrait le retour invérifiable. */}
+        <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
+          S&apos;y ajoute le suivi, {euros(SUIVI_PAR_BRIQUE)} hors taxes par
+          mois et par brique en service, soit {euros(res.suiviMensuel)} par mois
+          pour ce périmètre. Il est déjà déduit du retour ci-dessous.
         </p>
         <p className="mt-5 text-[26px] font-semibold leading-tight tracking-[-0.02em] md:text-[32px]">
           Cette première tâche se rembourse en{" "}

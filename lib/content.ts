@@ -345,9 +345,17 @@ export const TRACKS: Track[] = [
           { text: "Revue trimestrielle de votre niveau", strong: true },
           { text: "Nouveaux domaines montés un à un vers le niveau 5", strong: false },
         ],
-        price: "190 EUR HT",
-        priceSuffix: "/ mois",
-        priceNote: "sans engagement de durée",
+        /* Indexé à la brique depuis le 25/08/2026. Le forfait plat à 190 EUR
+           captait 65 % de la valeur créée chez un client à une brique et 22 %
+           chez un client à trois, il faisait donc payer la part la plus lourde
+           au plus petit. À 100 EUR la brique, la part reste à 34 % quel que
+           soit le périmètre, et le prix d'entrée descend de 190 à 100.
+           C'est aussi ce qui rend tenable la promesse de montée vers le niveau
+           5 juste au-dessus, un domaine de plus ajoute des briques et ajoute
+           donc du récurrent. */
+        price: "100 EUR HT",
+        priceSuffix: "/ mois et par brique",
+        priceNote: "sans engagement de durée, vous ne payez que ce qui tourne",
         cta: "Ajouter le suivi",
       },
     ],

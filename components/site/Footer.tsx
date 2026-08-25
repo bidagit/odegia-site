@@ -20,7 +20,7 @@ export function Footer() {
             </span>
             <p className="mt-5 max-w-xs text-[13.5px] leading-[1.75] text-paper/60">
               L&apos;IA exécute, vous gouvernez. Odegia automatise votre
-              administratif brique par brique, du niveau 2 au niveau 4.
+              administratif brique par brique, du niveau 2 au niveau 5.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-2.5">
               <a

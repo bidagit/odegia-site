@@ -1,7 +1,7 @@
 /* Source unique du contenu du site Odegia (FR).
 
    Odegia est la marque d'autonomisation du groupe Orbis Optima. Du grec
-   hodegos, celui qui montre la route. On accompagne du niveau 1 au niveau 4,
+   hodegos, celui qui montre la route. On accompagne du niveau 1 au niveau 5,
    puis on rend la barre.
 
    Le modèle tarifaire vient des notes du vault du 2026-08-24, fiches
@@ -92,9 +92,15 @@ export const HERO = {
 /* Échelle transposée de l'échelle SAE de conduite automatisée, suivant la
    littérature sur les chaînes logistiques autonomes (Xu et al., 2024).
 
-   sellable, les niveaux que l'on vend réellement. Le 4 reste la cible, mais
-   les niveaux 2 et 3 se livrent et se facturent, ils ne sont pas des échecs.
-   Le niveau 3 est même le bon niveau quand le coût d'une erreur est élevé. */
+   sellable, les niveaux que l'on vend réellement. Le 4 reste la cible par
+   domaine, mais les niveaux 2 et 3 se livrent et se facturent, ils ne sont pas
+   des échecs. Le niveau 3 est même le bon niveau quand le coût d'une erreur est
+   élevé.
+
+   horizon, le niveau 5. Il se vend, mais pas comme les autres. Ce n'est ni une
+   brique ni un domaine, c'est l'état atteint quand les domaines s'accumulent
+   sous gouvernance. Le vendre comme un chantier au forfait serait malhonnête,
+   d'ou le traitement visuel distinct et la mention explicite du chemin. */
 export const LEVELS = [
   {
     level: "0",
@@ -128,7 +134,9 @@ export const LEVELS = [
   {
     level: "5",
     title: "Autonome",
-    body: "L'exécution entière est portée par des systèmes d'IA. L'humain conçoit le système et le gouverne, il ne l'opère plus.",
+    body: "L'exécution entière est portée par des systèmes. Vous concevez et vous gouvernez, vous n'opérez plus. On y arrive domaine après domaine, sous gouvernance, jamais en un seul chantier.",
+    sellable: "L'entreprise entière",
+    horizon: true,
   },
 ];
 
@@ -136,7 +144,7 @@ export const LEVELS = [
    Elle vaut argument commercial autant que méthode. */
 export const LEVEL_RULE = {
   title: "Le niveau n'est pas un objectif, c'est un arbitrage.",
-  body: "Nous ne montons pas tout au niveau 4. Le niveau livré dépend du coût d'une erreur non détectée. Faible, la tâche s'exécute de bout en bout. Élevé, le système produit et vous validez avant envoi. Pousser le niveau 4 sur une tâche à fort risque se retournerait contre vous.",
+  body: "Nous ne montons pas toutes les tâches au même niveau. Le niveau livré dépend du coût d'une erreur non détectée. Faible, la tâche s'exécute de bout en bout. Élevé, le système produit et vous validez avant envoi. Pousser le niveau 4 sur une tâche à fort risque se retournerait contre vous, et le niveau 5 se construit domaine après domaine, jamais d'un coup.",
   rows: [
     {
       when: "Le coût d'une erreur est faible",
@@ -149,6 +157,10 @@ export const LEVEL_RULE = {
     {
       when: "La décision relève du jugement",
       then: "Nous vous le disons franchement",
+    },
+    {
+      when: "Vos domaines sont montés un à un",
+      then: "Niveau 5, vous ne faites plus qu'arbitrer",
     },
   ],
 };
@@ -402,7 +414,7 @@ export const TRACKS: Track[] = [
         badge: "La suite",
         highlight: false,
         tagline:
-          "Le système est à vous. On le surveille, on traite ce qu'il ne sait pas trancher, et on étend son périmètre.",
+          "Le système est à vous. On le surveille, on traite ce qu'il ne sait pas trancher, et on étend son périmètre. C'est par ici que passe le niveau 5.",
         forWho:
           "Les structures déjà déployées qui veulent monter en autonomie sans recruter une équipe technique.",
         deliverables: [
@@ -428,6 +440,10 @@ export const FAQ = [
   {
     q: "Faut-il viser le niveau 4 partout ?",
     a: "Non, et ce ne serait pas souhaitable sur certaines tâches. Le niveau livré dépend du coût d'une erreur non détectée. Quand il est faible, la tâche part sans vous, c'est le niveau 4. Quand il est élevé, le système produit tout et vous validez avant envoi, c'est le niveau 3, et il se vend aussi bien. Une brique isolée qui tourne seule est déjà du niveau 2, et elle vous rend vos heures.",
+  },
+  {
+    q: "Le niveau 5, c'est atteignable ou c'est une image ?",
+    a: "C'est atteignable, et c'est la seule cible qui vaille pour une petite structure dont l'administratif est le vrai plafond. Mais cela ne s'achète pas comme un chantier. On monte un domaine, il tourne, on passe au suivant, et le niveau 5 est l'état atteint quand il ne reste plus de domaine à monter. Comptez en trimestres, sous gouvernance, pas en semaines. Nous préférons vous le dire ainsi plutôt que de vous vendre une entreprise autonome en une fois.",
   },
   {
     q: "Que se passe-t-il si une tâche n'est pas automatisable ?",

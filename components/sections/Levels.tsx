@@ -3,7 +3,49 @@ import { Objet3D } from "@/components/deco/Objet3D";
 
 /* Section en menthe pleine, l equivalent de la bande saturee de la reference.
    Elle casse la page en deux et donne le ton. Le texte passe en charbon, la
-   menthe est bien trop claire pour porter du blanc. */
+   menthe est bien trop claire pour porter du blanc.
+
+   Quatre traitements de carte, un par nature de niveau. L horizon (5) recoit le
+   charbon plein, il est le seul fond sombre de la bande et se lit donc comme un
+   etat terminal plutot que comme une brique de plus. La menthe vive sur charbon
+   tient a 7,68:1, largement au-dessus du seuil AA. */
+type Genre = "horizon" | "cible" | "vendable" | "eteint";
+
+const CARTE: Record<Genre, string> = {
+  horizon: "ombre-dure border-ink bg-charbon",
+  cible: "ombre-dure border-ink bg-banane",
+  vendable: "ombre-dure-sm border-ink bg-paper",
+  eteint: "border-charbon/25 bg-vert-vif",
+};
+
+const NUMERO: Record<Genre, string> = {
+  horizon: "text-vert-vif",
+  cible: "text-ink",
+  vendable: "text-ink",
+  eteint: "text-charbon/40",
+};
+
+const TITRE: Record<Genre, string> = {
+  horizon: "text-paper",
+  cible: "",
+  vendable: "",
+  eteint: "text-charbon/55",
+};
+
+const CORPS: Record<Genre, string> = {
+  horizon: "text-paper/70",
+  cible: "text-charbon/75",
+  vendable: "text-charbon/75",
+  eteint: "text-charbon/50",
+};
+
+const PASTILLE: Record<Genre, string> = {
+  horizon: "border-vert-vif bg-vert-vif text-charbon",
+  cible: "border-ink bg-charbon text-banane",
+  vendable: "border-ink bg-rose-vif text-charbon",
+  eteint: "",
+};
+
 export function Levels() {
   return (
     <>
@@ -21,64 +63,54 @@ export function Levels() {
             <h2 className="display mt-3 text-[34px] md:text-[46px]">
               Six niveaux,
               <br />
-              trois qui se livrent.
+              quatre qui se livrent.
             </h2>
             <p className="mt-5 text-[15px] leading-[1.7] text-charbon/75">
               Nous mesurons votre autonomie comme on mesure celle d&apos;un
               véhicule, par ce que le système fait sans vous. Les niveaux 2, 3 et
-              4 se livrent et se facturent. Le 4 est la cible, il n&apos;est pas
-              la seule vente.
+              4 se livrent brique par brique. Le niveau 5 se livre aussi, mais il
+              se construit domaine après domaine plutôt qu&apos;en un chantier.
             </p>
           </div>
 
           <ol className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {LEVELS.map((l) => (
-              <li
-                key={l.level}
-                className={`penche rounded-[22px] border-2 p-6 ${
-                  l.target
-                    ? "ombre-dure border-ink bg-banane"
-                    : l.sellable
-                      ? "ombre-dure-sm border-ink bg-paper"
-                      : "border-charbon/25 bg-vert-vif"
-                }`}
-              >
-                <div className="flex items-baseline gap-3">
-                  <span
-                    className={`display text-[34px] ${
-                      l.sellable ? "text-ink" : "text-charbon/40"
-                    }`}
-                  >
-                    {l.level}
-                  </span>
-                  <h3
-                    className={`text-[15.5px] font-semibold leading-tight ${
-                      l.sellable ? "" : "text-charbon/55"
-                    }`}
-                  >
-                    {l.title}
-                  </h3>
-                </div>
-                <p
-                  className={`mt-3 text-[13px] leading-[1.65] ${
-                    l.sellable ? "text-charbon/75" : "text-charbon/50"
-                  }`}
+            {LEVELS.map((l) => {
+              const genre: Genre = l.horizon
+                ? "horizon"
+                : l.target
+                  ? "cible"
+                  : l.sellable
+                    ? "vendable"
+                    : "eteint";
+
+              return (
+                <li
+                  key={l.level}
+                  className={`penche rounded-[22px] border-2 p-6 ${CARTE[genre]}`}
                 >
-                  {l.body}
-                </p>
-                {l.sellable && (
-                  <p
-                    className={`mt-4 inline-block rounded-full border-2 border-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] ${
-                      l.target
-                        ? "bg-charbon text-banane"
-                        : "bg-rose-vif text-charbon"
-                    }`}
-                  >
-                    {l.sellable}
+                  <div className="flex items-baseline gap-3">
+                    <span className={`display text-[34px] ${NUMERO[genre]}`}>
+                      {l.level}
+                    </span>
+                    <h3
+                      className={`text-[15.5px] font-semibold leading-tight ${TITRE[genre]}`}
+                    >
+                      {l.title}
+                    </h3>
+                  </div>
+                  <p className={`mt-3 text-[13px] leading-[1.65] ${CORPS[genre]}`}>
+                    {l.body}
                   </p>
-                )}
-              </li>
-            ))}
+                  {l.sellable && (
+                    <p
+                      className={`mt-4 inline-block rounded-full border-2 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] ${PASTILLE[genre]}`}
+                    >
+                      {l.sellable}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
           </ol>
 
           {/* la regle d arbitrage, elle vaut argument commercial */}

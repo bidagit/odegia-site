@@ -249,8 +249,8 @@ export type Offer = {
   index: string;
   name: string;
   duration: string;
+  /* Le verbe de l'etape, affiche dans le rail au-dessus de la carte. */
   badge?: string;
-  highlight: boolean;
   tagline: string;
   forWho: string;
   deliverables: { text: string; strong: boolean }[];
@@ -283,8 +283,7 @@ export const TRACKS: Track[] = [
         index: "01",
         name: "Diagnostic",
         duration: "rapport sous 72 h",
-        badge: "Par où tout commence",
-        highlight: false,
+        badge: "On mesure",
         tagline:
           "Un formulaire de cinq minutes, puis 90 minutes d'entretien sur vos tâches les plus lourdes. Vous repartez avec un rapport qui tient debout tout seul, que vous nous confiiez la suite ou non.",
         forWho:
@@ -312,8 +311,7 @@ export const TRACKS: Track[] = [
         index: "02",
         name: "Briques",
         duration: "à l'unité",
-        badge: "Le plus demandé",
-        highlight: true,
+        badge: "On construit",
         tagline:
           "On automatise tâche par tâche. Vous commencez par une seule brique, celle qui vous coûte le plus cher, et vous ajoutez les suivantes quand elle a fait ses preuves.",
         forWho:
@@ -335,8 +333,7 @@ export const TRACKS: Track[] = [
         index: "03",
         name: "Suivi",
         duration: "mensuel",
-        badge: "La suite",
-        highlight: false,
+        badge: "On gouverne",
         tagline:
           "Le système est à vous. On le surveille, on corrige les dérives et on l'ajuste quand votre activité change. C'est aussi par ici qu'on monte vers le niveau 5.",
         forWho:
@@ -366,8 +363,7 @@ export const TRACKS: Track[] = [
         index: "01",
         name: "Diagnostic étendu",
         duration: "2 semaines",
-        badge: "Par où tout commence",
-        highlight: false,
+        badge: "On mesure",
         tagline:
           "Le même instrument, élargi aux processus qui vivent hors des outils, et aux personnes qui les portent. Entretiens avec chaque fonction concernée.",
         forWho:
@@ -389,8 +385,7 @@ export const TRACKS: Track[] = [
         index: "02",
         name: "Domaine complet",
         duration: "selon périmètre",
-        badge: "Le moteur",
-        highlight: true,
+        badge: "On construit",
         tagline:
           "Plusieurs briques couvrant un domaine entier, monté au niveau 4. Il décide et agit seul, vous n'intervenez plus que sur exception.",
         forWho:
@@ -412,8 +407,7 @@ export const TRACKS: Track[] = [
         index: "03",
         name: "Gouvernance",
         duration: "mensuel",
-        badge: "La suite",
-        highlight: false,
+        badge: "On gouverne",
         tagline:
           "Le système est à vous. On le surveille, on traite ce qu'il ne sait pas trancher, et on étend son périmètre. C'est par ici que passe le niveau 5.",
         forWho:

@@ -136,7 +136,25 @@ body {
 .penche:nth-child(3n+3) { transform: rotate(-0.5deg); }
 .penche:hover { transform: rotate(0deg) translateY(-3px); }
 
+/* Meme effet, mais adressable a la main. La selection par nth-child ci-dessus
+   suppose que les cartes sont des enfants directs consecutifs de la grille.
+   Des qu une carte est emballee, dans un <li> qui porte aussi son rail d etape
+   par exemple, elle occupe toujours le meme rang et toutes les cartes prennent
+   alors le meme angle. */
+.penche-a, .penche-b, .penche-c { transition: transform .18s ease; }
+.penche-a { transform: rotate(-1.1deg); }
+.penche-b { transform: rotate(0.7deg); }
+.penche-c { transform: rotate(-0.5deg); }
+.penche-a:hover, .penche-b:hover, .penche-c:hover {
+  transform: rotate(0deg) translateY(-3px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .penche, .penche:hover { transform: none; transition: none; }
+  .penche-a, .penche-b, .penche-c,
+  .penche-a:hover, .penche-b:hover, .penche-c:hover {
+    transform: none;
+    transition: none;
+  }
   .bouton-relief { transition: none; }
 }

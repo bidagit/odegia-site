@@ -6,9 +6,14 @@
 
    Le modèle tarifaire vient des notes du vault du 2026-08-24, fiches
    « Odegia - Diagnostic Automatisation Admin » et « Odegia - Estimateur en
-   ligne ». Il se compte en briques, pas en forfaits. Diagnostic à 290 EUR,
-   brique simple à 1 200 EUR, brique complexe à 2 400 EUR. Ne pas réinventer
-   ces montants ici, ils sont l'étalon commercial. */
+   ligne ». Il se compte en briques, pas en forfaits. Brique simple à 1 200 EUR,
+   brique complexe à 2 400 EUR. Ne pas réinventer ces montants ici, ils sont
+   l'étalon commercial.
+
+   Diagnostic et suivi relevés le 25/08/2026 après comparaison au marché
+   américain. Diagnostic à 500 EUR pour un fondateur et dès 1 500 EUR pour une
+   PME, remboursé si l'automatisation n'est pas la réponse. Suivi à 300 EUR par
+   mois puis 200 EUR par brique supplémentaire. */
 
 export const SITE = {
   name: "Odegia",
@@ -73,7 +78,7 @@ export const HERO = {
   ctaSecondary: { label: "Estimer mon coût", href: "/estimation" },
   /* Le rendez-vous de 15 minutes n'est pas un diagnostic gratuit, il sert a
      dire si le diagnostic vaut le coup. Le dire ici evite les rendez-vous
-     mal calibres et protege l'offre a 290 EUR. */
+     mal calibres et protege l'offre de diagnostic. */
   ctaNote: "Quinze minutes pour savoir si un chantier a du sens chez vous. Sans engagement.",
   /* Le hero annonce le gain, jamais le prix. Le prix se lit plus bas, une fois
      que le visiteur a vu ce que son administratif lui coute deja. Les valeurs
@@ -300,10 +305,17 @@ export const TRACKS: Track[] = [
           { text: "Trois briques maximum, dans l'ordre où s'y prendre", strong: false },
           { text: "Le retour sur investissement de chacune, en mois", strong: true },
           { text: "Un devis ferme, valable trente jours", strong: false },
+          {
+            text: "Remboursé si l'automatisation n'est pas votre vraie réponse",
+            strong: true,
+          },
         ],
-        price: "290 EUR HT",
+        /* 290 EUR placait le diagnostic sous le plancher du marche, qui demarre
+           a 500 dollars. Un audit vendu moins cher que partout ailleurs signale
+           un travail sans valeur, ce qui est l'inverse du but. */
+        price: "500 EUR HT",
         priceSuffix: "",
-        priceNote: "déduits si vous nous confiez le chantier",
+        priceNote: "déduits du chantier, remboursés si la réponse n'est pas l'automatisation",
         cta: "Réserver le diagnostic",
         ctaHref: SITE.booking,
       },
@@ -345,16 +357,20 @@ export const TRACKS: Track[] = [
           { text: "Revue trimestrielle de votre niveau", strong: true },
           { text: "Nouveaux domaines montés un à un vers le niveau 5", strong: false },
         ],
-        /* Indexé à la brique depuis le 25/08/2026. Le forfait plat à 190 EUR
-           captait 65 % de la valeur créée chez un client à une brique et 22 %
-           chez un client à trois, il faisait donc payer la part la plus lourde
-           au plus petit. À 100 EUR la brique, la part reste à 34 % quel que
-           soit le périmètre, et le prix d'entrée descend de 190 à 100.
-           C'est aussi ce qui rend tenable la promesse de montée vers le niveau
-           5 juste au-dessus, un domaine de plus ajoute des briques et ajoute
-           donc du récurrent. */
-        price: "100 EUR HT",
-        priceSuffix: "/ mois et par brique",
+        /* Indexé à la brique depuis le 25/08/2026, dégressif le même jour après
+           comparaison au marché américain, où le récurrent va de 1 200 à
+           8 000 dollars par mois quand Odegia était à 300 euros pour trois
+           briques.
+
+           Dégressif parce que la première brique porte la relation, le compte
+           et la revue mensuelle, les suivantes n'ajoutent que leur propre
+           surveillance. La marche de 300 à 200 traduit ce coût fixe.
+
+           Conséquence assumée, une brique qui libère moins de 7,1 h par mois ne
+           couvre plus son suivi en première position. La brique unique de
+           faible volume cesse donc d'être vendable, et l'estimateur le dit. */
+        price: "300 EUR HT",
+        priceSuffix: "/ mois, puis 200 par brique en plus",
         priceNote: "sans engagement de durée, vous ne payez que ce qui tourne",
         cta: "Ajouter le suivi",
       },
@@ -385,10 +401,14 @@ export const TRACKS: Track[] = [
           { text: "Cartographie des tâches et de leurs volumes", strong: false },
           { text: "Chiffrage du coût de l'exécution manuelle", strong: true },
           { text: "Plan séquencé, brique par brique", strong: false },
+          {
+            text: "Remboursé si l'automatisation n'est pas votre vraie réponse",
+            strong: true,
+          },
         ],
-        price: "sur devis",
+        price: "dès 1 500 EUR HT",
         priceSuffix: "",
-        priceNote: "à partir de 1 200 EUR HT, déduits du chantier",
+        priceNote: "déduits du chantier, remboursés si la réponse n'est pas l'automatisation",
         cta: "Demander un diagnostic",
         ctaHref: SITE.booking,
       },

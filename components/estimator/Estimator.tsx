@@ -11,7 +11,8 @@ import {
   OUTILS,
   DOCUMENTATION,
   REPONSES_VIDES,
-  SUIVI_PAR_BRIQUE,
+  SUIVI_PREMIERE,
+  SUIVI_SUIVANTE,
   calculer,
   euros,
   heures,
@@ -397,9 +398,9 @@ function Resultat({
           Vos tâches sont trop dispersées pour être automatisées une par une.
         </h2>
         <p className="mt-5 text-[15px] leading-[1.75] text-ink-soft">
-          Votre administratif pèse, mais aucune tâche prise isolément ne libère
-          assez de temps pour couvrir son propre suivi à{" "}
-          {euros(SUIVI_PAR_BRIQUE)} par mois. Automatiser dans ces conditions
+          Votre administratif pèse, mais même regroupées, vos tâches ne libèrent
+          pas assez de temps pour couvrir le suivi du système. Automatiser dans
+          ces conditions
           vous coûterait plus que la main. Le diagnostic sert justement à voir si
           plusieurs de ces tâches se regroupent en une seule brique, et nous
           préférons le vérifier avant de vous vendre quoi que ce soit.
@@ -483,22 +484,34 @@ function Resultat({
         {/* Le suivi s'annonce avant le retour et non en bas de page. C'est lui
             qui allonge le chiffre, le taire rendrait le retour invérifiable. */}
         <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
-          S&apos;y ajoute le suivi, {euros(SUIVI_PAR_BRIQUE)} hors taxes par
-          mois et par brique en service, soit {euros(res.suiviMensuel)} par mois
-          pour ce périmètre. Il est déjà déduit du retour ci-dessous.
+          S&apos;y ajoute le suivi, {euros(SUIVI_PREMIERE)} hors taxes par mois
+          puis {euros(SUIVI_SUIVANTE)} par brique supplémentaire, soit{" "}
+          {euros(res.suiviMensuel)} par mois pour ce périmètre. Il est déjà
+          déduit du retour ci-dessous.
         </p>
         <p className="mt-5 text-[26px] font-semibold leading-tight tracking-[-0.02em] md:text-[32px]">
-          Cette première tâche se rembourse en{" "}
+          Ce périmètre se rembourse en{" "}
           <span className="text-banane">{res.roiMois} mois</span>.
         </p>
+        {/* Le suivi étant dégressif, une brique peut couvrir sa surveillance
+            marginale sans couvrir le socle. Le dire évite un devis à une brique
+            que personne ne tiendrait. */}
+        {res.teteNonViableSeule && (
+          <p className="mt-4 border-t border-white/20 pt-4 text-[13.5px] leading-[1.65] text-white/70">
+            À prendre ensemble. Isolée, la première tâche ne libère pas assez de
+            temps pour couvrir le suivi à {euros(SUIVI_PREMIERE)} par mois. C&apos;est
+            le regroupement qui la rend rentable, pas la tâche seule.
+          </p>
+        )}
       </section>
 
       <section className="mt-10">
         <h3 className="text-[17px] font-semibold">La suite</h3>
         <p className="mt-3 text-[14px] leading-[1.7] text-ink-soft">
-          Le diagnostic à 290 € HT confirme ces chiffres sur vos données réelles et
-          vous remet un rapport de quatre pages sous 72 heures. Ils sont déduits si
-          vous nous confiez le chantier.
+          Le diagnostic à 500 € HT confirme ces chiffres sur vos données réelles
+          et vous remet un rapport de quatre pages sous 72 heures. Il est déduit
+          si vous nous confiez le chantier, et remboursé si l&apos;automatisation
+          n&apos;est pas votre vraie réponse.
         </p>
         <a
           href={SITE.booking}

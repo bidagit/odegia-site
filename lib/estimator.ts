@@ -102,11 +102,19 @@ export const PRIX_PACK_TROIS = 2900;
    ici vaut mieux qu'un client qui ne sera jamais rentable. */
 export const SEUIL_PLANCHER = 1500;
 
-/* Suivi mensuel, indexé à la brique depuis le 25/08/2026. Il entre désormais
-   dans le calcul du retour, ce qui n'était pas le cas jusque-là. L'estimateur
-   comparait un coût d'achat unique à un gain brut et ignorait complètement la
-   charge récurrente, ce qui raccourcissait tous les retours affichés. */
-export const SUIVI_PAR_BRIQUE = 100;
+/* Suivi mensuel, indexé à la brique et dégressif depuis le 25/08/2026. Il entre
+   dans le calcul du retour, ce qui n'était pas le cas avant cette date.
+   L'estimateur comparait un coût d'achat unique à un gain brut et ignorait la
+   charge récurrente, ce qui raccourcissait tous les retours affichés.
+
+   Dégressif parce que la première brique porte la relation, le compte et la
+   revue mensuelle, les suivantes n'ajoutent que leur propre surveillance. */
+export const SUIVI_PREMIERE = 300;
+export const SUIVI_SUIVANTE = 200;
+
+/* Le suivi d'un parc de n briques. */
+export const suiviMensuelPour = (n: number) =>
+  n <= 0 ? 0 : SUIVI_PREMIERE + SUIVI_SUIVANTE * (n - 1);
 
 /* Plafond de retour au-delà duquel une brique ne se recommande pas. Une tâche
    qui met plus de dix-huit mois à se rembourser ne vaut pas le chantier, la
@@ -144,6 +152,11 @@ export type Resultat = {
   coutHaut: number;
   /* Suivi mensuel du périmètre recommandé, une fois le chantier livré. */
   suiviMensuel: number;
+  /* Gain mensuel du périmètre une fois le suivi déduit. */
+  gainNetPerimetre: number;
+  /* La brique de tête ne couvre pas le socle de 300 EUR, elle ne se vend donc
+     pas seule. Le périmètre reste valable, mais il faut le dire. */
+  teteNonViableSeule: boolean;
   roiMois: number;
   /* Aucune des briques recommandées ne se rembourse une fois le suivi déduit.
      Le dire franchement vaut mieux que d'étirer un chiffre. */
@@ -187,7 +200,11 @@ export function calculer(r: Reponses): Resultat {
     /* Le suivi de la brique se déduit du gain avant de calculer le retour. Une
        brique qui libère 100 EUR de temps par mois et coûte 100 EUR de suivi ne
        rembourse rien, quel que soit son prix d'achat. */
-    const gainNetMensuel = gainAnnuel / 12 - SUIVI_PAR_BRIQUE;
+    /* Deux lectures selon la position de la brique. En première, elle porte le
+       socle de 300 EUR. En position suivante, elle ne porte que les 200 EUR de
+       sa propre surveillance. On garde ici la lecture marginale pour le tri et
+       le filtre, la première brique est rechargée plus bas. */
+    const gainNetMensuel = gainAnnuel / 12 - SUIVI_SUIVANTE;
     const roiMois = gainNetMensuel > 0 ? cout / gainNetMensuel : Infinity;
     return {
       id: def.id,
@@ -223,7 +240,15 @@ export function calculer(r: Reponses): Resultat {
       tri.unshift(pref);
     }
   }
+  /* La brique de tête porte le socle. Si elle ne le couvre pas, elle ne peut
+     pas être vendue seule, et l'estimateur doit le dire plutôt que d'afficher un
+     retour calculé au tarif marginal. */
   const recommandees = tri.slice(0, 3);
+  const tete = recommandees[0];
+  const gainTeteAvecSocle = tete
+    ? tete.gainAnnuel / 12 - SUIVI_PREMIERE
+    : 0;
+  const teteNonViableSeule = !!tete && gainTeteAvecSocle <= 0;
 
   const nbComplexes = recommandees.filter((l) => l.complexe).length;
   const coutChantier =
@@ -234,8 +259,18 @@ export function calculer(r: Reponses): Resultat {
   /* Le chiffre mis en avant est celui de la première brique recommandée, jamais
      une moyenne. Une moyenne dilue le meilleur retour et produit un résultat
      systématiquement plus mauvais que celui annoncé en page d'accueil. */
-  const premiere = recommandees[0];
-  const roiMois = premiere ? Math.ceil(premiere.roiMois) : 0;
+  /* Le retour affiché est celui du périmètre recommandé dans son ensemble, et
+     non celui d'une brique isolée au tarif marginal. Avec un suivi dégressif,
+     un retour par brique donnerait un chiffre que le client ne retrouverait
+     jamais sur sa facture. */
+  const gainMensuelRecommande = recommandees.reduce(
+    (s, l) => s + l.gainAnnuel / 12,
+    0
+  );
+  const suiviMensuel = suiviMensuelPour(recommandees.length);
+  const gainNetPerimetre = gainMensuelRecommande - suiviMensuel;
+  const roiMois =
+    gainNetPerimetre > 0 ? Math.ceil(coutChantier / gainNetPerimetre) : 0;
 
   return {
     heuresMois,
@@ -247,9 +282,14 @@ export function calculer(r: Reponses): Resultat {
     coutChantier,
     coutBas: Math.round((coutChantier * 0.75) / 100) * 100,
     coutHaut: Math.round((coutChantier * 1.25) / 100) * 100,
-    suiviMensuel: recommandees.length * SUIVI_PAR_BRIQUE,
+    suiviMensuel,
+    gainNetPerimetre,
     roiMois,
-    aucunRetour: recommandees.length === 0,
+    teteNonViableSeule,
+    aucunRetour:
+      recommandees.length === 0 ||
+      gainNetPerimetre <= 0 ||
+      roiMois > SEUIL_RETOUR_MOIS,
     sousLePlancher: coutAnnuel < SEUIL_PLANCHER,
     cadrageAlourdi,
   };

@@ -338,14 +338,15 @@ export const TRACKS: Track[] = [
         badge: "La suite",
         highlight: false,
         tagline:
-          "Le système est à vous. On le surveille, on corrige les dérives et on l'ajuste quand votre activité change.",
+          "Le système est à vous. On le surveille, on corrige les dérives et on l'ajuste quand votre activité change. C'est aussi par ici qu'on monte vers le niveau 5.",
         forWho:
           "Ceux qui ne veulent pas devenir l'administrateur technique de leur propre système.",
         deliverables: [
           { text: "Supervision et correction des dérives", strong: true },
           { text: "Ajustements quand votre offre évolue", strong: false },
           { text: "Support asynchrone sous deux jours ouvrés", strong: false },
-          { text: "Revue trimestrielle de votre niveau", strong: false },
+          { text: "Revue trimestrielle de votre niveau", strong: true },
+          { text: "Nouveaux domaines montés un à un vers le niveau 5", strong: false },
         ],
         price: "190 EUR HT",
         priceSuffix: "/ mois",

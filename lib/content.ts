@@ -355,7 +355,10 @@ export const TRACKS: Track[] = [
   {
     id: "organisations",
     label: "Organisations et PME",
-    audience: "Associations, ESS, écoles, collectivités et PME",
+    /* Liste d exemples et non un critere d entree. Le segment reserve aux
+       organisations a mission a ete abandonne, PME passe donc en tete pour que
+       la ligne ne se lise plus comme une restriction sectorielle. */
+    audience: "PME, associations, écoles, collectivités et ESS",
     intro:
       "Périmètre ouvert, plusieurs briques couvrant un domaine entier, et des contraintes propres au secteur, marchés publics, subventions et pièces justificatives.",
     offers: [

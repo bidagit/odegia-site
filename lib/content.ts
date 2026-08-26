@@ -7,12 +7,12 @@
    Le modèle tarifaire vient des notes du vault du 2026-08-24, fiches
    « Odegia - Diagnostic Automatisation Admin » et « Odegia - Estimateur en
    ligne ». Il se compte en briques, pas en forfaits. Brique simple à 1 200 EUR,
-   brique complexe à 2 600 EUR. Ne pas réinventer ces montants ici, ils sont
+   brique complexe à 2 400 EUR. Ne pas réinventer ces montants ici, ils sont
    l'étalon commercial.
 
    Diagnostic et suivi relevés le 25/08/2026 après comparaison au marché
    américain. Diagnostic à 500 EUR pour un fondateur et dès 1 500 EUR pour une
-   PME, remboursé si l'automatisation n'est pas la réponse. Suivi à 300 EUR par
+   PME, remboursé si l'automatisation n'est pas la réponse. Suivi à 190 EUR par
    mois puis 200 EUR par brique supplémentaire. */
 
 export const SITE = {
@@ -241,7 +241,7 @@ export const BRIQUE_TYPES = [
   },
   {
     label: "Brique complexe",
-    price: "2 600 EUR HT",
+    price: "2 400 EUR HT",
     criteria:
       "Règles à écrire, sources multiples, ou validation humaine à intégrer.",
   },
@@ -331,7 +331,7 @@ export const TRACKS: Track[] = [
         forWho:
           "Ceux qui perdent leurs journées sur une tâche répétitive déjà identifiée.",
         deliverables: [
-          { text: "Brique simple à 1 200 EUR, complexe à 2 600 EUR", strong: true },
+          { text: "Brique simple à 1 200 EUR, complexe à 2 400 EUR", strong: true },
           { text: "Trois briques simples ensemble, 2 900 EUR au lieu de 3 600", strong: true },
           { text: "Construite sur vos outils, sans les remplacer", strong: false },
           { text: "Niveau 2, 3 ou 4 selon le coût d'une erreur", strong: true },
@@ -371,7 +371,7 @@ export const TRACKS: Track[] = [
            Conséquence assumée, une brique qui libère moins de 7,1 h par mois ne
            couvre plus son suivi en première position. La brique unique de
            faible volume cesse donc d'être vendable, et l'estimateur le dit. */
-        price: "300 EUR HT",
+        price: "190 EUR HT",
         priceSuffix: "/ mois, puis 200 par brique en plus",
         priceNote: "sans engagement de durée, vous ne payez que ce qui tourne",
         cta: "Ajouter le suivi",
@@ -425,7 +425,7 @@ export const TRACKS: Track[] = [
           "Les structures qui veulent qu'une fonction entière tourne sans mobiliser quelqu'un en permanence.",
         deliverables: [
           { text: "Même unité de compte, la brique", strong: true },
-          { text: "1 200 EUR la simple, 2 600 EUR la complexe", strong: true },
+          { text: "1 200 EUR la simple, 2 400 EUR la complexe", strong: true },
           { text: "Intégration à vos outils existants", strong: false },
           { text: "Tableau de bord, alertes et garde-fous", strong: true },
           { text: "Formation de vos équipes à la gouvernance", strong: false },

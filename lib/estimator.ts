@@ -101,11 +101,11 @@ export const REPONSES_VIDES: Reponses = {
    valeur retenue est affichée au visiteur pour qu'il puisse la contester. */
 export const PART_RECUPERABLE = 0.8;
 export const PRIX_SIMPLE = 1200;
-/* Portée de 2 400 à 2 600 le 25/08/2026. Le pack de trois briques simples
-   étant descendu à 2 400, une brique complexe valait exactement le même prix
-   que trois simples, ce qui se lisait mal à quelques centimètres près sur la
-   page tarifs. */
-export const PRIX_COMPLEXE = 2600;
+/* Ramenée à 2 400 le 25/08/2026. Elle était montée à 2 600 le temps que le
+   pack de trois passe à 2 400, les deux montants entrant alors en collision.
+   Le pack étant remonté à 2 900, l'ordre des prix se lit de nouveau, 1 200
+   pour une simple, 2 400 pour une complexe, 2 900 pour trois simples. */
+export const PRIX_COMPLEXE = 2400;
 /* Trois briques simples valent 3 600 EUR à l'unité, le pack les remise à
    2 900. Passé brièvement à 2 400 le 25/08/2026 pour ouvrir le seuil de
    rentabilité, puis ramené à 2 900 le même soir, l'ouverture ayant finalement
@@ -115,14 +115,24 @@ export const PRIX_PACK_TROIS = 2900;
    ici vaut mieux qu'un client qui ne sera jamais rentable. */
 export const SEUIL_PLANCHER = 1500;
 
-/* Suivi mensuel, indexé à la brique et dégressif depuis le 25/08/2026. Il entre
-   dans le calcul du retour, ce qui n'était pas le cas avant cette date.
-   L'estimateur comparait un coût d'achat unique à un gain brut et ignorait la
-   charge récurrente, ce qui raccourcissait tous les retours affichés.
+/* Suivi mensuel, indexé à la brique depuis le 25/08/2026. Il entre dans le
+   calcul du retour, ce qui n'était pas le cas avant cette date. L'estimateur
+   comparait un coût d'achat unique à un gain brut et ignorait la charge
+   récurrente, ce qui raccourcissait tous les retours affichés.
 
-   Dégressif parce que la première brique porte la relation, le compte et la
-   revue mensuelle, les suivantes n'ajoutent que leur propre surveillance. */
-export const SUIVI_PREMIERE = 300;
+   Le barème était dégressif tant que le socle valait 300 EUR, la première
+   brique portant la relation et le compte, les suivantes n'ajoutant que leur
+   surveillance. Le socle est passé à 190 le même jour pour ouvrir le niveau 2,
+   si bien que la première brique coûte désormais moins que les suivantes.
+   À arbitrer, le barème gagnerait à repasser plat (190 partout) ou franchement
+   dégressif (190 puis 150), la marche montante actuelle étant difficile à
+   expliquer à un client. */
+/* Socle abaissé de 300 à 190 EUR le 25/08/2026. À 300, une brique achetée
+   seule devait libérer 7,3 h par mois pour se rembourser, et six des huit
+   tâches du catalogue étaient refusées à 60 EUR de l'heure. Le niveau 2 était
+   donc vendable en principe et rare en pratique. À 190, le seuil tombe à 5 h
+   par mois et la porte d'entrée redevient franchissable. */
+export const SUIVI_PREMIERE = 190;
 export const SUIVI_SUIVANTE = 200;
 
 /* Le suivi d'un parc de n briques. */
@@ -172,7 +182,7 @@ export type Resultat = {
   suiviMensuel: number;
   /* Gain mensuel du périmètre une fois le suivi déduit. */
   gainNetPerimetre: number;
-  /* La brique de tête ne couvre pas le socle de 300 EUR, elle ne se vend donc
+  /* La brique de tête ne couvre pas le socle, elle ne se vend donc
      pas seule. Le périmètre reste valable, mais il faut le dire. */
   teteNonViableSeule: boolean;
   roiMois: number;
@@ -218,11 +228,15 @@ export function calculer(r: Reponses): Resultat {
     /* Le suivi de la brique se déduit du gain avant de calculer le retour. Une
        brique qui libère 100 EUR de temps par mois et coûte 100 EUR de suivi ne
        rembourse rien, quel que soit son prix d'achat. */
-    /* Deux lectures selon la position de la brique. En première, elle porte le
-       socle de 300 EUR. En position suivante, elle ne porte que les 200 EUR de
-       sa propre surveillance. On garde ici la lecture marginale pour le tri et
-       le filtre, la première brique est rechargée plus bas. */
-    const gainNetMensuel = gainAnnuel / 12 - SUIVI_SUIVANTE;
+    /* Deux lectures selon la position de la brique, le socle en première et la
+       part marginale ensuite. Pour le tri et le filtre on retient la moins
+       chère des deux, une brique méritant d'être gardée dès qu'elle se
+       rembourse dans sa position la plus favorable. Le minimum plutôt que la
+       part marginale, car le socle est passé sous elle le 25/08/2026, 190
+       contre 200, et une lecture figée sur la marginale écarterait des briques
+       qui tiennent très bien en première position. */
+    const suiviLePlusFavorable = Math.min(SUIVI_PREMIERE, SUIVI_SUIVANTE);
+    const gainNetMensuel = gainAnnuel / 12 - suiviLePlusFavorable;
     const roiMois = gainNetMensuel > 0 ? cout / gainNetMensuel : Infinity;
     return {
       id: def.id,

@@ -62,7 +62,9 @@ export const LEGAL_LINKS = [
 /* Chemins absolus, une ancre nue casserait depuis /estimation ou les pages
    legales, ou elle pointerait une section inexistante. */
 export const NAV_LINKS = [
-  { label: "Le principe", href: "/#principe" },
+  /* L ancre reste #principe, elle est referencee ailleurs, seul le libelle
+     suit le nouveau titre de section. */
+  { label: "La méthode", href: "/#principe" },
   { label: "Niveaux", href: "/#niveaux" },
   { label: "Briques", href: "/#briques" },
   { label: "Tarifs", href: "/#tarifs" },

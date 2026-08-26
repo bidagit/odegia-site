@@ -89,6 +89,10 @@ export function Estimator() {
   const [prenom, setPrenom] = useState("");
   const [optin, setOptin] = useState(false);
   const [fini, setFini] = useState(false);
+  /* L envoi a trois issues et l ecran de resultat les distingue. Annoncer un
+     email parti alors que rien n a quitte le navigateur trompe le visiteur, et
+     c etait le cas jusqu au 25/08/2026, faute de route serveur. */
+  const [envoi, setEnvoi] = useState<"repos" | "encours" | "ok" | "echec">("repos");
 
   const set = <K extends keyof Reponses>(k: K, v: Reponses[K]) =>
     setR((p) => ({ ...p, [k]: v }));
@@ -284,9 +288,10 @@ export function Estimator() {
               className="w-full rounded-2xl border border-ink/12 bg-surface px-5 py-4 text-[14.5px] outline-none focus:border-vert"
             />
             <p className="text-[12.5px] leading-[1.6] text-ink-soft">
-              Votre estimation vous est envoyée à cette adresse. Vos réponses sont
-              conservées trois ans, vous pouvez demander leur suppression à tout
-              moment.
+              Votre estimation part à cette adresse dès validation. Vos réponses
+              sont conservées trois ans pour affiner nos barèmes, et vous pouvez
+              demander leur suppression à tout moment en écrivant à{" "}
+              {SITE.email}.
             </p>
             {/* Case séparée, décochée par défaut. Le rapport part même sans elle,
                 un consentement obtenu en échange d'un service ne serait pas libre. */}
@@ -298,9 +303,9 @@ export function Estimator() {
                 className="mt-0.5 h-4 w-4 shrink-0 accent-[#0f7a5c]"
               />
               <span className="text-[13px] leading-[1.6] text-ink-soft">
-                Je veux aussi recevoir les quatre emails d&apos;Odegia sur
-                l&apos;automatisation administrative. Désinscription en un clic dans
-                chaque message.
+                Je veux aussi recevoir les emails d&apos;Odegia sur
+                l&apos;automatisation administrative, quelques envois par
+                trimestre. Désinscription en un clic dans chaque message.
               </span>
             </label>
           </div>
@@ -309,7 +314,7 @@ export function Estimator() {
     },
   ];
 
-  if (fini) return <Resultat res={res} prenom={prenom} />;
+  if (fini) return <Resultat res={res} prenom={prenom} envoi={envoi} email={email} />;
 
   const courant = ecrans[etape];
   const dernier = etape === ecrans.length - 1;
@@ -346,7 +351,26 @@ export function Estimator() {
         <button
           type="button"
           disabled={!courant.valide}
-          onClick={() => (dernier ? setFini(true) : setEtape((e) => e + 1))}
+          onClick={async () => {
+            if (!dernier) {
+              setEtape((e) => e + 1);
+              return;
+            }
+            /* Le resultat s affiche quoi qu il arrive, il a ete calcule dans le
+               navigateur. Seul l envoi de l email depend du serveur. */
+            setEnvoi("encours");
+            setFini(true);
+            try {
+              const rep = await fetch("/api/estimation", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ email, prenom, optin, reponses: r }),
+              });
+              setEnvoi(rep.ok ? "ok" : "echec");
+            } catch {
+              setEnvoi("echec");
+            }
+          }}
           className="inline-flex items-center gap-2 rounded-full bg-vert px-7 py-3.5 text-[14.5px] font-medium text-white transition-colors hover:bg-vert-deep disabled:cursor-not-allowed disabled:opacity-35"
         >
           {dernier ? "Voir mon estimation" : "Continuer"}
@@ -357,12 +381,61 @@ export function Estimator() {
   );
 }
 
+function EtatEnvoi({
+  envoi,
+  email,
+}: {
+  envoi: "repos" | "encours" | "ok" | "echec";
+  email: string;
+}) {
+  if (envoi === "repos") return null;
+
+  const base = "mb-8 rounded-2xl border-2 px-5 py-4 text-[13.5px] leading-[1.65]";
+
+  if (envoi === "encours") {
+    return (
+      <p className={`${base} border-ink/15 bg-surface text-ink-soft`} role="status">
+        Envoi de votre estimation à {email} en cours.
+      </p>
+    );
+  }
+
+  if (envoi === "ok") {
+    return (
+      <p className={`${base} border-vert bg-vert-soft`} role="status">
+        Votre estimation part à l&apos;instant vers <strong>{email}</strong>.
+      </p>
+    );
+  }
+
+  return (
+    <div className={`${base} border-rose bg-rose-soft`} role="status">
+      <p>
+        <strong>L&apos;envoi vers {email} a échoué.</strong> Votre estimation
+        reste affichée ci-dessous, gardez cette page ouverte ou notez les
+        chiffres.
+      </p>
+      <p className="mt-2 text-ink-soft">
+        Écrivez à{" "}
+        <a href={`mailto:${SITE.email}`} className="underline">
+          {SITE.email}
+        </a>{" "}
+        pour que nous vous la renvoyions, ou réservez directement quinze minutes.
+      </p>
+    </div>
+  );
+}
+
 function Resultat({
   res,
   prenom,
+  envoi,
+  email,
 }: {
   res: ReturnType<typeof calculer>;
   prenom: string;
+  envoi: "repos" | "encours" | "ok" | "echec";
+  email: string;
 }) {
   /* Sous le plancher, on dit au visiteur de ne rien faire. Refuser une vente ici
      vaut mieux qu'un client qui ne sera jamais rentable. */
@@ -420,6 +493,11 @@ function Resultat({
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 md:py-16">
+      {/* L etat de l envoi se lit avant tout le reste. Le resultat s affiche de
+          toute facon, il a ete calcule dans le navigateur, mais l email depend
+          du serveur et le visiteur doit savoir ou il en est. */}
+      <EtatEnvoi envoi={envoi} email={email} />
+
       <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
         {prenom ? `${prenom}, votre estimation` : "Votre estimation"}
       </span>

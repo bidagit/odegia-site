@@ -41,6 +41,9 @@
   /* rose magenta, l accent secondaire */
   --color-rose: #b02472;
   --color-rose-vif: #d9509b;
+  /* teinte pale du rose, deja au kit de marque, employee pour les etats
+     d echec ou l encre tient tres largement le seuil */
+  --color-rose-soft: #fbeaf3;
 
   /* jaune banane, aplat uniquement */
   --color-banane: #f5d130;

@@ -6,9 +6,14 @@
 
    Le modèle tarifaire vient des notes du vault du 2026-08-24, fiches
    « Odegia - Diagnostic Automatisation Admin » et « Odegia - Estimateur en
-   ligne ». Il se compte en briques, pas en forfaits. Brique simple à 1 200 EUR,
-   brique complexe à 2 400 EUR. Ne pas réinventer ces montants ici, ils sont
-   l'étalon commercial.
+   ligne ». L'unité de compte est la brique, y compris quand plusieurs sont
+   vendues ensemble. Brique simple à 1 200 EUR, brique complexe à 2 400 EUR,
+   pack de trois simples à 2 900 au lieu de 3 600. Ne pas réinventer ces
+   montants ici, ils sont l'étalon commercial.
+
+   Le pack reste compatible avec la doctrine parce que les trois briques sont
+   nommées au devis. Ce qui est écarté est le forfait à périmètre indéfini, pas
+   la remise sur un périmètre connu.
 
    Diagnostic et suivi relevés le 25/08/2026 après comparaison au marché
    américain. Diagnostic à 500 EUR pour un fondateur et dès 1 500 EUR pour une
@@ -462,8 +467,8 @@ export const TRACKS: Track[] = [
 
 export const FAQ = [
   {
-    q: "Pourquoi vendre des briques plutôt qu'un forfait ?",
-    a: "Parce qu'un forfait oblige à acheter un périmètre entier avant d'avoir vu quoi que ce soit. Une brique est une tâche, elle a son prix, son gain annuel et son retour sur investissement. Vous en achetez une, vous la voyez tourner, puis vous décidez de la suite. C'est aussi pourquoi nous préférons cadrer un périmètre plutôt que de partir sur un « automatisez-moi tout », plus difficile à tenir des deux côtés.",
+    q: "Pourquoi compter en briques ?",
+    a: "Une brique est une tâche. Elle a son prix, son gain annuel et son retour sur investissement, ce qui vous laisse en acheter une, la voir tourner, puis décider de la suite. Vous pouvez aussi en prendre trois d'un coup, 2 900 EUR au lieu de 3 600, à condition que les trois soient nommées dans le devis. Ce qui compte est de savoir ce que couvre le périmètre avant de le payer, la remise vient après. C'est aussi pourquoi un « automatisez-moi tout » se transforme d'abord en liste de briques, plus facile à tenir des deux côtés.",
   },
   {
     q: "Faut-il viser le niveau 4 partout ?",

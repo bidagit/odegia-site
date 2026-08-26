@@ -10,6 +10,7 @@ import {
   TAUX,
   OUTILS,
   DOCUMENTATION,
+  PART_RECUPERABLE,
   REPONSES_VIDES,
   SUIVI_PREMIERE,
   SUIVI_SUIVANTE,
@@ -431,7 +432,8 @@ function Resultat({
       </h2>
       <p className="mt-4 text-[14px] leading-[1.7] text-ink-soft">
         Calculé sur une heure de votre temps valorisée à {euros(res.taux)}. Environ
-        70 % de ce temps est récupérable, soit {heures(res.heuresRecuperees)} heures
+        {Math.round(PART_RECUPERABLE * 100)} % de ce temps est récupérable, soit{" "}
+        {heures(res.heuresRecuperees)} heures
         par mois.
       </p>
 

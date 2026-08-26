@@ -83,11 +83,11 @@ export const HERO = {
   /* Le hero annonce le gain, jamais le prix. Le prix se lit plus bas, une fois
      que le visiteur a vu ce que son administratif lui coute deja. Les valeurs
      sont derivees du bareme du diagnostic, trois taches hebdomadaires typiques,
-     70 % de temps recuperable, 60 EUR de l heure. Ce sont des estimations et le
+     80 % de temps recuperable, 60 EUR de l heure. Ce sont des estimations et le
      site le dit, le bareme n a pas encore ete confronte a un chantier reel. */
   stats: [
     { value: "jusqu'à 20 h", label: "récupérables chaque semaine" },
-    { value: "70 %", label: "du temps d'une tâche automatisée, récupéré" },
+    { value: "80 %", label: "du temps d'une tâche automatisée, récupéré" },
     { value: "dès 2 mois", label: "pour rembourser votre investissement" },
   ],
   statsNote:
@@ -330,7 +330,7 @@ export const TRACKS: Track[] = [
           "Ceux qui perdent leurs journées sur une tâche répétitive déjà identifiée.",
         deliverables: [
           { text: "Brique simple à 1 200 EUR, complexe à 2 400 EUR", strong: true },
-          { text: "Trois briques simples ensemble, 2 900 EUR", strong: true },
+          { text: "Trois briques simples ensemble, 2 400 EUR", strong: true },
           { text: "Construite sur vos outils, sans les remplacer", strong: false },
           { text: "Niveau 2, 3 ou 4 selon le coût d'une erreur", strong: true },
           { text: "Règles et limites écrites avant construction", strong: false },

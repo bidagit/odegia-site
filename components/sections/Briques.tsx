@@ -58,7 +58,7 @@ export function Briques() {
         </div>
 
         <p className="mt-5 text-[13px] leading-[1.7] text-ink-soft">
-          Trois briques simples prises ensemble, 2 900 EUR HT. Une tâche qui
+          Trois briques simples prises ensemble, 2 400 EUR HT. Une tâche qui
           n&apos;entre dans aucune ligne du catalogue est soit hors périmètre,
           soit une brique nouvelle, et elle se chiffre alors en complexe.
         </p>

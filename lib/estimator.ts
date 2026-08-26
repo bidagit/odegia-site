@@ -94,10 +94,17 @@ export const REPONSES_VIDES: Reponses = {
   agace: null,
 };
 
-export const PART_RECUPERABLE = 0.7;
+/* Part du temps d'une tâche automatisée réellement récupérée. Relevée de 0,70
+   à 0,80 le 25/08/2026, décision d'Adib, hypothèse de travail assumée pour le
+   premier estimateur et à confronter aux premiers chantiers. Ce n'est pas un
+   paramètre commercial, c'est une mesure, et elle n'a jamais été mesurée. La
+   valeur retenue est affichée au visiteur pour qu'il puisse la contester. */
+export const PART_RECUPERABLE = 0.8;
 export const PRIX_SIMPLE = 1200;
 export const PRIX_COMPLEXE = 2400;
-export const PRIX_PACK_TROIS = 2900;
+/* Abaissé de 2 900 à 2 400 le 25/08/2026 pour que le profil cible, un
+   indépendant à 60 EUR de l'heure, passe le seuil de rentabilité. */
+export const PRIX_PACK_TROIS = 2400;
 /* En dessous, l'estimateur dit au visiteur de ne rien faire. Refuser une vente
    ici vaut mieux qu'un client qui ne sera jamais rentable. */
 export const SEUIL_PLANCHER = 1500;
@@ -120,8 +127,13 @@ export const suiviMensuelPour = (n: number) =>
    qui met plus de dix-huit mois à se rembourser ne vaut pas le chantier, la
    situation du client aura changé avant. Sans ce plafond, l'estimateur affiche
    des retours à quarante mois, qui sont arithmétiquement justes et
-   commercialement absurdes. */
-export const SEUIL_RETOUR_MOIS = 18;
+   commercialement absurdes.
+
+   Porté de 18 à 24 mois le 25/08/2026. À 18, le seuil excluait le cœur de la
+   cible, un indépendant à 60 EUR de l'heure avec trois tâches hebdomadaires
+   sortait à 20,7 mois. Vingt-quatre mois écarte toujours l'absurde sans écarter
+   le profil visé. */
+export const SEUIL_RETOUR_MOIS = 24;
 
 export type LigneResultat = {
   id: string;

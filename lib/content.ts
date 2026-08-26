@@ -249,9 +249,13 @@ export const BRIQUES: Brique[] = [
    Les donnees existent-elles deja, et la sortie garde-t-elle toujours la meme
    forme. Deux oui donnent une brique simple, un seul une brique complexe.
 
-   Le coup de l erreur en est sorti, il decide du niveau livre et non du prix.
+   Le cout de l erreur en est sorti, il decide du niveau livre et non du prix.
    Une regle qui releve du jugement en est sortie aussi, elle ecarte la tache
-   du catalogue au lieu de la rencherir. */
+   du catalogue au lieu de la rencherir.
+
+   Quand les deux reponses manquent, la tache devient un chantier sur devis. Elle
+   reste dans le perimetre, le volume de structuration prealable dependant trop
+   du terrain pour tenir dans un prix affiche. */
 export const BRIQUE_TYPES = [
   {
     label: "Brique simple",

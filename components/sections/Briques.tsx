@@ -86,9 +86,11 @@ export function Briques() {
         </div>
 
         <p className="mt-5 text-[13px] leading-[1.7] text-ink-soft">
-          Trois briques simples prises ensemble, 2 900 EUR HT au lieu de 3 600. Une tâche qui
-          n&apos;entre dans aucune ligne du catalogue est soit hors périmètre,
-          soit une brique nouvelle, et elle se chiffre alors en complexe.
+          Trois briques simples prises ensemble, 2 900 EUR HT au lieu de 3 600.
+          Une tâche absente du catalogue passe par les deux mêmes questions et
+          se range dans l&apos;une des deux lignes. Quand les deux réponses
+          manquent, données dispersées et sortie qui change à chaque fois, elle
+          devient un chantier sur devis, cadré et chiffré au diagnostic.
         </p>
       </div>
     </section>

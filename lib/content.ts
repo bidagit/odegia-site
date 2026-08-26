@@ -122,14 +122,14 @@ export const LEVELS = [
   {
     level: "2",
     title: "Automatisé par tâches",
-    body: "Une tâche s'exécute seule, de bout en bout. Les enchaînements et les exceptions restent à votre main.",
+    body: "Des tâches isolées tournent seules. Vous gardez les enchaînements entre elles, et les exceptions vous reviennent.",
     sellable: "Une brique isolée",
   },
   {
     level: "3",
-    title: "Production automatisée, validation humaine",
-    body: "Le système produit tout, vous validez avant envoi. C'est le bon niveau quand une erreur coûte cher.",
-    sellable: "Une brique sous contrôle",
+    title: "Automatisé de bout en bout",
+    body: "Un processus complet tourne d'un bout à l'autre, enchaînements compris. Vous supervisez activement et vous gardez la main sur les décisions sensibles.",
+    sellable: "Un processus complet",
   },
   {
     level: "4",
@@ -151,7 +151,7 @@ export const LEVELS = [
    Elle vaut argument commercial autant que méthode. */
 export const LEVEL_RULE = {
   title: "Le niveau livré est un arbitrage.",
-  body: "Chaque tâche reçoit le niveau qui lui convient, selon le coût d'une erreur non détectée. Faible, la tâche s'exécute de bout en bout. Élevé, le système produit et vous validez avant envoi. Le niveau 4 se réserve donc aux tâches à faible risque, et le niveau 5 se construit domaine après domaine.",
+  body: "Chaque tâche reçoit le niveau qui lui convient, selon le coût d'une erreur non détectée. Faible, la tâche part sans vous. Élevé, le système produit et vous validez avant envoi. Le niveau 4 se réserve donc aux tâches à faible risque, et le niveau 5 se construit domaine après domaine.",
   rows: [
     {
       when: "Le coût d'une erreur est faible",
@@ -159,7 +159,7 @@ export const LEVEL_RULE = {
     },
     {
       when: "Le coût d'une erreur est élevé",
-      then: "Niveau 3, vous validez avant envoi",
+      then: "Niveau 3, vous supervisez chaque passage",
     },
     {
       when: "La décision relève du jugement",
@@ -467,7 +467,7 @@ export const FAQ = [
   },
   {
     q: "Faut-il viser le niveau 4 partout ?",
-    a: "Le bon niveau dépend de la tâche. Il suit le coût d'une erreur non détectée. Quand il est faible, la tâche part sans vous, c'est le niveau 4. Quand il est élevé, le système produit tout et vous validez avant envoi, c'est le niveau 3, et il se vend aussi bien. Une brique isolée qui tourne seule est déjà du niveau 2, et elle vous rend vos heures.",
+    a: "Le bon niveau dépend de la tâche. Il suit le coût d'une erreur non détectée. Quand il est faible, la tâche part sans vous, c'est le niveau 4. Quand il est élevé, le processus tourne entièrement mais vous supervisez chaque passage, c'est le niveau 3, et il se vend aussi bien. Une brique isolée qui tourne seule est déjà du niveau 2, et elle vous rend vos heures. La différence entre le 2 et le 3 tient au périmètre, une tâche d'un côté, un processus complet enchaînements compris de l'autre.",
   },
   {
     q: "Le niveau 5, c'est atteignable ou c'est une image ?",

@@ -106,9 +106,11 @@ export const PRIX_SIMPLE = 1200;
    que trois simples, ce qui se lisait mal à quelques centimètres près sur la
    page tarifs. */
 export const PRIX_COMPLEXE = 2600;
-/* Abaissé de 2 900 à 2 400 le 25/08/2026 pour que le profil cible, un
-   indépendant à 60 EUR de l'heure, passe le seuil de rentabilité. */
-export const PRIX_PACK_TROIS = 2400;
+/* Trois briques simples valent 3 600 EUR à l'unité, le pack les remise à
+   2 900. Passé brièvement à 2 400 le 25/08/2026 pour ouvrir le seuil de
+   rentabilité, puis ramené à 2 900 le même soir, l'ouverture ayant finalement
+   été obtenue par le plafond de retour et la part récupérée. */
+export const PRIX_PACK_TROIS = 2900;
 /* En dessous, l'estimateur dit au visiteur de ne rien faire. Refuser une vente
    ici vaut mieux qu'un client qui ne sera jamais rentable. */
 export const SEUIL_PLANCHER = 1500;

@@ -332,7 +332,7 @@ export const TRACKS: Track[] = [
           "Ceux qui perdent leurs journées sur une tâche répétitive déjà identifiée.",
         deliverables: [
           { text: "Brique simple à 1 200 EUR, complexe à 2 600 EUR", strong: true },
-          { text: "Trois briques simples ensemble, 2 400 EUR", strong: true },
+          { text: "Trois briques simples ensemble, 2 900 EUR au lieu de 3 600", strong: true },
           { text: "Construite sur vos outils, sans les remplacer", strong: false },
           { text: "Niveau 2, 3 ou 4 selon le coût d'une erreur", strong: true },
           { text: "Règles et limites écrites avant construction", strong: false },

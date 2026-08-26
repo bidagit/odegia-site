@@ -17,8 +17,8 @@ export function Distinction() {
     <section className="border-t border-ink/10 py-20 md:py-28">
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <Objet3D
-          nom="avion"
-          className="absolute right-4 -top-6 hidden h-[100px] w-auto rotate-6 lg:block xl:right-12"
+          nom="hamster"
+          className="absolute right-2 -top-10 hidden h-[190px] w-auto -rotate-3 lg:block xl:right-8"
         />
         <div className="max-w-2xl">
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">

@@ -206,6 +206,9 @@ export const STEPS = [
 export type Brique = {
   name: string;
   said: string;
+  /* La complexité est une propriété de la tâche et non du contexte client.
+     Un seul poste du catalogue la porte, les appels d'offres. */
+  complexe?: boolean;
 };
 
 export const BRIQUES: Brique[] = [
@@ -214,6 +217,9 @@ export const BRIQUES: Brique[] = [
   {
     name: "Appels d'offres",
     said: "Je réponds à des appels d'offres ou des dossiers de subvention",
+    /* Seule brique complexe du catalogue, sources multiples, règles à écrire et
+       validation humaine obligatoire. La carte le montre par sa couleur. */
+    complexe: true,
   },
   {
     name: "Onboarding client",
@@ -343,9 +349,9 @@ export const TRACKS: Track[] = [
           { text: "Règles et limites écrites avant construction", strong: false },
           { text: "Vos abonnements restent à votre nom", strong: false },
         ],
-        price: "dès 1 200 EUR HT",
-        priceSuffix: "/ brique",
-        priceNote: "prix ferme, sorti du diagnostic",
+        price: "1 200 EUR HT",
+        priceSuffix: "/ brique simple",
+        priceNote: "montant arrêté au diagnostic, brique complexe à 2 400 EUR",
         cta: "Choisir mes briques",
       },
       {

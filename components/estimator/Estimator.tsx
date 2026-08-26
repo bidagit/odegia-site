@@ -431,11 +431,28 @@ function Resultat({
         <span className="text-vert">{euros(res.coutAnnuel)}</span> par an.
       </h2>
       <p className="mt-4 text-[14px] leading-[1.7] text-ink-soft">
-        Calculé sur une heure de votre temps valorisée à {euros(res.taux)}. Environ
+        Calculé sur une heure de votre temps valorisée à {euros(res.taux)}. Environ{" "}
         {Math.round(PART_RECUPERABLE * 100)} % de ce temps est récupérable, soit{" "}
-        {heures(res.heuresRecuperees)} heures
-        par mois.
+        {heures(res.heuresRecuperees)} heures par mois.
       </p>
+
+      {/* L avertissement se lit avant les chiffres detailles et non en bas de
+          page. Un ordre de grandeur presente comme un devis se retourne contre
+          nous des le premier entretien. */}
+      <div className="mt-7 rounded-2xl border-2 border-ink bg-vert-soft p-5 md:p-6">
+        <p className="text-[14px] leading-[1.7]">
+          <strong>Ces chiffres sont un ordre de grandeur.</strong> Ils viennent
+          de moyennes du secteur appliquées à vos réponses, sur des barèmes que
+          nous affinons encore. Votre situation réelle peut s&apos;en écarter
+          largement, dans un sens comme dans l&apos;autre.
+        </p>
+        <p className="mt-3 text-[13.5px] leading-[1.7] text-ink-soft">
+          Le diagnostic approfondi mesure vos volumes réels, tâche par tâche,
+          et remet un rapport de quatre pages avec les chiffres qui vous
+          engagent et la feuille de route. C&apos;est lui qui sert de base au
+          devis, cette estimation sert à décider si le sujet mérite un entretien.
+        </p>
+      </div>
 
       <section className="mt-12">
         <h3 className="text-[17px] font-semibold">Ce qui est récupérable</h3>

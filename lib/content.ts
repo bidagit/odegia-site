@@ -7,7 +7,7 @@
    Le modèle tarifaire vient des notes du vault du 2026-08-24, fiches
    « Odegia - Diagnostic Automatisation Admin » et « Odegia - Estimateur en
    ligne ». Il se compte en briques, pas en forfaits. Brique simple à 1 200 EUR,
-   brique complexe à 2 400 EUR. Ne pas réinventer ces montants ici, ils sont
+   brique complexe à 2 600 EUR. Ne pas réinventer ces montants ici, ils sont
    l'étalon commercial.
 
    Diagnostic et suivi relevés le 25/08/2026 après comparaison au marché
@@ -239,7 +239,7 @@ export const BRIQUE_TYPES = [
   },
   {
     label: "Brique complexe",
-    price: "2 400 EUR HT",
+    price: "2 600 EUR HT",
     criteria:
       "Règles à écrire, sources multiples, ou validation humaine à intégrer.",
   },
@@ -329,7 +329,7 @@ export const TRACKS: Track[] = [
         forWho:
           "Ceux qui perdent leurs journées sur une tâche répétitive déjà identifiée.",
         deliverables: [
-          { text: "Brique simple à 1 200 EUR, complexe à 2 400 EUR", strong: true },
+          { text: "Brique simple à 1 200 EUR, complexe à 2 600 EUR", strong: true },
           { text: "Trois briques simples ensemble, 2 400 EUR", strong: true },
           { text: "Construite sur vos outils, sans les remplacer", strong: false },
           { text: "Niveau 2, 3 ou 4 selon le coût d'une erreur", strong: true },
@@ -423,7 +423,7 @@ export const TRACKS: Track[] = [
           "Les structures qui veulent qu'une fonction entière tourne sans mobiliser quelqu'un en permanence.",
         deliverables: [
           { text: "Même unité de compte, la brique", strong: true },
-          { text: "1 200 EUR la simple, 2 400 EUR la complexe", strong: true },
+          { text: "1 200 EUR la simple, 2 600 EUR la complexe", strong: true },
           { text: "Intégration à vos outils existants", strong: false },
           { text: "Tableau de bord, alertes et garde-fous", strong: true },
           { text: "Formation de vos équipes à la gouvernance", strong: false },

@@ -101,7 +101,11 @@ export const REPONSES_VIDES: Reponses = {
    valeur retenue est affichée au visiteur pour qu'il puisse la contester. */
 export const PART_RECUPERABLE = 0.8;
 export const PRIX_SIMPLE = 1200;
-export const PRIX_COMPLEXE = 2400;
+/* Portée de 2 400 à 2 600 le 25/08/2026. Le pack de trois briques simples
+   étant descendu à 2 400, une brique complexe valait exactement le même prix
+   que trois simples, ce qui se lisait mal à quelques centimètres près sur la
+   page tarifs. */
+export const PRIX_COMPLEXE = 2600;
 /* Abaissé de 2 900 à 2 400 le 25/08/2026 pour que le profil cible, un
    indépendant à 60 EUR de l'heure, passe le seuil de rentabilité. */
 export const PRIX_PACK_TROIS = 2400;

@@ -1,6 +1,7 @@
 import { Hero } from "@/components/sections/Hero";
 import { Principle } from "@/components/sections/Principle";
 import { Levels } from "@/components/sections/Levels";
+import { Distinction } from "@/components/sections/Distinction";
 import { Briques } from "@/components/sections/Briques";
 import { Pricing } from "@/components/sections/Pricing";
 import { Faq } from "@/components/sections/Faq";
@@ -26,6 +27,7 @@ export default function Page() {
       <Hero />
       <Principle />
       <Levels />
+      <Distinction />
       <Briques />
       <Pricing />
       <Faq />

@@ -141,7 +141,7 @@ export const LEVELS = [
   {
     level: "5",
     title: "Autonome",
-    body: "L'exécution entière est portée par des systèmes. Vous concevez et vous gouvernez, vous n'opérez plus. On y arrive domaine après domaine, sous gouvernance, jamais en un seul chantier.",
+    body: "L'exécution entière est portée par des systèmes. Vous concevez et vous gouvernez, vous n'opérez plus. On y arrive domaine après domaine, sous gouvernance.",
     sellable: "L'entreprise entière",
     horizon: true,
   },
@@ -150,8 +150,8 @@ export const LEVELS = [
 /* La règle qui décide du niveau livré, reprise de la partie C du diagnostic.
    Elle vaut argument commercial autant que méthode. */
 export const LEVEL_RULE = {
-  title: "Le niveau n'est pas un objectif, c'est un arbitrage.",
-  body: "Nous ne montons pas toutes les tâches au même niveau. Le niveau livré dépend du coût d'une erreur non détectée. Faible, la tâche s'exécute de bout en bout. Élevé, le système produit et vous validez avant envoi. Pousser le niveau 4 sur une tâche à fort risque se retournerait contre vous, et le niveau 5 se construit domaine après domaine, jamais d'un coup.",
+  title: "Le niveau livré est un arbitrage.",
+  body: "Chaque tâche reçoit le niveau qui lui convient, selon le coût d'une erreur non détectée. Faible, la tâche s'exécute de bout en bout. Élevé, le système produit et vous validez avant envoi. Le niveau 4 se réserve donc aux tâches à faible risque, et le niveau 5 se construit domaine après domaine.",
   rows: [
     {
       when: "Le coût d'une erreur est faible",
@@ -181,7 +181,7 @@ export const STEPS = [
   {
     numeral: "ii",
     title: "Chiffrage",
-    body: "Chaque tâche devient une brique, simple ou complexe, avec son gain annuel et son retour sur investissement en mois. Ce qui ne s'automatise pas est indiqué clairement.",
+    body: "Chaque tâche devient une brique, simple ou complexe, avec son gain annuel et son retour sur investissement en mois. Ce qui reste à votre main est indiqué clairement.",
   },
   {
     numeral: "iii",
@@ -467,11 +467,11 @@ export const FAQ = [
   },
   {
     q: "Faut-il viser le niveau 4 partout ?",
-    a: "Non, et ce ne serait pas souhaitable sur certaines tâches. Le niveau livré dépend du coût d'une erreur non détectée. Quand il est faible, la tâche part sans vous, c'est le niveau 4. Quand il est élevé, le système produit tout et vous validez avant envoi, c'est le niveau 3, et il se vend aussi bien. Une brique isolée qui tourne seule est déjà du niveau 2, et elle vous rend vos heures.",
+    a: "Le bon niveau dépend de la tâche. Il suit le coût d'une erreur non détectée. Quand il est faible, la tâche part sans vous, c'est le niveau 4. Quand il est élevé, le système produit tout et vous validez avant envoi, c'est le niveau 3, et il se vend aussi bien. Une brique isolée qui tourne seule est déjà du niveau 2, et elle vous rend vos heures.",
   },
   {
     q: "Le niveau 5, c'est atteignable ou c'est une image ?",
-    a: "C'est atteignable, et c'est la seule cible qui vaille pour une petite structure dont l'administratif est le vrai plafond. Mais cela ne s'achète pas comme un chantier. On monte un domaine, il tourne, on passe au suivant, et le niveau 5 est l'état atteint quand il ne reste plus de domaine à monter. Comptez en trimestres, sous gouvernance, pas en semaines. Nous préférons vous le dire ainsi plutôt que de vous vendre une entreprise autonome en une fois.",
+    a: "C'est atteignable, et c'est la seule cible qui vaille pour une petite structure dont l'administratif est le vrai plafond. Cela se construit plutôt que cela s'achète. On monte un domaine, il tourne, on passe au suivant, et le niveau 5 est l'état atteint quand il ne reste plus de domaine à monter. Comptez en trimestres, sous gouvernance, pas en semaines. Nous préférons vous le dire ainsi, en trimestres et sous gouvernance.",
   },
   {
     q: "Que se passe-t-il si une tâche n'est pas automatisable ?",

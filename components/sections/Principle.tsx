@@ -26,9 +26,8 @@ export function Principle() {
             <span className="text-vert">dans cet ordre.</span>
           </h2>
           <p className="mt-5 max-w-xl text-[14.5px] leading-[1.75] text-ink-soft">
-            Chacune dépend de la précédente. On ne chiffre pas ce qu&apos;on
-            n&apos;a pas mesuré, et on ne construit pas ce qu&apos;on n&apos;a
-            pas chiffré.
+            Chacune s&apos;appuie sur la précédente. La mesure précède le
+            chiffrage, et le chiffrage précède la construction.
           </p>
         </div>
 

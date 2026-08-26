@@ -2,9 +2,9 @@ import { STEPS } from "@/lib/content";
 
 /* La methode, presentee comme une sequence et non comme une grille.
    Elle etait rendue en 2x2, ce qui donne quatre cases de meme rang alors que
-   les etapes s enchainent, on ne peut pas chiffrer avant d avoir diagnostique
-   ni construire avant d avoir chiffre. Le rail numerote avec tiret de liaison
-   rend l ordre visible, et la numerotation porte ici une contrainte reelle.
+   les etapes s enchainent, chacune s appuyant sur ce que la precedente a
+   produit. Le rail numerote avec tiret de liaison rend l ordre visible, et la
+   numerotation porte ici une contrainte reelle.
 
    Les chiffres romains distinguent la methode, qui decrit le travail, de la
    sequence commerciale des tarifs, numerotee en arabe, qui decrit ce qu on
@@ -21,13 +21,14 @@ export function Principle() {
             La méthode
           </span>
           <h2 className="display mt-3 text-[34px] leading-[1.08] tracking-[-0.03em] md:text-[44px]">
-            Quatre étapes,
+            De la mesure
             <br />
-            <span className="text-vert">dans cet ordre.</span>
+            <span className="text-vert">à la gouvernance.</span>
           </h2>
           <p className="mt-5 max-w-xl text-[14.5px] leading-[1.75] text-ink-soft">
-            Chacune s&apos;appuie sur la précédente. La mesure précède le
-            chiffrage, et le chiffrage précède la construction.
+            Voici comment se déroule un accompagnement. Chaque étape s&apos;appuie
+            sur ce que la précédente a produit, et vous pouvez vous arrêter après
+            chacune d&apos;elles.
           </p>
         </div>
 

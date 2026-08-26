@@ -71,8 +71,8 @@ export function Pricing() {
 
         {/* La sequence dite en toutes lettres, avant meme les cartes. */}
         <p className="mt-4 max-w-2xl text-[13.5px] leading-[1.7] text-ink">
-          Les trois étapes ci-dessous s&apos;enchaînent. On commence toujours
-          par mesurer, et le diagnostic est déduit du chantier qui le suit.
+          Les trois étapes ci-dessous s&apos;enchaînent. Le diagnostic ouvre la
+          marche, et son montant est déduit du chantier qui le suit.
         </p>
 
         {/* offres */}

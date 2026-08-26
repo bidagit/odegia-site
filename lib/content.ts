@@ -150,7 +150,7 @@ export const LEVELS = [
 /* La règle qui décide du niveau livré, reprise de la partie C du diagnostic.
    Elle vaut argument commercial autant que méthode. */
 export const LEVEL_RULE = {
-  title: "Le niveau livré est un arbitrage.",
+  title: "Le niveau se choisit avec vous.",
   body: "Chaque tâche reçoit le niveau qui lui convient, selon le coût d'une erreur non détectée. Faible, la tâche part sans vous. Élevé, le système produit et vous validez avant envoi. Le niveau 4 se réserve donc aux tâches à faible risque, et le niveau 5 se construit domaine après domaine.",
   rows: [
     {

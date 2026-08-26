@@ -546,10 +546,10 @@ function Resultat({
           allongera le cadrage. Le dire ici evite la mauvaise surprise au devis. */}
       {res.cadrageAlourdi && (
         <p className="mt-8 rounded-2xl border border-ink/12 bg-surface p-5 text-[13px] leading-[1.7] text-ink-soft">
-          Vos règles de fonctionnement ne sont pas encore écrites, ou vos outils
-          sont peu connectés. Cela n&apos;augmente pas le prix, mais il faudra
-          compter une étape de cadrage avant de construire. Le diagnostic la
-          chiffre précisément.
+          Vos règles de fonctionnement restent à écrire, ou vos outils
+          communiquent peu entre eux. Il faudra donc une étape de cadrage avant
+          de construire, et elle peut donner lieu à un supplément. Le diagnostic
+          la mesure et la chiffre, cette estimation la laisse de côté.
         </p>
       )}
 

@@ -244,17 +244,26 @@ export const BRIQUES: Brique[] = [
   },
 ];
 
+/* Deux questions decident du prix, arretees le 25/08/2026.
+
+   Les donnees existent-elles deja, et la sortie garde-t-elle toujours la meme
+   forme. Deux oui donnent une brique simple, un seul une brique complexe.
+
+   Le coup de l erreur en est sorti, il decide du niveau livre et non du prix.
+   Une regle qui releve du jugement en est sortie aussi, elle ecarte la tache
+   du catalogue au lieu de la rencherir. */
 export const BRIQUE_TYPES = [
   {
     label: "Brique simple",
     price: "1 200 EUR HT",
-    criteria: "Règle stable, données déjà structurées, sortie toujours identique.",
+    criteria:
+      "Les données existent déjà quelque part, et la sortie garde toujours la même forme.",
   },
   {
     label: "Brique complexe",
     price: "2 400 EUR HT",
     criteria:
-      "Règles à écrire, sources multiples, ou validation humaine à intégrer.",
+      "Une des deux manque, données dispersées ou sortie qui change à chaque fois.",
   },
 ];
 

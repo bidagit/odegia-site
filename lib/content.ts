@@ -13,7 +13,7 @@
    Diagnostic et suivi relevés le 25/08/2026 après comparaison au marché
    américain. Diagnostic à 500 EUR pour un fondateur et dès 1 500 EUR pour une
    PME, remboursé si l'automatisation n'est pas la réponse. Suivi à 190 EUR par
-   mois puis 200 EUR par brique supplémentaire. */
+   mois puis 150 EUR par brique supplémentaire. */
 
 export const SITE = {
   name: "Odegia",
@@ -372,7 +372,7 @@ export const TRACKS: Track[] = [
            couvre plus son suivi en première position. La brique unique de
            faible volume cesse donc d'être vendable, et l'estimateur le dit. */
         price: "190 EUR HT",
-        priceSuffix: "/ mois, puis 200 par brique en plus",
+        priceSuffix: "/ mois, puis 150 par brique en plus",
         priceNote: "sans engagement de durée, vous ne payez que ce qui tourne",
         cta: "Ajouter le suivi",
       },

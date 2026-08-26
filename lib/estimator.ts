@@ -120,20 +120,19 @@ export const SEUIL_PLANCHER = 1500;
    comparait un coût d'achat unique à un gain brut et ignorait la charge
    récurrente, ce qui raccourcissait tous les retours affichés.
 
-   Le barème était dégressif tant que le socle valait 300 EUR, la première
-   brique portant la relation et le compte, les suivantes n'ajoutant que leur
-   surveillance. Le socle est passé à 190 le même jour pour ouvrir le niveau 2,
-   si bien que la première brique coûte désormais moins que les suivantes.
-   À arbitrer, le barème gagnerait à repasser plat (190 partout) ou franchement
-   dégressif (190 puis 150), la marche montante actuelle étant difficile à
-   expliquer à un client. */
+   Dégressif, 190 EUR pour la première brique puis 150 pour chacune des
+   suivantes. La première porte la relation, le compte et la revue mensuelle,
+   les suivantes n'ajoutent que leur propre surveillance, et le prix suit cette
+   asymétrie. Le socle est passé par 300 dans la journée du 25/08/2026, un
+   niveau qui rendait la brique unique presque invendable, puis par un palier
+   190 puis 200 qui inversait la dégressivité sans le vouloir. */
 /* Socle abaissé de 300 à 190 EUR le 25/08/2026. À 300, une brique achetée
    seule devait libérer 7,3 h par mois pour se rembourser, et six des huit
    tâches du catalogue étaient refusées à 60 EUR de l'heure. Le niveau 2 était
    donc vendable en principe et rare en pratique. À 190, le seuil tombe à 5 h
    par mois et la porte d'entrée redevient franchissable. */
 export const SUIVI_PREMIERE = 190;
-export const SUIVI_SUIVANTE = 200;
+export const SUIVI_SUIVANTE = 150;
 
 /* Le suivi d'un parc de n briques. */
 export const suiviMensuelPour = (n: number) =>
@@ -232,9 +231,9 @@ export function calculer(r: Reponses): Resultat {
        part marginale ensuite. Pour le tri et le filtre on retient la moins
        chère des deux, une brique méritant d'être gardée dès qu'elle se
        rembourse dans sa position la plus favorable. Le minimum plutôt que la
-       part marginale, car le socle est passé sous elle le 25/08/2026, 190
-       contre 200, et une lecture figée sur la marginale écarterait des briques
-       qui tiennent très bien en première position. */
+       part marginale, pour que le filtre reste juste quel que soit le sens de
+       la dégressivité. Une lecture figée sur l'une des deux valeurs écarterait
+       des briques qui tiennent très bien dans l'autre position. */
     const suiviLePlusFavorable = Math.min(SUIVI_PREMIERE, SUIVI_SUIVANTE);
     const gainNetMensuel = gainAnnuel / 12 - suiviLePlusFavorable;
     const roiMois = gainNetMensuel > 0 ? cout / gainNetMensuel : Infinity;

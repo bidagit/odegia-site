@@ -287,9 +287,12 @@ export function Estimator() {
               aria-label="Adresse email"
               className="w-full rounded-2xl border border-ink/12 bg-surface px-5 py-4 text-[14.5px] outline-none focus:border-vert"
             />
+            {/* La duree de conservation annoncee doit correspondre a ce qui
+                se passe reellement. Tant qu aucune base ne stocke les reponses,
+                annoncer trois ans serait faux dans l autre sens. */}
             <p className="text-[12.5px] leading-[1.6] text-ink-soft">
               Votre estimation part à cette adresse dès validation. Vos réponses
-              sont conservées trois ans pour affiner nos barèmes, et vous pouvez
+              servent à la produire et à affiner nos barèmes, et vous pouvez
               demander leur suppression à tout moment en écrivant à{" "}
               {SITE.email}.
             </p>

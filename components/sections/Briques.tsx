@@ -66,19 +66,24 @@ export function Briques() {
           })}
         </ul>
 
+        {/* Les deux cartes de prix passent en vert profond plein. En menthe
+            pale elles reprenaient une teinte du catalogue juste au-dessus et se
+            lisaient comme deux briques de plus, alors qu elles donnent la cle de
+            lecture des neuf autres. Le blanc sur vert profond tient a 5,30:1, et
+            le prix en banane est un texte large, donc conforme a 3,55:1. */}
         <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
           {BRIQUE_TYPES.map((t) => (
             <div
               key={t.label}
-              className="ombre-dure rounded-[22px] border-2 border-ink bg-vert-soft p-6"
+              className="ombre-dure rounded-[22px] border-2 border-ink bg-vert p-6 text-paper"
             >
               <div className="flex items-baseline justify-between gap-4">
                 <h3 className="text-[15.5px] font-semibold">{t.label}</h3>
-                <span className="display text-[24px] text-vert">
+                <span className="display text-[26px] text-banane">
                   {t.price}
                 </span>
               </div>
-              <p className="mt-2 text-[13px] leading-[1.65] text-ink-soft">
+              <p className="mt-2.5 text-[13px] leading-[1.65] text-paper">
                 {t.criteria}
               </p>
             </div>

@@ -58,7 +58,7 @@ export function ChuteBriques() {
        derniere carte posee. Les delais s en deduisent, ce qui la garde exacte
        que la grille affiche une, deux ou trois colonnes. Un pas fixe par
        rangee la faisait varier du simple au double selon la largeur. */
-    const CASCADE_MS = 2600;
+    const CASCADE_MS = 3000;
     /* La duree se lit dans --duree-chute et non dans animationDuration. Au
        moment de ce calcul la classe .tombe n est pas encore posee, aucune
        animation n est donc declaree et animationDuration vaut zero, ce qui

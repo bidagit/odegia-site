@@ -44,6 +44,9 @@ export function Hero() {
             <p className="display mt-7 text-[22px] text-vert-vif md:text-[26px]">
               {HERO.claim}
             </p>
+            <p className="mt-3 max-w-md text-[14px] leading-[1.7] text-paper/55">
+              {HERO.gloss}
+            </p>
             <Onde aria-hidden className="mt-2 h-4 w-40 text-rose-vif" />
           </div>
 

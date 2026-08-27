@@ -84,6 +84,11 @@ export const HERO = {
   eyebrow: "Autonomisation administrative",
   title: ["Votre administratif", "tourne sans vous."],
   claim: "L'IA exécute, vous gouvernez.",
+  /* Definit les deux mots du site la ou le premier apparait. Sans cette
+     ligne, la page dit qu on automatise et la FAQ dit que l automatisation
+     n est pas le sujet, ce qui se lit comme une contradiction. */
+  gloss:
+    "Automatiser fait tourner la tâche. Autonomiser vous sort de la boucle. C'est le second que nous visons, en passant par le premier.",
   body: "On mesure ce que votre administratif vous coûte, on automatise tâche par tâche, et on vous rend la barre. Vous n'intervenez plus que sur exception.",
   ctaPrimary: { label: "Réserver 15 minutes", href: SITE.booking },
   ctaSecondary: { label: "Estimer mon coût", href: "/estimation" },
@@ -516,7 +521,7 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "En quoi est-ce différent d'une prestation d'automatisation ?",
-    a: "Automatiser, c'est exécuter plus vite une décision déjà prise par une personne. Plus haut, c'est le système qui prend la décision opérationnelle sur son périmètre, avec des limites écrites, et vous n'intervenez plus que sur exception. La différence se voit dans votre agenda, pas dans la facture d'outillage.",
+    a: "Nous automatisons aussi, c'est le moyen. La différence est là où nous nous arrêtons. Une prestation d'automatisation livre une tâche qui s'exécute plus vite, et vous restez celui qui déclenche, vérifie et reprend les cas particuliers. Nous continuons jusqu'à ce que le système décide lui-même sur un périmètre défini, avec des limites écrites, et vous n'intervenez plus que sur exception. La différence se voit dans votre agenda, pas dans la facture d'outillage.",
   },
   {
     q: "Faut-il changer nos outils ?",

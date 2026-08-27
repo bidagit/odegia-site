@@ -1,6 +1,11 @@
 import { FAQ, SITE } from "@/lib/content";
 
-export function Faq() {
+/* Deux jeux de questions depuis le 27/08/2026. Celles marquees cadre ne se
+   lisent que l echelle sous les yeux, elles partent donc sur /echelle et
+   quittent l accueil, ou elles supposaient un vocabulaire que la page
+   n enseigne plus. */
+export function Faq({ cadre = false }: { cadre?: boolean }) {
+  const questions = FAQ.filter((f) => Boolean(f.cadre) === cadre);
   return (
     <section className="border-t border-ink/10 py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
@@ -35,7 +40,7 @@ export function Faq() {
           </div>
 
           <dl className="divide-y divide-ink/10 border-t border-ink/10">
-            {FAQ.map((f) => (
+            {questions.map((f) => (
               <div key={f.q} className="py-6">
                 <dt className="text-[15.5px] font-semibold tracking-[-0.01em]">
                   {f.q}

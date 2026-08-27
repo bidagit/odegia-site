@@ -66,13 +66,17 @@ export const LEGAL_LINKS = [
 
 /* Chemins absolus, une ancre nue casserait depuis /estimation ou les pages
    legales, ou elle pointerait une section inexistante. */
+/* Ordre calque sur celui de la page depuis le 27/08/2026. Les niveaux ne sont
+   plus une ancre mais une page, l echelle ayant quitte l accueil. Le libelle
+   passe de « Niveaux » a « L'échelle », qui dit ce qu on va lire plutot que le
+   nom de l unite. */
 export const NAV_LINKS = [
+  { label: "Ce qu'on automatise", href: "/#briques" },
   /* L ancre reste #principe, elle est referencee ailleurs, seul le libelle
      suit le nouveau titre de section. */
   { label: "La méthode", href: "/#principe" },
-  { label: "Niveaux", href: "/#niveaux" },
-  { label: "Briques", href: "/#briques" },
   { label: "Tarifs", href: "/#tarifs" },
+  { label: "L'échelle", href: "/echelle" },
   { label: "Estimation", href: "/estimation" },
 ];
 
@@ -358,7 +362,10 @@ export const TRACKS: Track[] = [
           { text: "Brique simple à 1 200 EUR, complexe à 2 400 EUR", strong: true },
           { text: "Trois briques simples ensemble, 2 900 EUR au lieu de 3 600", strong: true },
           { text: "Construite sur vos outils, sans les remplacer", strong: false },
-          { text: "Niveau 2, 3 ou 4 selon le coût d'une erreur", strong: true },
+          {
+            text: "La tâche part seule, ou vous validez avant envoi",
+            strong: true,
+          },
           { text: "Règles et limites écrites avant construction", strong: false },
           { text: "Vos abonnements restent à votre nom", strong: false },
         ],
@@ -373,15 +380,15 @@ export const TRACKS: Track[] = [
         duration: "mensuel",
         badge: "On gouverne",
         tagline:
-          "Le système est à vous. On le surveille, on corrige les dérives et on l'ajuste quand votre activité change. C'est aussi par ici qu'on monte vers le niveau 5.",
+          "Le système est à vous. On le surveille, on corrige les dérives et on l'ajuste quand votre activité change. C'est aussi par ici qu'on monte les domaines suivants, un à un.",
         forWho:
           "Ceux qui ne veulent pas devenir l'administrateur technique de leur propre système.",
         deliverables: [
           { text: "Supervision et correction des dérives", strong: true },
           { text: "Ajustements quand votre offre évolue", strong: false },
           { text: "Support asynchrone sous deux jours ouvrés", strong: false },
-          { text: "Revue trimestrielle de votre niveau", strong: true },
-          { text: "Nouveaux domaines montés un à un vers le niveau 5", strong: false },
+          { text: "Revue trimestrielle de votre autonomie", strong: true },
+          { text: "Nouveaux domaines montés un à un", strong: false },
         ],
         /* Indexé à la brique depuis le 25/08/2026, dégressif le même jour après
            comparaison au marché américain, où le récurrent va de 1 200 à
@@ -484,17 +491,23 @@ export const TRACKS: Track[] = [
   },
 ];
 
-export const FAQ = [
+export type FaqItem = { q: string; a: string; cadre?: boolean };
+
+export const FAQ: FaqItem[] = [
   {
     q: "Pourquoi compter en briques ?",
     a: "Une brique est une tâche. Elle a son prix, son gain annuel et son retour sur investissement, ce qui vous laisse en acheter une, la voir tourner, puis décider de la suite. Vous pouvez aussi en prendre trois d'un coup, 2 900 EUR au lieu de 3 600, à condition que les trois soient nommées dans le devis. Ce qui compte est de savoir ce que couvre le périmètre avant de le payer, la remise vient après. C'est aussi pourquoi un « automatisez-moi tout » se transforme d'abord en liste de briques, plus facile à tenir des deux côtés.",
   },
   {
     q: "Faut-il viser le niveau 4 partout ?",
+    /* Ne se lit que l echelle sous les yeux, donc affichee sur /echelle. */
+    cadre: true,
     a: "Le bon niveau dépend de la tâche. Il suit le coût d'une erreur non détectée. Quand il est faible, la tâche part sans vous, c'est le niveau 4. Quand il est élevé, le processus tourne entièrement mais vous supervisez chaque passage, c'est le niveau 3, et il se vend aussi bien. Une brique isolée qui tourne seule est déjà du niveau 2, et elle vous rend vos heures. La différence entre le 2 et le 3 tient au périmètre, une tâche d'un côté, un processus complet enchaînements compris de l'autre.",
   },
   {
     q: "Le niveau 5, c'est atteignable ou c'est une image ?",
+    /* Ne se lit que l echelle sous les yeux, donc affichee sur /echelle. */
+    cadre: true,
     a: "C'est atteignable, et c'est la seule cible qui vaille pour une petite structure dont l'administratif est le vrai plafond. Cela se construit plutôt que cela s'achète. On monte un domaine, il tourne, on passe au suivant, et le niveau 5 est l'état atteint quand il ne reste plus de domaine à monter. Comptez en trimestres, sous gouvernance, pas en semaines. Nous préférons vous le dire ainsi, en trimestres et sous gouvernance.",
   },
   {
@@ -503,7 +516,7 @@ export const FAQ = [
   },
   {
     q: "En quoi est-ce différent d'une prestation d'automatisation ?",
-    a: "Automatiser, c'est exécuter plus vite une décision déjà prise par une personne. À partir du niveau 4, c'est le système qui prend la décision opérationnelle sur son périmètre. La différence se voit sur votre agenda, pas sur la facture d'outillage.",
+    a: "Automatiser, c'est exécuter plus vite une décision déjà prise par une personne. Plus haut, c'est le système qui prend la décision opérationnelle sur son périmètre, avec des limites écrites, et vous n'intervenez plus que sur exception. La différence se voit dans votre agenda, pas dans la facture d'outillage.",
   },
   {
     q: "Faut-il changer nos outils ?",

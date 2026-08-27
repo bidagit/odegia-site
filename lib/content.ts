@@ -389,8 +389,8 @@ export const TRACKS: Track[] = [
           { text: "Règles et limites écrites avant construction", strong: false },
           { text: "Vos abonnements restent à votre nom", strong: false },
         ],
-        price: "1 200 EUR HT",
-        priceSuffix: "/ brique simple",
+        price: "dès 600 EUR HT",
+        priceSuffix: "/ brique",
         priceNote: "montant arrêté au diagnostic, de 600 à 2 400 EUR selon le palier",
         cta: "Choisir mes briques",
       },
@@ -482,7 +482,7 @@ export const TRACKS: Track[] = [
           { text: "Formation de vos équipes à la gouvernance", strong: false },
           { text: "Briques nouvelles créées si besoin", strong: false },
         ],
-        price: "dès 2 900 EUR HT",
+        price: "dès 1 440 EUR HT",
         priceSuffix: "",
         priceNote: "le devis compte les briques, il n'y a pas de forfait caché",
         cta: "Chiffrer un domaine",
@@ -516,7 +516,7 @@ export type FaqItem = { q: string; a: string; cadre?: boolean };
 export const FAQ: FaqItem[] = [
   {
     q: "Pourquoi compter en briques ?",
-    a: "Une brique est une tâche. Elle a son prix, son gain annuel et son retour sur investissement, ce qui vous laisse en acheter une, la voir tourner, puis décider de la suite. Vous pouvez aussi en prendre trois d'un coup, 2 900 EUR au lieu de 3 600, à condition que les trois soient nommées dans le devis. Ce qui compte est de savoir ce que couvre le périmètre avant de le payer, la remise vient après. C'est aussi pourquoi un « automatisez-moi tout » se transforme d'abord en liste de briques, plus facile à tenir des deux côtés.",
+    a: "Une brique est une tâche. Elle a son prix, son gain annuel et son retour sur investissement, ce qui vous laisse en acheter une, la voir tourner, puis décider de la suite. Vous pouvez aussi en prendre trois d'un coup, la remise de parc retire alors 20 % du total, à condition que les trois soient nommées dans le devis. Ce qui compte est de savoir ce que couvre le périmètre avant de le payer, la remise vient après. C'est aussi pourquoi un « automatisez-moi tout » se transforme d'abord en liste de briques, plus facile à tenir des deux côtés.",
   },
   {
     q: "Faut-il viser le niveau 4 partout ?",

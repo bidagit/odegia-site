@@ -28,15 +28,18 @@ export function Briques() {
         <ul className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {BRIQUES.map((b, i) => {
             /* La couleur porte une information, le charbon signale la seule
-               brique complexe du catalogue. Les simples alternent sur trois
-               teintes claires pour rompre la grille sans hierarchiser, aucune
-               d elles ne vaut plus qu une autre. */
-            const teinte = b.complexe
+               brique complexe du catalogue. Les autres alternent sur trois
+               teintes claires pour rompre la grille sans hierarchiser, le prix
+               affiche sur chaque carte disant seul ce que vaut la brique. */
+            const palier = b.palier ?? "intermediaire";
+            const complexe = palier === "complexe";
+            const teinte = complexe
               ? "bg-charbon text-paper"
               : ["bg-paper", "bg-vert-soft", "bg-banane"][i % 3];
             /* L encre douce tombe a 4,07:1 sur la banane, sous le seuil AA. La
                citation y passe donc en encre pleine, 10,72:1. */
-            const surBanane = !b.complexe && i % 3 === 2;
+            const surBanane = !complexe && i % 3 === 2;
+            const prix = { simple: "600", intermediaire: "1 200", complexe: "2 400" }[palier];
             return (
               <li
                 key={b.name}
@@ -47,7 +50,7 @@ export function Briques() {
                 </h3>
                 <p
                   className={`mt-2 text-[13px] leading-[1.6] ${
-                    b.complexe
+                    complexe
                       ? "text-paper/75"
                       : surBanane
                         ? "text-ink"
@@ -56,11 +59,20 @@ export function Briques() {
                 >
                   &laquo;&nbsp;{b.said}&nbsp;&raquo;
                 </p>
-                {b.complexe && (
-                  <span className="mt-4 inline-block rounded-full bg-vert-vif px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-charbon">
-                    Brique complexe
-                  </span>
-                )}
+                {/* Le prix figure sur chaque carte. Sans lui le visiteur
+                    suppose un tarif unique et trouve cher ce qui ne l'est pas,
+                    reproche fait le 27/08/2026 sur les rendez-vous. */}
+                <span
+                  className={`mt-4 inline-block rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] ${
+                    complexe
+                      ? "bg-vert-vif text-charbon"
+                      : "border border-ink/20 text-ink"
+                  }`}
+                >
+                  {palier === "intermediaire" ? "Intermédiaire" : palier === "simple" ? "Simple" : "Complexe"}
+                  {" · "}
+                  {prix} EUR
+                </span>
               </li>
             );
           })}
@@ -91,7 +103,7 @@ export function Briques() {
         </div>
 
         <p className="mt-5 text-[13px] leading-[1.7] text-ink-soft">
-          Trois briques simples prises ensemble, 2 900 EUR HT au lieu de 3 600.
+          À partir de trois briques, la remise de parc retire 20 % du total.
           Une tâche absente du catalogue passe par les deux mêmes questions et
           se range dans l&apos;une des deux lignes. Quand les deux réponses
           manquent, données dispersées et sortie qui change à chaque fois, elle

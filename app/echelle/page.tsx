@@ -48,7 +48,10 @@ export default function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
       />
-      <div className="mx-auto max-w-3xl px-5 pt-14 sm:px-8">
+      {/* Section pleine largeur, le fond devant couvrir toute la page et non la
+          seule colonne de texte. Le bloc centre reste a l interieur. */}
+      <section className="bg-vert-soft pb-16 pt-14 md:pb-20">
+      <div className="mx-auto max-w-3xl px-5 sm:px-8">
         <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
           Le cadre
         </span>
@@ -64,12 +67,13 @@ export default function Page() {
           commencer.
         </p>
       </div>
+      </section>
 
       <Distinction />
       <Levels />
       <Faq cadre />
 
-      <section className="border-t border-ink/10 py-16 md:py-20">
+      <section className="bg-vert-soft py-16 md:py-20">
         <div className="mx-auto max-w-3xl px-5 sm:px-8">
           <h2 className="display text-[26px] leading-[1.12] tracking-[-0.02em] md:text-[32px]">
             Le niveau se décide au diagnostic.

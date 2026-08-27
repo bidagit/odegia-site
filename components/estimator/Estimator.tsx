@@ -599,8 +599,8 @@ function Resultat({
         <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
           S&apos;y ajoute le suivi, {euros(SUIVI_PREMIERE)} hors taxes par mois
           puis {euros(SUIVI_SUIVANTE)} par brique supplémentaire, soit{" "}
-          {euros(res.suiviMensuel)} par mois pour ce périmètre. Il est déjà
-          déduit du retour ci-dessous.
+          {euros(res.suiviMensuel)} par mois pour ce périmètre. Le retour
+          ci-dessous est calculé une fois ce suivi payé.
         </p>
         <p className="mt-5 text-[26px] font-semibold leading-tight tracking-[-0.02em] md:text-[32px]">
           Ce périmètre se rembourse en{" "}

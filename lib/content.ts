@@ -7,8 +7,9 @@
    Le modèle tarifaire vient des notes du vault du 2026-08-24, fiches
    « Odegia - Diagnostic Automatisation Admin » et « Odegia - Estimateur en
    ligne ». L'unité de compte est la brique, y compris quand plusieurs sont
-   vendues ensemble. Brique simple à 1 200 EUR, brique complexe à 2 400 EUR,
-   pack de trois simples à 2 900 au lieu de 3 600. Ne pas réinventer ces
+   vendues ensemble. Trois paliers depuis le 27/08/2026, brique simple à
+   600 EUR, intermédiaire à 1 200, complexe à 2 400, et une remise de parc de
+   20 % dès la troisième brique. Ne pas réinventer ces
    montants ici, ils sont l'étalon commercial.
 
    Le pack reste compatible avec la doctrine parce que les trois briques sont
@@ -83,13 +84,12 @@ export const NAV_LINKS = [
 export const HERO = {
   eyebrow: "Autonomisation administrative",
   title: ["Votre administratif", "tourne sans vous."],
-  claim: "L'IA exécute, vous gouvernez.",
+  claim: "L'IA exécute, vous récupérez vos soirées.",
   /* Definit les deux mots du site la ou le premier apparait. Sans cette
      ligne, la page dit qu on automatise et la FAQ dit que l automatisation
      n est pas le sujet, ce qui se lit comme une contradiction. */
   gloss:
     "Automatiser fait tourner la tâche. Autonomiser vous sort de la boucle. C'est le second que nous visons, en passant par le premier.",
-  body: "On mesure ce que votre administratif vous coûte, on automatise tâche par tâche, et on vous rend la barre. Vous n'intervenez plus que sur exception.",
   ctaPrimary: { label: "Réserver 15 minutes", href: SITE.booking },
   ctaSecondary: { label: "Estimer mon coût", href: "/estimation" },
   /* Le rendez-vous de 15 minutes n'est pas un diagnostic gratuit, il sert a
@@ -215,9 +215,10 @@ export const STEPS = [
 export type Brique = {
   name: string;
   said: string;
-  /* La complexité est une propriété de la tâche et non du contexte client.
-     Un seul poste du catalogue la porte, les appels d'offres. */
-  complexe?: boolean;
+  /* Le palier est une propriété de la tâche et non du contexte client. Il
+     mesure l'effort de construction, pas les heures gagnées. Absent vaut
+     intermédiaire, qui est le cas le plus courant. */
+  palier?: "simple" | "intermediaire" | "complexe";
 };
 
 export const BRIQUES: Brique[] = [
@@ -228,7 +229,7 @@ export const BRIQUES: Brique[] = [
     said: "Je réponds à des appels d'offres ou des dossiers de subvention",
     /* Seule brique complexe du catalogue, sources multiples, règles à écrire et
        validation humaine obligatoire. La carte le montre par sa couleur. */
-    complexe: true,
+    palier: "complexe",
   },
   {
     name: "Onboarding client",
@@ -237,8 +238,13 @@ export const BRIQUES: Brique[] = [
   {
     name: "Rendez-vous",
     said: "Je passe mon temps à caler et rappeler des rendez-vous",
+    palier: "simple",
   },
-  { name: "Comptes rendus", said: "Je ne rédige jamais mes comptes rendus" },
+  {
+    name: "Comptes rendus",
+    said: "Je ne rédige jamais mes comptes rendus",
+    palier: "simple",
+  },
   {
     name: "Mails récurrents",
     said: "Je réponds vingt fois la même chose par mail",
@@ -246,6 +252,7 @@ export const BRIQUES: Brique[] = [
   {
     name: "Pièces comptables",
     said: "Mon comptable me relance pour des pièces",
+    palier: "simple",
   },
   {
     name: "Reporting",
@@ -256,9 +263,11 @@ export const BRIQUES: Brique[] = [
 /* Deux questions decident du prix, arretees le 25/08/2026.
 
    Les donnees existent-elles deja, et la sortie garde-t-elle toujours la meme
-   forme. Deux oui donnent une brique simple, un seul une brique complexe.
+   forme. Deux oui donnent une brique construisible, un seul une brique complexe.
 
-   Le cout de l erreur en est sorti, il decide du niveau livre et non du prix.
+   Une troisieme question tranche entre simple et intermediaire depuis le
+   27/08/2026, le cout d une erreur non detectee. Un rendez-vous mal cale se
+   rattrape, une facture fausse ou un mail parti au nom du client, non.
    Une regle qui releve du jugement en est sortie aussi, elle ecarte la tache
    du catalogue au lieu de la rencherir.
 
@@ -268,15 +277,21 @@ export const BRIQUES: Brique[] = [
 export const BRIQUE_TYPES = [
   {
     label: "Brique simple",
+    price: "600 EUR HT",
+    criteria:
+      "Les deux réponses sont oui, et une erreur se rattrape sans conséquence. Caler un rendez-vous, ranger une pièce comptable.",
+  },
+  {
+    label: "Brique intermédiaire",
     price: "1 200 EUR HT",
     criteria:
-      "Les données existent déjà quelque part, et la sortie garde toujours la même forme.",
+      "Les deux réponses sont oui, mais une erreur non détectée coûte cher. Tout ce qui touche à l'argent ou part au nom du client.",
   },
   {
     label: "Brique complexe",
     price: "2 400 EUR HT",
     criteria:
-      "Une des deux manque, données dispersées ou sortie qui change à chaque fois.",
+      "Une des deux réponses manque, données dispersées ou sortie qui change à chaque fois.",
   },
 ];
 
@@ -364,8 +379,8 @@ export const TRACKS: Track[] = [
         forWho:
           "Ceux qui perdent leurs journées sur une tâche répétitive déjà identifiée.",
         deliverables: [
-          { text: "Brique simple à 1 200 EUR, complexe à 2 400 EUR", strong: true },
-          { text: "Trois briques simples ensemble, 2 900 EUR au lieu de 3 600", strong: true },
+          { text: "600 EUR la brique simple, 1 200 l'intermédiaire, 2 400 la complexe", strong: true },
+          { text: "Remise de 20 % dès la troisième brique, quel que soit le mélange", strong: true },
           { text: "Construite sur vos outils, sans les remplacer", strong: false },
           {
             text: "La tâche part seule, ou vous validez avant envoi",
@@ -376,7 +391,7 @@ export const TRACKS: Track[] = [
         ],
         price: "1 200 EUR HT",
         priceSuffix: "/ brique simple",
-        priceNote: "montant arrêté au diagnostic, brique complexe à 2 400 EUR",
+        priceNote: "montant arrêté au diagnostic, de 600 à 2 400 EUR selon le palier",
         cta: "Choisir mes briques",
       },
       {
@@ -461,7 +476,7 @@ export const TRACKS: Track[] = [
           "Les structures qui veulent qu'une fonction entière tourne sans mobiliser quelqu'un en permanence.",
         deliverables: [
           { text: "Même unité de compte, la brique", strong: true },
-          { text: "1 200 EUR la simple, 2 400 EUR la complexe", strong: true },
+          { text: "600, 1 200 ou 2 400 EUR selon le palier de la brique", strong: true },
           { text: "Intégration à vos outils existants", strong: false },
           { text: "Tableau de bord, alertes et garde-fous", strong: true },
           { text: "Formation de vos équipes à la gouvernance", strong: false },

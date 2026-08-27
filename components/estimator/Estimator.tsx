@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { SITE } from "@/lib/content";
 import {
+  NOM_PALIER,
   TACHES,
   FREQUENCES,
   TAILLES,
@@ -566,7 +567,8 @@ function Resultat({
                 </span>
               </div>
               <p className="mt-1.5 text-[13px] text-ink-soft">
-                {euros(l.gainAnnuel)} récupérés par an, {l.complexe ? "chantier complexe" : "chantier simple"}
+                {euros(l.gainAnnuel)} récupérés par an, chantier{" "}
+                {NOM_PALIER[l.palier]}, {euros(l.cout)}
               </p>
             </li>
           ))}
@@ -581,6 +583,17 @@ function Resultat({
           n&apos;êtes pas obligé de tout prendre, la première seule coûte{" "}
           {euros(res.recommandees[0]?.cout ?? 0)}.
         </p>
+        {/* La remise s'affiche avec son prix plein barré. Un rabais que le
+            client ignore ne produit aucun effet, l'ancien forfait offrait
+            700 EUR sans que personne ne le sache. */}
+        {res.remiseAppliquee && (
+          <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
+            À partir de trois tâches la remise de parc s&apos;applique.{" "}
+            <span className="line-through">{euros(res.coutPlein)}</span> devient{" "}
+            <strong className="text-white">{euros(res.coutChantier)}</strong>,
+            soit {euros(res.remiseEuros)} de moins.
+          </p>
+        )}
         {/* Le suivi s'annonce avant le retour et non en bas de page. C'est lui
             qui allonge le chiffre, le taire rendrait le retour invérifiable. */}
         <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">

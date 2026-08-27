@@ -14,23 +14,32 @@ export type TacheDef = {
      n'apparaissent jamais à l'écran. */
   label: string;
   bareme: Record<Frequence, number>; // heures par mois
-  /* La complexité est une propriété de la tâche, pas du contexte. Seuls les
-     appels d'offres la portent, sources multiples, règles à écrire et
-     validation humaine obligatoire. Tout le reste est du chantier simple, y
-     compris les devis, dont la règle est stable et la sortie unique. */
-  complexe: boolean;
+  /* Le palier est une propriété de la tâche, pas du contexte, et il mesure
+     l'effort de construction et non les heures gagnées.
+
+     La ligne de partage entre simple et intermédiaire est le coût d'une erreur.
+     Un rendez-vous mal calé se rattrape, une facture fausse ou un mail
+     maladroit parti au nom du client, non. C'est la règle du niveau selon le
+     coût de l'erreur, appliquée au prix.
+
+     Trois paliers depuis le 27/08/2026. Auparavant tout valait 1 200 sauf les
+     appels d'offres, ce qui faisait facturer un lien de réservation au prix
+     d'un moteur de facturation. */
+  palier: Palier;
 };
 
+export type Palier = "simple" | "intermediaire" | "complexe";
+
 export const TACHES: TacheDef[] = [
-  { id: "devis", label: "Refaire mes devis à la main", bareme: { mois: 3, semaine: 7, jour: 16 }, complexe: false },
-  { id: "facturation", label: "Émettre mes factures et courir après les règlements", bareme: { mois: 3, semaine: 8, jour: 18 }, complexe: false },
-  { id: "appels-offres", label: "Répondre à des appels d'offres ou des dossiers de subvention", bareme: { mois: 6, semaine: 15, jour: 30 }, complexe: true },
-  { id: "onboarding", label: "La paperasse à chaque nouveau client", bareme: { mois: 3, semaine: 7, jour: 16 }, complexe: false },
-  { id: "rendez-vous", label: "Caler et rappeler des rendez-vous", bareme: { mois: 2, semaine: 5, jour: 12 }, complexe: false },
-  { id: "comptes-rendus", label: "Rédiger mes comptes rendus", bareme: { mois: 2, semaine: 5, jour: 12 }, complexe: false },
-  { id: "mails", label: "Répondre vingt fois la même chose par mail", bareme: { mois: 3, semaine: 10, jour: 22 }, complexe: false },
-  { id: "pieces", label: "Rassembler les pièces pour mon comptable", bareme: { mois: 3, semaine: 7, jour: 13 }, complexe: false },
-  { id: "reporting", label: "Savoir où j'en suis sans attendre la fin du mois", bareme: { mois: 3, semaine: 5, jour: 10 }, complexe: false },
+  { id: "devis", label: "Refaire mes devis à la main", bareme: { mois: 3, semaine: 7, jour: 16 }, palier: "intermediaire" },
+  { id: "facturation", label: "Émettre mes factures et courir après les règlements", bareme: { mois: 3, semaine: 8, jour: 18 }, palier: "intermediaire" },
+  { id: "appels-offres", label: "Répondre à des appels d'offres ou des dossiers de subvention", bareme: { mois: 6, semaine: 15, jour: 30 }, palier: "complexe" },
+  { id: "onboarding", label: "La paperasse à chaque nouveau client", bareme: { mois: 3, semaine: 7, jour: 16 }, palier: "intermediaire" },
+  { id: "rendez-vous", label: "Caler et rappeler des rendez-vous", bareme: { mois: 2, semaine: 5, jour: 12 }, palier: "simple" },
+  { id: "comptes-rendus", label: "Rédiger mes comptes rendus", bareme: { mois: 2, semaine: 5, jour: 12 }, palier: "simple" },
+  { id: "mails", label: "Répondre vingt fois la même chose par mail", bareme: { mois: 3, semaine: 10, jour: 22 }, palier: "intermediaire" },
+  { id: "pieces", label: "Rassembler les pièces pour mon comptable", bareme: { mois: 3, semaine: 7, jour: 13 }, palier: "simple" },
+  { id: "reporting", label: "Savoir où j'en suis sans attendre la fin du mois", bareme: { mois: 3, semaine: 5, jour: 10 }, palier: "intermediaire" },
 ];
 
 export const FREQUENCES: { value: Frequence; label: string }[] = [
@@ -100,20 +109,38 @@ export const REPONSES_VIDES: Reponses = {
    paramètre commercial, c'est une mesure, et elle n'a jamais été mesurée. La
    valeur retenue est affichée au visiteur pour qu'il puisse la contester. */
 export const PART_RECUPERABLE = 0.8;
-export const PRIX_SIMPLE = 1200;
-/* Ramenée à 2 400 le 25/08/2026. Elle était montée à 2 600 le temps que le
-   pack de trois passe à 2 400, les deux montants entrant alors en collision.
-   Le pack étant remonté à 2 900, l'ordre des prix se lit de nouveau, 1 200
-   pour une simple, 2 400 pour une complexe, 2 900 pour trois simples. */
-export const PRIX_COMPLEXE = 2400;
-/* Trois briques simples valent 3 600 EUR à l'unité, le pack les remise à
-   2 900. Passé brièvement à 2 400 le 25/08/2026 pour ouvrir le seuil de
-   rentabilité, puis ramené à 2 900 le même soir, l'ouverture ayant finalement
-   été obtenue par le plafond de retour et la part récupérée. */
-export const PRIX_PACK_TROIS = 2900;
-/* En dessous, l'estimateur dit au visiteur de ne rien faire. Refuser une vente
-   ici vaut mieux qu'un client qui ne sera jamais rentable. */
-export const SEUIL_PLANCHER = 1500;
+/* Trois paliers depuis le 27/08/2026. Le tarif unique à 1 200 faisait facturer
+   un lien de réservation au prix d'un moteur de facturation, ce qui se voyait
+   et décrédibilisait toute la grille. */
+export const PRIX: Record<Palier, number> = {
+  simple: 600,
+  intermediaire: 1200,
+  complexe: 2400,
+};
+export const prixDe = (p: Palier) => PRIX[p];
+
+/* Nommage unique des paliers, repris par le site et par l'email d'estimation. */
+export const NOM_PALIER: Record<Palier, string> = {
+  simple: "simple",
+  intermediaire: "intermédiaire",
+  complexe: "complexe",
+};
+
+/* Remise de parc, en pourcentage et non en montant fixe. Le forfait à 2 900 EUR
+   supposait trois briques à 1 200. Avec des paliers mixtes il devenait absurde,
+   trois simples valant 1 800 à l'unité et 2 900 en pack.
+
+   À 20 %, trois intermédiaires donnent 2 880 EUR, soit l'ancien forfait à vingt
+   euros près, et tout mélange se calcule seul. La remise s'affiche, un rabais
+   que le client ignore ne sert personne. */
+export const REMISE_PACK = 0.2;
+export const SEUIL_PACK = 3;
+
+/* En dessous, l'estimateur dit au visiteur de ne rien faire. Le seuil porte sur
+   le coût annuel de son administratif, pas sur le prix d'un chantier. Abaissé de
+   1 500 à 900 le 27/08/2026, en même temps que l'arrivée de la brique à 600, un
+   administratif à 1 000 EUR par an pouvant désormais trouver son compte. */
+export const SEUIL_PLANCHER = 900;
 
 /* Suivi mensuel, indexé à la brique depuis le 25/08/2026. Il entre dans le
    calcul du retour, ce qui n'était pas le cas avant cette date. L'estimateur
@@ -156,7 +183,7 @@ export type LigneResultat = {
   heuresMois: number;
   heuresRecuperees: number;
   gainAnnuel: number;
-  complexe: boolean;
+  palier: Palier;
   cout: number;
   /* Gain mensuel une fois le suivi de la brique déduit. C'est lui qui rembourse
      le chantier, le gain brut ne rembourse rien. */
@@ -175,6 +202,10 @@ export type Resultat = {
   lignes: LigneResultat[];
   recommandees: LigneResultat[];
   coutChantier: number;
+  /* Somme des briques avant remise, pour pouvoir afficher le rabais. */
+  coutPlein: number;
+  remiseAppliquee: boolean;
+  remiseEuros: number;
   coutBas: number;
   coutHaut: number;
   /* Suivi mensuel du périmètre recommandé, une fois le chantier livré. */
@@ -223,7 +254,7 @@ export function calculer(r: Reponses): Resultat {
     const heuresMois = heures * facteur;
     const heuresRecuperees = heuresMois * PART_RECUPERABLE;
     const gainAnnuel = heuresRecuperees * 12 * taux;
-    const cout = def.complexe ? PRIX_COMPLEXE : PRIX_SIMPLE;
+    const cout = prixDe(def.palier);
     /* Le suivi de la brique se déduit du gain avant de calculer le retour. Une
        brique qui libère 100 EUR de temps par mois et coûte 100 EUR de suivi ne
        rembourse rien, quel que soit son prix d'achat. */
@@ -243,7 +274,7 @@ export function calculer(r: Reponses): Resultat {
       heuresMois,
       heuresRecuperees,
       gainAnnuel,
-      complexe: def.complexe,
+      palier: def.palier,
       cout,
       gainNetMensuel,
       roiMois,
@@ -281,11 +312,15 @@ export function calculer(r: Reponses): Resultat {
     : 0;
   const teteNonViableSeule = !!tete && gainTeteAvecSocle <= 0;
 
-  const nbComplexes = recommandees.filter((l) => l.complexe).length;
-  const coutChantier =
-    recommandees.length === 3 && nbComplexes === 0
-      ? PRIX_PACK_TROIS
-      : recommandees.reduce((s, l) => s + l.cout, 0);
+  /* Le prix plein sert à afficher la remise. Un rabais que le client ignore ne
+     produit aucun effet commercial, et l'ancien forfait à 2 900 masquait
+     exactement cela, 700 EUR offerts sans que personne ne le sache. */
+  const coutPlein = recommandees.reduce((s, l) => s + l.cout, 0);
+  const remiseAppliquee = recommandees.length >= SEUIL_PACK;
+  const coutChantier = remiseAppliquee
+    ? Math.round((coutPlein * (1 - REMISE_PACK)) / 10) * 10
+    : coutPlein;
+  const remiseEuros = coutPlein - coutChantier;
 
   /* Le chiffre mis en avant est celui de la première brique recommandée, jamais
      une moyenne. Une moyenne dilue le meilleur retour et produit un résultat
@@ -311,6 +346,9 @@ export function calculer(r: Reponses): Resultat {
     lignes,
     recommandees,
     coutChantier,
+    coutPlein,
+    remiseAppliquee,
+    remiseEuros,
     coutBas: Math.round((coutChantier * 0.75) / 100) * 100,
     coutHaut: Math.round((coutChantier * 1.25) / 100) * 100,
     suiviMensuel,

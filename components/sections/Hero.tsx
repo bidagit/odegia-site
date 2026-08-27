@@ -74,11 +74,7 @@ export function Hero() {
 
           {/* ── argumentaire et actions ── */}
           <div className="lg:col-start-1 lg:row-start-2 lg:self-start">
-            <p className="max-w-md text-[14.5px] leading-[1.75] text-paper/60">
-              {HERO.body}
-            </p>
-
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <a
                 href={HERO.ctaPrimary.href}
                 target="_blank"

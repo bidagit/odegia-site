@@ -161,3 +161,179 @@ body {
   }
   .bouton-relief { transition: none; }
 }
+
+/* ── Revelation au defilement ──────────────────────────────────────────────
+   Animations pilotees par le defilement, en CSS pur. Aucune classe posee par
+   JavaScript, donc aucun risque de contenu invisible si le script echoue ou si
+   l hydratation casse. Une premiere version passait par un observateur et une
+   classe sur la racine, elle a produit exactement ces deux pannes.
+
+   La double garde compte. Sans prise en charge de animation-timeline, ou en
+   mouvement reduit, aucune regle ne s applique et la page s affiche telle
+   quelle. La degradation est donc le comportement normal, pas un pis-aller.
+
+   Deux variantes. Le glissement pour les blocs ordinaires, un fondu seul pour
+   les cartes penchees, dont la rotation vit deja dans transform et serait
+   ecrasee par un translate. */
+
+@keyframes apparition-glissee {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes apparition-fondue {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal],
+    [data-reveal-fade] {
+      animation: linear both;
+      animation-timeline: view();
+      /* La plage se lit entierement en unites entry, ce qui la rend previsible.
+         Elle demarre quand l element a franchi un cinquieme de son entree et
+         s acheve quand il a fini d entrer dans le champ.
+
+         Une premiere version finissait a cover 24%, soit alors que l element
+         affleurait encore le bas de l ecran. L animation se jouait donc hors
+         du regard et seul l etat final etait visible, ce qui donnait une page
+         sans aucun mouvement apparent. */
+      animation-range: entry 20% entry 100%;
+    }
+    [data-reveal] {
+      animation-name: apparition-glissee;
+    }
+    [data-reveal-fade] {
+      animation-name: apparition-fondue;
+    }
+  }
+}
+
+/* ── Survol du bouton principal ────────────────────────────────────────────
+   L autocollant se souleve, son ombre franche s allonge dans le meme geste.
+   Aucun flou ajouté, la marque tient la profondeur par le decalage net. Au
+   clic, .bouton-relief ecrase l ombre et l effet se referme. */
+.bouton-relief:hover {
+  transform: translate(-2px, -2px);
+}
+/* L ombre grandit de deux pixels, quelle que soit sa taille de depart. Une
+   valeur unique doublait l ombre des petits boutons et la laissait discrete
+   sur les grands. */
+.bouton-relief.ombre-dure:hover {
+  box-shadow: 8px 8px 0 0 var(--color-ink);
+}
+.bouton-relief.ombre-dure-sm:hover {
+  box-shadow: 6px 6px 0 0 var(--color-ink);
+}
+.bouton-relief:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 0;
+}
+
+/* ── Rail de la methode, progression electrique ────────────────────────────
+   Un trait plein se dessine par-dessus le pointille au fil du defilement. Le
+   pointille dit le chemin restant, le trait plein le chemin parcouru, ce qui
+   rend la progression sans recourir au degrade que le kit de marque exclut. */
+.rail-parcouru {
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .rail-parcouru {
+      animation: rail-avance linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 45%;
+    }
+  }
+}
+@keyframes rail-avance {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ── Empilement des briques ────────────────────────────────────────────────
+   La carte arrive de plus bas, un peu reduite, et se pose. L animation vit sur
+   un enfant et non sur le <li>, qui porte deja la rotation de .penche dans son
+   transform et l ecraserait. Les deux transforms se composent alors au lieu de
+   se disputer. */
+@keyframes brique-tombe {
+  from {
+    opacity: 0;
+    /* Elle vient franchement d au-dessus, avec un leger devers, comme une piece
+       lachee a plat qui se redresse en tombant. */
+    transform: translateY(-110px) rotate(-4deg);
+  }
+  70% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Animation declenchee et non asservie au defilement. Une minuterie de
+   defilement avance et recule avec la molette et s arrete des qu on s arrete.
+   Ici l entree dans le champ declenche, le mouvement va au bout tout seul, et
+   rien ne se rejoue au retour vers le haut.
+
+   .attente n est posee que par ChuteBriques, et uniquement sur les cartes deja
+   sous le pli. Sans JavaScript aucune carte n est masquee. */
+@media (prefers-reduced-motion: no-preference) {
+  .attente {
+    opacity: 0;
+    /* Duree declaree ici et lue par ChuteBriques, qui en deduit les delais pour
+       tenir la duree totale voulue. Une valeur ecrite des deux cotes finirait
+       par diverger. */
+    --duree-chute: 1.05s;
+  }
+  .attente.tombe {
+    animation: brique-tombe var(--duree-chute) cubic-bezier(0.22, 0.9, 0.28, 1)
+      both;
+  }
+}
+
+/* ── L avion s envole ──────────────────────────────────────────────────────
+   Il monte et part vers la droite en piquant, pendant que la section defile.
+   Le mouvement se poursuit au-dela du champ, l objet etant decoratif et
+   marque aria-hidden par Objet3D. */
+@keyframes avion-envol {
+  from {
+    /* Il attend au milieu de la section, presque a plat. L element est place
+       en CSS a sa position d arrivee, dans le coin, et les keyframes l en
+       ecartent vers le centre pour le decollage. */
+    transform: translate(-430px, 120px) rotate(-2deg);
+  }
+  to {
+    /* Coin droit, cabre. */
+    transform: translate(0, 0) rotate(-22deg);
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-envol] {
+      animation: avion-envol linear both;
+      animation-timeline: view();
+      /* Course allongee, le trajet passant du centre au coin il lui faut plus
+         de defilement pour se lire. */
+      animation-range: cover 5% cover 85%;
+    }
+  }
+}

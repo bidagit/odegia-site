@@ -56,7 +56,7 @@ export function Levels() {
       >
         <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
           <Objet3D nom="sablier" className="absolute right-6 -top-2 hidden h-[135px] w-auto -rotate-6 lg:block xl:right-16" />
-          <div className="max-w-2xl">
+          <div className="max-w-2xl" data-reveal>
             <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-charbon/60">
               L&apos;échelle
             </span>
@@ -74,7 +74,7 @@ export function Levels() {
           </div>
 
           <ol className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {LEVELS.map((l) => {
+            {LEVELS.map((l, i) => {
               const genre: Genre = l.horizon
                 ? "horizon"
                 : l.target
@@ -86,6 +86,7 @@ export function Levels() {
               return (
                 <li
                   key={l.level}
+                  data-reveal-fade
                   className={`penche rounded-[22px] border-2 p-6 ${CARTE[genre]}`}
                 >
                   <div className="flex items-baseline gap-3">

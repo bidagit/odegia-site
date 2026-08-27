@@ -26,8 +26,17 @@ export function Pricing() {
   return (
     <section id="tarifs" className="scroll-mt-20 bg-paper-alt/45 py-20 md:py-28">
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
-        <Objet3D nom="avion" className="absolute right-2 -top-6 hidden h-[110px] w-auto -rotate-12 lg:block xl:right-8" />
-        <div className="max-w-2xl">
+        {/* L enveloppe porte l animation, Objet3D ne transmettant pas les
+            attributs arbitraires. La rotation initiale sort de la classe pour
+            vivre dans les keyframes, sinon les deux se cumuleraient. */}
+        <span
+          data-envol
+          aria-hidden
+          className="absolute right-2 -top-6 hidden lg:block xl:right-8"
+        >
+          <Objet3D nom="avion" className="h-[110px] w-auto" />
+        </span>
+        <div className="max-w-2xl" data-reveal>
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
             Tarifs
           </span>
@@ -89,7 +98,11 @@ export function Pricing() {
             const dernier = i === track.offers.length - 1;
 
             return (
-              <li key={o.name} className="flex flex-col">
+              <li
+                key={o.name}
+                data-reveal
+                className="flex flex-col"
+              >
                 {/* rail d'etape, hors de la carte pour ne pas subir sa rotation */}
                 <div className="mb-4 flex items-center gap-3">
                   <span

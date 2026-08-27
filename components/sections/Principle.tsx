@@ -16,7 +16,7 @@ export function Principle() {
       className="scroll-mt-20 border-t border-ink/10 py-20 md:py-28"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="max-w-2xl">
+        <div className="max-w-2xl" data-reveal>
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
             La méthode
           </span>
@@ -39,18 +39,37 @@ export function Principle() {
           {STEPS.map((s, i) => {
             const dernier = i === STEPS.length - 1;
             return (
-              <li key={s.numeral} className="flex flex-col">
+              <li
+                key={s.numeral}
+                data-reveal
+                className="flex flex-col"
+              >
                 {/* Rail hors de la carte, le tiret court d une etape a la
                     suivante et s arrete apres la derniere. */}
                 <div className="mb-4 flex items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-banane font-mono text-[12px] font-semibold text-ink">
+                  {/* Progression par paliers et non par degrade, le kit de
+                      marque excluant les fondus. La teinte s intensifie de la
+                      mesure vers la gouvernance, et l encre reste le texte sur
+                      les trois premieres, le blanc sur la derniere ou le vert
+                      plein l impose. */}
+                  <span
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-ink font-mono text-[12px] font-semibold ${
+                      ["bg-vert-soft text-ink", "bg-banane text-ink", "bg-vert-vif text-ink", "bg-vert text-white"][i]
+                    }`}
+                  >
                     {s.numeral}
                   </span>
                   {!dernier && (
                     <span
                       aria-hidden
-                      className="hidden h-px flex-1 border-t-2 border-dashed border-ink/25 lg:block"
-                    />
+                      className="relative hidden h-0 flex-1 lg:block"
+                    >
+                      {/* Le pointille dit le chemin restant. */}
+                      <span className="absolute inset-x-0 top-0 border-t-2 border-dashed border-ink/25" />
+                      {/* Le trait plein dit le chemin parcouru, il se dessine
+                          de gauche a droite au defilement. */}
+                      <span className="rail-parcouru absolute inset-x-0 top-0 border-t-2 border-vert" />
+                    </span>
                   )}
                 </div>
 

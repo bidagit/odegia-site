@@ -1,5 +1,6 @@
 import { BRIQUES, BRIQUE_TYPES } from "@/lib/content";
 import { Objet3D } from "@/components/deco/Objet3D";
+import { ChuteBriques } from "@/components/sections/ChuteBriques";
 
 /* Le catalogue est l'unité de vente autant que l'unité de production. Les
    intitulés sont écrits dans les mots du dirigeant, la colonne technique reste
@@ -7,9 +8,10 @@ import { Objet3D } from "@/components/deco/Objet3D";
 export function Briques() {
   return (
     <section id="briques" className="scroll-mt-20 border-t border-ink/10 py-20 md:py-28">
+      <ChuteBriques />
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <Objet3D nom="paperasse" className="absolute right-4 -top-4 hidden h-[150px] w-auto rotate-3 lg:block xl:right-10" />
-        <div className="max-w-2xl">
+        <div className="max-w-2xl" data-reveal>
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
             Les briques
           </span>
@@ -40,11 +42,19 @@ export function Briques() {
                citation y passe donc en encre pleine, 10,72:1. */
             const surBanane = !complexe && i % 3 === 2;
             const prix = { simple: "600", intermediaire: "1 200", complexe: "2 400" }[palier];
+            /* Le <li> ne sert plus qu au placement et porte la rotation de
+               .penche. Tout l habillage descend sur l enfant, qui devient la
+               carte visible et peut donc tomber en entier. Auparavant seul le
+               texte bougeait, la bordure et le fond restant en place.
+
+               Les deux transforms se composent, le parent tourne, l enfant
+               translate. */
             return (
-              <li
-                key={b.name}
-                className={`penche ombre-dure-sm rounded-[20px] border-2 border-ink p-6 ${teinte}`}
-              >
+              <li key={b.name} className="penche">
+                <div
+                  data-chute
+                  className={`ombre-dure-sm rounded-[20px] border-2 border-ink p-6 ${teinte}`}
+                >
                 <h3 className="text-[15.5px] font-semibold tracking-[-0.01em]">
                   {b.name}
                 </h3>
@@ -73,6 +83,7 @@ export function Briques() {
                   {" · "}
                   {prix} EUR
                 </span>
+                </div>
               </li>
             );
           })}

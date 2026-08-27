@@ -10,7 +10,17 @@ export function Faq({ cadre = false }: { cadre?: boolean }) {
     <section className="border-t border-ink/10 py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-20">
-          <div>
+          {/* Colonne collante a partir de lg. Elle accompagne la lecture des
+              questions, ce qui garde le titre et surtout les deux boutons a
+              portee pendant toute la liste.
+
+              self-start est indispensable. Sans lui l element de grille s etire
+              sur toute la hauteur de la ligne et sticky n a aucune marge pour
+              glisser, la position restant alors sans effet visible.
+
+              Rien en dessous de lg, les colonnes s empilent et un bloc collant
+              y volerait la hauteur d ecran a la lecture. */}
+          <div className="lg:sticky lg:top-28 lg:self-start">
             <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
               Questions
             </span>

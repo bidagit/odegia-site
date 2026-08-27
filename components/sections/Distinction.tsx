@@ -20,7 +20,7 @@ export function Distinction() {
           nom="hamster"
           className="absolute right-2 -top-10 hidden h-[190px] w-auto -rotate-3 lg:block xl:right-8"
         />
-        <div className="max-w-2xl">
+        <div className="max-w-2xl" data-reveal>
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
             Pourquoi une échelle
           </span>

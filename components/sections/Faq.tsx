@@ -26,10 +26,10 @@ export function Faq() {
                 Réserver 15 minutes
               </a>
               <a
-                href={`mailto:${SITE.email}`}
+                href="/estimation"
                 className="inline-block rounded-full border border-ink/15 px-6 py-3.5 text-[14px] font-medium transition-colors hover:border-vert hover:text-vert"
               >
-                Écrire un mail
+                Estimer d&apos;abord
               </a>
             </div>
           </div>

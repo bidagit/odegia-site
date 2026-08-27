@@ -193,15 +193,9 @@ export function Pricing() {
                     </p>
 
                     <a
-                      href={
-                        o.ctaHref ??
-                        `mailto:${SITE.email}?subject=${encodeURIComponent(
-                          `${o.name} — ${track.label}`
-                        )}`
-                      }
-                      {...(o.ctaHref
-                        ? { target: "_blank", rel: "noopener noreferrer" }
-                        : {})}
+                      href={o.ctaHref ?? SITE.booking}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className={`mt-5 block rounded-full px-5 py-3 text-center text-[13.5px] font-medium transition-colors ${
                         entree
                           ? "bouton-relief border-2 border-ink bg-banane text-ink"

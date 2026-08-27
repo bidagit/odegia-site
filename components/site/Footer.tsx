@@ -31,12 +31,9 @@ export function Footer() {
               >
                 Prendre rendez-vous
               </a>
-              <a
-                href={`mailto:${SITE.email}`}
-                className="inline-block rounded-full border border-paper/25 px-5 py-2.5 text-[13.5px] font-medium text-paper/80 transition-colors hover:border-paper hover:text-paper"
-              >
+              <span className="inline-block px-1 text-[13.5px] text-paper/55">
                 {SITE.email}
-              </a>
+              </span>
             </div>
           </div>
 

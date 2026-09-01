@@ -159,7 +159,11 @@ export const SEUIL_PLANCHER = 900;
    donc vendable en principe et rare en pratique. À 190, le seuil tombe à 5 h
    par mois et la porte d'entrée redevient franchissable. */
 export const SUIVI_PREMIERE = 190;
-export const SUIVI_SUIVANTE = 150;
+/* Abaissee de 150 a 100 le 28/08/2026. La premiere brique porte la relation, le
+   compte et la revue mensuelle, les suivantes n ajoutent que leur surveillance
+   propre. Creuser l ecart rend le parc plus attractif que la brique isolee, ce
+   qui est le sens commercial voulu. */
+export const SUIVI_SUIVANTE = 100;
 
 /* Le suivi d'un parc de n briques. */
 export const suiviMensuelPour = (n: number) =>

@@ -186,6 +186,44 @@ export const LEVEL_RULE = {
   ],
 };
 
+/* ── Qui tient la methode ───────────────────────────────────────────────────
+   Ajoutee le 28/08/2026. Le site n avait aucun humain, alors qu il vend un
+   diagnostic a 500 EUR dont la promesse est un prix ferme et un remboursement
+   si l automatisation n est pas la reponse. Un engagement pareil demande
+   quelqu un qui le porte.
+
+   Le parcours y sert de justification a la methode et jamais de trophee. Chaque
+   ligne explique un choix visible ailleurs sur la page, ce qui la rend utile au
+   lecteur plutot que flatteuse pour la marque.
+
+   Volontairement absents, l equipe qui n existe pas encore, les chiffres de
+   projets que l estimateur porte deja, et toute formule a la premiere personne,
+   le reste du site parlant au nous. */
+export const FONDATEUR = {
+  eyebrow: "Qui tient la méthode",
+  title: "Une méthode d'atelier,",
+  titleAccent: "appliquée à l'administratif.",
+  intro:
+    "Odegia a été fondée par Adib Bensalem, docteur en sciences de gestion et professeur en école de commerce, après quinze ans passés à mesurer et à réduire des processus industriels.",
+  lead: "Trois choses de ce parcours décident de ce que vous voyez sur cette page.",
+  points: [
+    {
+      title: "On mesure avant de changer.",
+      body: "C'est la discipline apprise chez Toyota, où l'amélioration commence par un relevé et jamais par une idée. C'est pourquoi le diagnostic précède le chantier, et pourquoi son prix est déduit de ce qui suit.",
+    },
+    {
+      title: "On élimine avant d'automatiser.",
+      body: "C'est la première question du Lean, et elle passe devant celle de l'outil. Une tâche supprimée coûte moins cher qu'une tâche automatisée.",
+    },
+    {
+      title: "On écrit les règles avant de construire.",
+      body: "C'est ce qui permet de vous dire ce qui reste à votre main, et de refuser un chantier quand il ne se justifie pas.",
+    },
+  ],
+  closing:
+    "La méthode est écrite, étape par étape. C'est ce qui la rend reproductible, et ce qui fait qu'elle ne dépend pas d'une seule personne.",
+};
+
 export const STEPS = [
   {
     numeral: "i",

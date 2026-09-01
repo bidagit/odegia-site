@@ -3,6 +3,7 @@ import { Briques } from "@/components/sections/Briques";
 import { Principle } from "@/components/sections/Principle";
 import { Cadre } from "@/components/sections/Cadre";
 import { Pricing } from "@/components/sections/Pricing";
+import { Fondateur } from "@/components/sections/Fondateur";
 import { Faq } from "@/components/sections/Faq";
 import { FAQ } from "@/lib/content";
 
@@ -40,6 +41,7 @@ export default function Page() {
       <Principle />
       <Cadre />
       <Pricing />
+      <Fondateur />
       <Faq />
     </>
   );

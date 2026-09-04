@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { SITE } from "@/lib/content";
 import {
   NOM_PALIER,
+  plafondHeuresSemaine,
   TACHES,
   FREQUENCES,
   TAILLES,
@@ -98,6 +99,20 @@ export function Estimator() {
   const set = <K extends keyof Reponses>(k: K, v: Reponses[K]) =>
     setR((p) => ({ ...p, [k]: v }));
 
+  /* Choisir un effectif repositionne le curseur d heures sur une valeur
+     plausible pour cette taille. Sans cela une entreprise de trente personnes
+     reste sur la valeur par defaut d un fondateur, et le plafond de realisme
+     rabat tout le calcul sur ce chiffre, ce qui annule l effet de l effectif
+     qu on vient d introduire. */
+  const choisirTaille = (t: string) => {
+    const plafond = plafondHeuresSemaine(t);
+    setR((p) => ({
+      ...p,
+      taille: t,
+      heuresSemaine: Math.max(1, Math.round(plafond / 4)),
+    }));
+  };
+
   const toggle = (k: "taches" | "outils", id: string) =>
     setR((p) => ({
       ...p,
@@ -107,13 +122,24 @@ export function Estimator() {
   const choisies = TACHES.filter((t) => r.taches.includes(t.id));
   const res = useMemo(() => calculer(r), [r]);
 
+  /* Plafond du curseur d heures, derive du modele pour l effectif declare. */
+  const plafondHeures = useMemo(
+    () => plafondHeuresSemaine(r.taille),
+    [r.taille]
+  );
+
   const ecrans = [
     {
       valide: !!r.taille,
       node: (
         <Screen question="Vous êtes">
           {TAILLES.map((t) => (
-            <Choice key={t} label={t} selected={r.taille === t} onClick={() => set("taille", t)} />
+            <Choice
+              key={t}
+              label={t}
+              selected={r.taille === t}
+              onClick={() => choisirTaille(t)}
+            />
           ))}
         </Screen>
       ),
@@ -132,11 +158,16 @@ export function Estimator() {
                 par semaine
               </span>
             </div>
+            {/* Le plafond suit l effectif declare a l ecran precedent. Fige a
+                30 h, il bloquait toute PME sous le total que le modele savait
+                calculer, et le curseur mentait sur ce qui etait representable.
+                Le pas s elargit avec la course, un pas de 1 sur 290 h etant
+                impraticable a la souris. */}
             <input
               type="range"
               min={1}
-              max={30}
-              step={1}
+              max={plafondHeures}
+              step={plafondHeures <= 60 ? 1 : 5}
               value={r.heuresSemaine}
               onChange={(e) => set("heuresSemaine", Number(e.target.value))}
               aria-label="Heures d'administratif par semaine"
@@ -144,7 +175,7 @@ export function Estimator() {
             />
             <div className="mt-1.5 flex justify-between text-[12px] text-ink-soft">
               <span>1 h</span>
-              <span>30 h</span>
+              <span>{plafondHeures} h</span>
             </div>
           </div>
         </Screen>

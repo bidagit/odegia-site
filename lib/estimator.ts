@@ -26,20 +26,26 @@ export type TacheDef = {
      appels d'offres, ce qui faisait facturer un lien de réservation au prix
      d'un moteur de facturation. */
   palier: Palier;
+  /* Comment la charge suit l effectif. Un tableau de bord reste unique quand le
+     volume de mails suit les personnes, et une facture suit le nombre de
+     clients plus que celui des salaries. */
+  sensibilite: Sensibilite;
 };
+
+export type Sensibilite = "forte" | "moyenne" | "faible";
 
 export type Palier = "simple" | "intermediaire" | "complexe";
 
 export const TACHES: TacheDef[] = [
-  { id: "devis", label: "Refaire mes devis à la main", bareme: { mois: 3, semaine: 7, jour: 16 }, palier: "intermediaire" },
-  { id: "facturation", label: "Émettre mes factures et courir après les règlements", bareme: { mois: 3, semaine: 8, jour: 18 }, palier: "intermediaire" },
-  { id: "appels-offres", label: "Répondre à des appels d'offres ou des dossiers de subvention", bareme: { mois: 6, semaine: 15, jour: 30 }, palier: "complexe" },
-  { id: "onboarding", label: "La paperasse à chaque nouveau client", bareme: { mois: 3, semaine: 7, jour: 16 }, palier: "intermediaire" },
-  { id: "rendez-vous", label: "Caler et rappeler des rendez-vous", bareme: { mois: 2, semaine: 5, jour: 12 }, palier: "simple" },
-  { id: "comptes-rendus", label: "Rédiger mes comptes rendus", bareme: { mois: 2, semaine: 5, jour: 12 }, palier: "simple" },
-  { id: "mails", label: "Répondre vingt fois la même chose par mail", bareme: { mois: 3, semaine: 10, jour: 22 }, palier: "intermediaire" },
-  { id: "pieces", label: "Rassembler les pièces pour mon comptable", bareme: { mois: 3, semaine: 7, jour: 13 }, palier: "simple" },
-  { id: "reporting", label: "Savoir où j'en suis sans attendre la fin du mois", bareme: { mois: 3, semaine: 5, jour: 10 }, palier: "intermediaire" },
+  { id: "devis", label: "Refaire mes devis à la main", bareme: { mois: 3, semaine: 7, jour: 16 }, sensibilite: "moyenne", palier: "intermediaire" },
+  { id: "facturation", label: "Émettre mes factures et courir après les règlements", bareme: { mois: 3, semaine: 8, jour: 18 }, sensibilite: "moyenne", palier: "intermediaire" },
+  { id: "appels-offres", label: "Répondre à des appels d'offres ou des dossiers de subvention", bareme: { mois: 6, semaine: 15, jour: 30 }, sensibilite: "moyenne", palier: "complexe" },
+  { id: "onboarding", label: "La paperasse à chaque nouveau client", bareme: { mois: 3, semaine: 7, jour: 16 }, sensibilite: "moyenne", palier: "intermediaire" },
+  { id: "rendez-vous", label: "Caler et rappeler des rendez-vous", bareme: { mois: 2, semaine: 5, jour: 12 }, sensibilite: "forte", palier: "simple" },
+  { id: "comptes-rendus", label: "Rédiger mes comptes rendus", bareme: { mois: 2, semaine: 5, jour: 12 }, sensibilite: "forte", palier: "simple" },
+  { id: "mails", label: "Répondre vingt fois la même chose par mail", bareme: { mois: 3, semaine: 10, jour: 22 }, sensibilite: "forte", palier: "intermediaire" },
+  { id: "pieces", label: "Rassembler les pièces pour mon comptable", bareme: { mois: 3, semaine: 7, jour: 13 }, sensibilite: "forte", palier: "simple" },
+  { id: "reporting", label: "Savoir où j'en suis sans attendre la fin du mois", bareme: { mois: 3, semaine: 5, jour: 10 }, sensibilite: "faible", palier: "intermediaire" },
 ];
 
 export const FREQUENCES: { value: Frequence; label: string }[] = [
@@ -47,6 +53,64 @@ export const FREQUENCES: { value: Frequence; label: string }[] = [
   { value: "semaine", label: "Toutes les semaines" },
   { value: "jour", label: "Tous les jours ou presque" },
 ];
+
+/* ── Effet de l effectif sur la charge ─────────────────────────────────────
+   Ajoute le 28/08/2026. La question sur la taille etait posee depuis l origine
+   et n entrait dans aucun calcul, si bien que l estimateur donnait le meme
+   volume administratif a un fondateur seul et a une entreprise de quarante
+   personnes. Les baremes etaient a l echelle du fondateur et plafonnaient a
+   149 h par mois, quoi que le visiteur declare.
+
+   **Ces coefficients sont estimes, pas mesures.** Ils tiennent lieu de reglage
+   provisoire jusqu au premier chantier chronometre, celui d Alteria, apres quoi
+   ils doivent etre confrontes au reel et corriges. La meme reserve vaut pour les
+   baremes eux-memes, ecrite en tete de ce fichier.
+
+   La progression est deliberement sous-lineaire. Dix personnes ne produisent pas
+   dix fois l administratif d une seule, le contexte se partage, les outils se
+   mutualisent et une part du travail est fixe. */
+export const EFFECTIF_REF: Record<string, number> = {
+  "Fondateur seul": 1,
+  "2 à 5 personnes": 3,
+  "6 à 20 personnes": 12,
+  "Plus de 20 personnes": 30,
+};
+
+/* Part de la charge qui suit reellement chaque personne supplementaire.
+   Forte, ce qui nait des personnes, reunions, comptes rendus, mails, notes de
+   frais et pieces sociales. Moyenne, ce qui suit le volume de clients et de
+   dossiers plus que l effectif, devis, factures, onboarding, appels d offres.
+   Faible, ce qui reste a peu pres fixe, un tableau de bord servant l entreprise
+   entiere quelle que soit sa taille. */
+export const COEFFICIENT_EFFECTIF: Record<Sensibilite, number> = {
+  forte: 0.35,
+  moyenne: 0.2,
+  faible: 0.05,
+};
+
+/* Multiplicateur applique au bareme d une tache. Vaut 1 pour un fondateur seul,
+   ce qui laisse le modele historique inchange sur la piste d entree. */
+export const facteurEffectif = (
+  taille: string | null,
+  sensibilite: Sensibilite
+) => {
+  const n = EFFECTIF_REF[taille ?? ""] ?? 1;
+  return 1 + COEFFICIENT_EFFECTIF[sensibilite] * (n - 1);
+};
+
+/* Plafond du curseur d heures, derive du modele lui-meme plutot que fixe a la
+   main. Il vaut ce que les neuf taches peuvent produire au rythme le plus
+   intense pour cet effectif, arrondi a la dizaine superieure. Un plafond fixe a
+   30 h bloquait toute PME sous le total que le modele savait calculer, et un
+   plafond arbitrairement haut aurait laisse declarer un chiffre que le calcul ne
+   pouvait pas atteindre. */
+export const plafondHeuresSemaine = (taille: string | null) => {
+  const total = TACHES.reduce(
+    (somme, t) => somme + t.bareme.jour * facteurEffectif(taille, t.sensibilite),
+    0
+  );
+  return Math.max(30, Math.ceil(total / 4.33 / 10) * 10);
+};
 
 export const TAILLES = [
   "Fondateur seul",
@@ -242,9 +306,14 @@ export function calculer(r: Reponses): Resultat {
   const cadrageAlourdi = aucunOutilEnLigne || regleFloue;
 
   const choisies = TACHES.filter((t) => r.taches.includes(t.id));
+  /* Le bareme est celui d un fondateur seul, l effectif l etire selon la
+     sensibilite de la tache. Sans ce facteur, l estimateur donnait le meme
+     volume administratif a une personne et a quarante. */
   const brut = choisies.map((t) => ({
     def: t,
-    heures: t.bareme[r.frequences[t.id] ?? "semaine"],
+    heures:
+      t.bareme[r.frequences[t.id] ?? "semaine"] *
+      facteurEffectif(r.taille, t.sensibilite),
   }));
   const totalBrut = brut.reduce((s, b) => s + b.heures, 0);
 

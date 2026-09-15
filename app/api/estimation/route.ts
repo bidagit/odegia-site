@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import { calculer, type Reponses } from "@/lib/estimator";
 
 /* Réception de l'estimation, puis transmission à n8n.
@@ -75,6 +76,42 @@ export async function POST(req: Request) {
 
   const resultat = calculer(reponses);
 
+  const charge = {
+    source: "odegia-estimateur",
+    recuLe: new Date().toISOString(),
+    email,
+    prenom: typeof prenom === "string" ? prenom.slice(0, 80) : "",
+    /* Consentement de prospection, séparé du service demandé. Il vaut pour
+       la séquence Brevo, jamais pour l'envoi de l'estimation elle-même. */
+    optinProspection: optin === true,
+    reponses,
+    resultat,
+  };
+
+  /* Couloir de répétition. Avec cet en-tête, la route valide, recalcule et rend
+     ce qui serait parti à n8n, sans rien transmettre. Règle 9 du SOP de sécurité
+     du groupe, née le 15 septembre 2026 quand une demande de test de l'annuaire
+     est partie à six organismes réels faute d'un tel couloir. Le secret est
+     celui que la route envoie déjà à n8n, aucune variable de plus à déclarer
+     dans le compose. */
+  const repetition = req.headers.get("x-repetition");
+  if (repetition) {
+    const secret = process.env.N8N_WEBHOOK_SECRET ?? "";
+    const a = Buffer.from(repetition);
+    const b = Buffer.from(secret);
+    if (!secret || a.length !== b.length || !timingSafeEqual(a, b)) {
+      return NextResponse.json({ ok: false, raison: "non_autorise" }, { status: 401 });
+    }
+    return NextResponse.json({
+      repetition: true,
+      avertissement: "Rien n'a été transmis à n8n.",
+      webhook: new URL(WEBHOOK).pathname,
+      destinataire: email,
+      optinProspection: charge.optinProspection,
+      charge,
+    });
+  }
+
   try {
     const r = await fetch(WEBHOOK, {
       method: "POST",
@@ -86,17 +123,7 @@ export async function POST(req: Request) {
           ? { "X-Webhook-Secret": process.env.N8N_WEBHOOK_SECRET }
           : {}),
       },
-      body: JSON.stringify({
-        source: "odegia-estimateur",
-        recuLe: new Date().toISOString(),
-        email,
-        prenom: typeof prenom === "string" ? prenom.slice(0, 80) : "",
-        /* Consentement de prospection, séparé du service demandé. Il vaut pour
-           la séquence Brevo, jamais pour l'envoi de l'estimation elle-même. */
-        optinProspection: optin === true,
-        reponses,
-        resultat,
-      }),
+      body: JSON.stringify(charge),
       signal: AbortSignal.timeout(8000),
     });
     if (!r.ok) {

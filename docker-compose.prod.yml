@@ -11,6 +11,13 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
+      # Webhook n8n qui recoit les estimations, envoie l email transactionnel,
+      # enregistre dans NocoDB et pousse vers Brevo quand l optin est coche.
+      # Tant qu il est vide, la route repond 503 non_configure et l ecran de
+      # resultat annonce franchement que l email n est pas parti.
+      - N8N_ESTIMATION_WEBHOOK=${N8N_ESTIMATION_WEBHOOK:-}
+      # Secret d en-tete exige par le webhook n8n depuis le 15 septembre 2026.
+      - N8N_WEBHOOK_SECRET=${N8N_WEBHOOK_SECRET:-}
     # 3002 = orbisoptima, 3003 = footonthemoon, 3005 = chamil.
     # 3006 retenu pour Odegia, à confirmer libre sur le VPS avant le premier up.
     ports:

@@ -78,7 +78,14 @@ export async function POST(req: Request) {
   try {
     const r = await fetch(WEBHOOK, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        // Le webhook n8n exige ce secret depuis le 15 septembre 2026. Sans lui,
+        // n8n repond 403 et l estimation n arrive nulle part.
+        ...(process.env.N8N_WEBHOOK_SECRET
+          ? { "X-Webhook-Secret": process.env.N8N_WEBHOOK_SECRET }
+          : {}),
+      },
       body: JSON.stringify({
         source: "odegia-estimateur",
         recuLe: new Date().toISOString(),

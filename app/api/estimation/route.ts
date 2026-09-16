@@ -112,6 +112,16 @@ export async function POST(req: Request) {
     });
   }
 
+  /* Verrou des tests internes. Une adresse du groupe est un test, par
+     définition. Rien ne part vers n8n, donc ni mail, ni ligne NocoDB, ni
+     contact Brevo, ni séquence de prospection, et l'écran de résultat termine
+     normalement. Pour voir le mail réel, saisir une adresse hors du groupe,
+     donc le faire exprès. Même verrou que sur l'annuaire depuis le 16
+     septembre 2026. */
+  if (/@orbisoptima\.com$/i.test(email as string)) {
+    return NextResponse.json({ ok: true, test: true });
+  }
+
   try {
     const r = await fetch(WEBHOOK, {
       method: "POST",

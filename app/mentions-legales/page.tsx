@@ -57,8 +57,8 @@ export default function Page() {
           préalable est interdite.
         </p>
         <p>
-          La marque Odegia et le logo associé sont des signes distinctifs
-          exploités par {LEGAL.editeur}.
+          Le nom Odegia et le logo associé sont des signes distinctifs protégés
+          au même titre.
         </p>
       </Block>
 

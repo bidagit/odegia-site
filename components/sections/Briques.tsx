@@ -117,8 +117,8 @@ export function Briques() {
           À partir de trois briques, la remise de parc retire 20 % du total.
           Une tâche absente du catalogue passe par les deux mêmes questions et
           se range dans l&apos;une des deux lignes. Quand les deux réponses
-          manquent, données dispersées et sortie qui change à chaque fois, elle
-          devient un chantier sur devis, cadré et chiffré au diagnostic.
+          manquent, elle devient un chantier sur devis, cadré et chiffré au
+          diagnostic.
         </p>
       </div>
     </section>

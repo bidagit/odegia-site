@@ -233,7 +233,7 @@ export const STEPS = [
   {
     numeral: "ii",
     title: "Chiffrage",
-    body: "Chaque tâche devient une brique, simple ou complexe, avec son gain annuel et son retour sur investissement en mois. Ce qui reste à votre main est indiqué clairement.",
+    body: "Le rapport range chaque tâche dans une brique, simple ou complexe, et dit clairement ce qui reste à votre main.",
   },
   {
     numeral: "iii",

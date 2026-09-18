@@ -1,0 +1,17 @@
+# Les etats de chaque page du site, un par ligne, en relatif.
+#
+# Une page a plusieurs etats et un releve qui ne les enumere pas ne voit qu une
+# partie de ce que le lecteur voit, c est ce qui a laisse passer deux defauts
+# sur l annuaire le 18 septembre 2026. Ce fichier est la liste, il se complete
+# le jour ou un nouvel etat nait, une variante de formulaire, un parametre
+# d adresse, une page en session. Une ligne `accepte <fragment>` fait taire une
+# repetition jugee voulue.
+#
+#   python ~/.claude/skills/parcours/scripts/redondances.py --site https://odegia.com --etats scripts/parcours-etats.txt
+
+/
+/echelle
+/estimation
+/cgv
+/confidentialite
+/mentions-legales

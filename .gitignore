@@ -15,3 +15,6 @@ tsconfig.tsbuildinfo
 # design references (not shipped)
 design-refs/
 design-sources/
+
+# Captures du compagnon parcours, regenerees a chaque deploiement.
+captures/

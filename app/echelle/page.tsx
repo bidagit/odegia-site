@@ -79,9 +79,8 @@ export default function Page() {
             Le niveau se décide au diagnostic.
           </h2>
           <p className="mt-4 text-[14.5px] leading-[1.7] text-ink-soft">
-            Vous n&apos;avez pas à choisir votre niveau à l&apos;avance. Chaque
-            tâche reçoit celui qui lui convient, selon ce que coûterait une
-            erreur non détectée, et le rapport vous le dit noir sur blanc.
+            Vous n&apos;avez pas à choisir votre niveau à l&apos;avance, le rapport
+            de diagnostic le dit noir sur blanc, tâche par tâche.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-3">
             <a

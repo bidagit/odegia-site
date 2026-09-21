@@ -11,6 +11,11 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 MSG="${1:?message de commit requis}"
+# Le deployeur poussait main quelle que soit la branche courante. Le
+# 21 septembre 2026 un correctif de securite a ete commite sur la branche
+# d une autre session, la poussee est partie sans lui, et sans le dire.
+BRANCHE="$(git rev-parse --abbrev-ref HEAD)"
+[ "$BRANCHE" = "main" ] || { echo "Deploiement refuse, la branche courante est $BRANCHE et non main."; exit 1; }
 npx.cmd tsc --noEmit
 # La sortie du build va dans un fichier, pas dans un tube vers grep -q. Le
 # 18 septembre 2026, grep -q fermait le tube des la ligne trouvee, npm mourait

@@ -23,8 +23,8 @@ import {
   REMISE_PACK,
   SEUIL_PACK,
   SEUIL_RETOUR_MOIS,
-  SUIVI_PREMIERE,
-  SUIVI_SUIVANTE,
+  SUIVI_PAR_PALIER,
+  suiviDe,
   suiviMensuelPour,
   facteurEffectif,
   type Palier,
@@ -35,7 +35,7 @@ import {
    change a chaque regle de decision, definition de mesure ou grille modifiee,
    et le protocole du vault dit ce que chaque version contient. Un rapport se
    relit toujours avec les regles de sa version. */
-export const METHODE_VERSION = "1.7";
+export const METHODE_VERSION = "1.9";
 
 /* Remise accordee a tout client deja servi par une autre marque du groupe,
    decision du 26/08/2026. Elle porte sur le premier chantier seulement et ne
@@ -83,11 +83,12 @@ export const CADENCE_LIVRE = { jour: 15, semaine: 45, mois: 120 };
 
 /* Projection, v1.4, decision d Adib du 01/10/2026. Un chantier se rembourse
    sur l avenir, le verdict se calcule donc sur l estimation du client pour les
-   douze prochains mois, plafonnee a trois fois le volume mesure. Le plafond
-   protege contre l optimisme d un client qui veut se soulager, trois fois et
-   non deux pour ne pas ecarter une startup en forte croissance. Le cout de la
+   douze prochains mois, plafonnee a quatre fois le volume mesure. Le plafond
+   protege contre l optimisme d un client qui veut se soulager. Passe de deux a
+   trois pour ne pas ecarter une startup en forte croissance, puis a quatre le
+   01/10/2026, decision d Adib. Le cout de la
    partie 1 reste celui du volume mesure, c est ce que le client paie deja. */
-export const PLAFOND_PROJECTION = 3;
+export const PLAFOND_PROJECTION = 4;
 /* v1.7, decision d Adib du 01/10/2026. Le plafond tombe pour une tache dont le
    volume est engage, preuve a l appui, dates fixees, inscriptions recues,
    contrats signes. La preuve s ecrit dans le champ engage, elle est reprise
@@ -295,7 +296,8 @@ export function diagnostiquer(e: Entree) {
     const prix = palier ? PRIX[palier] : 0;
     /* Meme lecture que l estimateur, le suivi le plus favorable pour trier et
        filtrer, le socle reel pour le chiffre de tete. */
-    const gainNetMensuel = gainMensuel - Math.min(SUIVI_PREMIERE, SUIVI_SUIVANTE);
+    /* Suivi par palier depuis la v1.9, chaque brique porte le sien. */
+    const gainNetMensuel = gainMensuel - (palier ? suiviDe(palier) : 0);
     const roiMois = gainNetMensuel > 0 ? prix / gainNetMensuel : Infinity;
 
     const bande = def ? bandeDe(t.frequenceAn) : null;
@@ -337,7 +339,7 @@ export function diagnostiquer(e: Entree) {
      sa propre brique. Les taches d un meme parcours, verdict brique, n en
      forment qu une. Celles qui relevent du jugement ou se suppriment restent
      hors du parcours, il ne les automatise pas. */
-  const suiviMin = Math.min(SUIVI_PREMIERE, SUIVI_SUIVANTE);
+  const suiviParcours = suiviDe(PALIER_PARCOURS);
   const groupes = new Map<string, LigneDiag[]>();
   /* Une tache sur devis appartient au parcours dont elle fait partie, v1.6,
      decision d Adib du 01/10/2026. Ses donnees dispersees et sa sortie variable
@@ -368,7 +370,7 @@ export function diagnostiquer(e: Entree) {
     const ls = groupes.get(id)!;
     const prix = PRIX[PALIER_PARCOURS];
     const gainMensuel = ls.reduce((a, l) => a + l.gainMensuel, 0);
-    const gainNetMensuel = gainMensuel - suiviMin;
+    const gainNetMensuel = gainMensuel - suiviParcours;
     const roiMois = gainNetMensuel > 0 ? prix / gainNetMensuel : Infinity;
     unites.push({
       id, nom: e.parcours?.[id] ?? id, parcours: true, taches: ls.map((l) => l.id),
@@ -404,8 +406,8 @@ export function diagnostiquer(e: Entree) {
      la premiere unite qui passe le seuil avec le socle, et sans elle rien ne se
      recommande, puisque tout chantier commence par une premiere brique. */
   const passeEnTete = (u: Unite) =>
-    u.gainMensuel - SUIVI_PREMIERE > 0 &&
-    u.prix / (u.gainMensuel - SUIVI_PREMIERE) <= SEUIL_RETOUR_MOIS;
+    u.gainMensuel - suiviDe(u.palier) > 0 &&
+    u.prix / (u.gainMensuel - suiviDe(u.palier)) <= SEUIL_RETOUR_MOIS;
   const iTete = tri.findIndex(passeEnTete);
   if (iTete > 0) {
     tri.unshift(tri.splice(iTete, 1)[0]);
@@ -417,14 +419,14 @@ export function diagnostiquer(e: Entree) {
 
   /* Le chiffre de tete, celui de la premiere brique achetee seule, donc
      portant le socle du suivi. C est le seul chiffre en gras du rapport. */
-  const gainTeteNet = tete ? tete.gainMensuel - SUIVI_PREMIERE : 0;
+  const gainTeteNet = tete ? tete.gainMensuel - suiviDe(tete.palier) : 0;
   const roiTete = tete && gainTeteNet > 0 ? Math.ceil(tete.prix / gainTeteNet) : null;
 
   /* Retour de chaque brique a sa place dans l ordre. La premiere porte le
      socle, les suivantes leur seule part marginale, soit exactement ce que la
      facture de suivi dira une fois le parc construit. */
   const positions = recommandees.map((l, i) => {
-    const suivi = i === 0 ? SUIVI_PREMIERE : SUIVI_SUIVANTE;
+    const suivi = suiviDe(l.palier);
     const net = l.gainMensuel - suivi;
     return { id: l.id, suivi, gainNetMensuel: net, roiMois: net > 0 ? Math.ceil(l.prix / net) : null };
   });
@@ -436,7 +438,7 @@ export function diagnostiquer(e: Entree) {
   const deduction = e.diagnostic.deduit ? Math.min(e.diagnostic.prix, apresGroupe) : 0;
   const chantierHT = apresGroupe - deduction;
 
-  const suiviMensuel = suiviMensuelPour(recommandees.length);
+  const suiviMensuel = suiviMensuelPour(recommandees.map((u) => u.palier));
   const gainMensuelPerimetre = recommandees.reduce((s, l) => s + l.gainMensuel, 0);
   const gainNetPerimetre = gainMensuelPerimetre - suiviMensuel;
   /* Le retour du perimetre se calcule sur ce que le client paie pour le
@@ -501,12 +503,12 @@ export function diagnostiquer(e: Entree) {
      plus proche, pour qu il puisse passer outre en connaissance de cause. */
   const bilanMensuel = (() => {
     const base = recommandees.length
-      ? { recommande: true, heures: recommandees.reduce((a, u) => a + u.heuresRecuperees, 0), valeur: gainMensuelPerimetre, chantier: apresGroupe, suivi: suiviMensuelPour(recommandees.length) }
+      ? { recommande: true, heures: recommandees.reduce((a, u) => a + u.heuresRecuperees, 0), valeur: gainMensuelPerimetre, chantier: apresGroupe, suivi: suiviMensuelPour(recommandees.map((u) => u.palier)) }
       : unites.length
         ? (() => {
             const u = [...unites].sort((a, b) => b.gainMensuel - a.gainMensuel)[0];
             const prix = e.remiseGroupe ? arrondi10(u.prix * (1 - REMISE_GROUPE)) : u.prix;
-            return { recommande: false, heures: u.heuresRecuperees, valeur: u.gainMensuel, chantier: prix, suivi: SUIVI_PREMIERE };
+            return { recommande: false, heures: u.heuresRecuperees, valeur: u.gainMensuel, chantier: prix, suivi: suiviDe(u.palier) };
           })()
         : null;
     if (!base) return null;
@@ -524,23 +526,23 @@ export function diagnostiquer(e: Entree) {
     .sort((a, b) => b.gainMensuel - a.gainMensuel)
     .slice(0, 3)
     .map((u) => {
-      const net = u.gainMensuel - SUIVI_PREMIERE;
+      const net = u.gainMensuel - suiviDe(u.palier);
       const valeurHeure = u.heuresRecuperees > 0 ? u.gainMensuel / u.heuresRecuperees : 0;
-      const gainSeuil = u.prix / SEUIL_RETOUR_MOIS + SUIVI_PREMIERE;
+      const gainSeuil = u.prix / SEUIL_RETOUR_MOIS + suiviDe(u.palier);
       return {
         id: u.id,
         recommande: recommandees.some((r) => r.id === u.id),
         prix: u.prix,
         heuresRecuperees: u.heuresRecuperees,
         gainMensuel: u.gainMensuel,
-        suivi: SUIVI_PREMIERE,
+        suivi: suiviDe(u.palier),
         netMensuel: net,
         roiMois: net > 0 ? Math.ceil(u.prix / net) : null,
         /* Heures rendues par mois a partir desquelles il se rembourse en
            SEUIL_RETOUR_MOIS mois, au taux de ses propres taches. */
         heuresSeuil: valeurHeure > 0 ? gainSeuil / valeurHeure : null,
         /* Sur deux ans, ce qu il coute et ce qu il rend en temps. */
-        cout24: u.prix + 24 * SUIVI_PREMIERE,
+        cout24: u.prix + 24 * suiviDe(u.palier),
         rendu24: 24 * u.gainMensuel,
       };
     });
@@ -564,8 +566,7 @@ export function diagnostiquer(e: Entree) {
       REMISE_PACK,
       SEUIL_PACK,
       REMISE_GROUPE,
-      SUIVI_PREMIERE,
-      SUIVI_SUIVANTE,
+      SUIVI_PAR_PALIER,
       SEUIL_RETOUR_MOIS,
       SEUIL_RETOUR_ANNONCABLE,
       MOIS_LISSAGE,

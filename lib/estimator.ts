@@ -206,32 +206,28 @@ export const SEUIL_PACK = 3;
    administratif à 1 000 EUR par an pouvant désormais trouver son compte. */
 export const SEUIL_PLANCHER = 900;
 
-/* Suivi mensuel, indexé à la brique depuis le 25/08/2026. Il entre dans le
-   calcul du retour, ce qui n'était pas le cas avant cette date. L'estimateur
-   comparait un coût d'achat unique à un gain brut et ignorait la charge
-   récurrente, ce qui raccourcissait tous les retours affichés.
+/* Suivi mensuel, par palier depuis le 01/10/2026, décision d'Adib. Il entre
+   dans le calcul du retour depuis le 25/08/2026.
 
-   Dégressif, 190 EUR pour la première brique puis 150 pour chacune des
-   suivantes. La première porte la relation, le compte et la revue mensuelle,
-   les suivantes n'ajoutent que leur propre surveillance, et le prix suit cette
-   asymétrie. Le socle est passé par 300 dans la journée du 25/08/2026, un
-   niveau qui rendait la brique unique presque invendable, puis par un palier
-   190 puis 200 qui inversait la dégressivité sans le vouloir. */
-/* Socle abaissé de 300 à 190 EUR le 25/08/2026. À 300, une brique achetée
-   seule devait libérer 7,3 h par mois pour se rembourser, et six des huit
-   tâches du catalogue étaient refusées à 60 EUR de l'heure. Le niveau 2 était
-   donc vendable en principe et rare en pratique. À 190, le seuil tombe à 5 h
-   par mois et la porte d'entrée redevient franchissable. */
-export const SUIVI_PREMIERE = 190;
-/* Abaissee de 150 a 100 le 28/08/2026. La premiere brique porte la relation, le
-   compte et la revue mensuelle, les suivantes n ajoutent que leur surveillance
-   propre. Creuser l ecart rend le parc plus attractif que la brique isolee, ce
-   qui est le sens commercial voulu. */
-export const SUIVI_SUIVANTE = 100;
+   Chaque brique porte son propre suivi, sans socle, au palier de sa
+   construction. Surveiller un lien de réservation ne coûte presque rien,
+   surveiller une facturation demande du travail, et le prix suit cette
+   différence comme le prix du chantier la suit déjà.
 
-/* Le suivi d'un parc de n briques. */
-export const suiviMensuelPour = (n: number) =>
-  n <= 0 ? 0 : SUIVI_PREMIERE + SUIVI_SUIVANTE * (n - 1);
+   Avant, un socle de 190 EUR pour la première brique puis 100 par brique en
+   plus. Sur trois ans une brique simple coûtait onze fois son prix en suivi,
+   et une tâche devait déjà prendre 4,5 h par mois pour qu'une brique seule se
+   rembourse en deux ans. Au palier, il en faut 1,4 h pour une simple. */
+export const SUIVI_PAR_PALIER: Record<Palier, number> = {
+  simple: 40,
+  intermediaire: 70,
+  complexe: 120,
+};
+export const suiviDe = (p: Palier) => SUIVI_PAR_PALIER[p];
+
+/* Le suivi d'un parc, somme des suivis de ses briques. */
+export const suiviMensuelPour = (paliers: Palier[]) =>
+  paliers.reduce((s, p) => s + suiviDe(p), 0);
 
 /* Plafond de retour au-delà duquel une brique ne se recommande pas. Une tâche
    qui met plus de dix-huit mois à se rembourser ne vaut pas le chantier, la
@@ -329,17 +325,10 @@ export function calculer(r: Reponses): Resultat {
     const gainAnnuel = heuresRecuperees * 12 * taux;
     const cout = prixDe(def.palier);
     /* Le suivi de la brique se déduit du gain avant de calculer le retour. Une
-       brique qui libère 100 EUR de temps par mois et coûte 100 EUR de suivi ne
-       rembourse rien, quel que soit son prix d'achat. */
-    /* Deux lectures selon la position de la brique, le socle en première et la
-       part marginale ensuite. Pour le tri et le filtre on retient la moins
-       chère des deux, une brique méritant d'être gardée dès qu'elle se
-       rembourse dans sa position la plus favorable. Le minimum plutôt que la
-       part marginale, pour que le filtre reste juste quel que soit le sens de
-       la dégressivité. Une lecture figée sur l'une des deux valeurs écarterait
-       des briques qui tiennent très bien dans l'autre position. */
-    const suiviLePlusFavorable = Math.min(SUIVI_PREMIERE, SUIVI_SUIVANTE);
-    const gainNetMensuel = gainAnnuel / 12 - suiviLePlusFavorable;
+       brique qui libère 40 EUR de temps par mois et coûte 40 EUR de suivi ne
+       rembourse rien, quel que soit son prix d'achat. Depuis le suivi par
+       palier, une brique porte le même suivi à toute position. */
+    const gainNetMensuel = gainAnnuel / 12 - suiviDe(def.palier);
     const roiMois = gainNetMensuel > 0 ? cout / gainNetMensuel : Infinity;
     return {
       id: def.id,
@@ -381,14 +370,14 @@ export function calculer(r: Reponses): Resultat {
      01/10/2026. On place en tête la première qui passe avec le socle. Sans elle
      rien ne se recommande, puisque tout parc commence par une première brique. */
   const passeEnTete = (l: LigneResultat) =>
-    l.gainAnnuel / 12 - SUIVI_PREMIERE > 0 &&
-    l.cout / (l.gainAnnuel / 12 - SUIVI_PREMIERE) <= SEUIL_RETOUR_MOIS;
+    l.gainAnnuel / 12 - suiviDe(l.palier) > 0 &&
+    l.cout / (l.gainAnnuel / 12 - suiviDe(l.palier)) <= SEUIL_RETOUR_MOIS;
   const iTete = tri.findIndex(passeEnTete);
   if (iTete > 0) tri.unshift(tri.splice(iTete, 1)[0]);
   const recommandees = iTete === -1 ? [] : tri.slice(0, 3);
   const tete = recommandees[0];
   const gainTeteAvecSocle = tete
-    ? tete.gainAnnuel / 12 - SUIVI_PREMIERE
+    ? tete.gainAnnuel / 12 - suiviDe(tete.palier)
     : 0;
   const teteNonViableSeule = !!tete && gainTeteAvecSocle <= 0;
 
@@ -413,7 +402,7 @@ export function calculer(r: Reponses): Resultat {
     (s, l) => s + l.gainAnnuel / 12,
     0
   );
-  const suiviMensuel = suiviMensuelPour(recommandees.length);
+  const suiviMensuel = suiviMensuelPour(recommandees.map((l) => l.palier));
   const gainNetPerimetre = gainMensuelRecommande - suiviMensuel;
   const roiMois =
     gainNetPerimetre > 0 ? Math.ceil(coutChantier / gainNetPerimetre) : 0;

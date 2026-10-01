@@ -29,6 +29,7 @@ dossier = Path(sys.argv[1]).resolve()
 entree = json.loads((dossier / "entree.json").read_text(encoding="utf-8"))
 calcul = (Path(__file__).parent / "calcul.mts").read_text(encoding="utf-8")
 VERSION = re.search(r'METHODE_VERSION = "([^"]+)"', calcul).group(1)
+PLAFOND = re.search(r"PLAFOND_PROJECTION = (\d+)", calcul).group(1)
 client = entree["client"]["nom"]
 date = entree.get("dateEntretien") or "date à fixer"
 
@@ -179,7 +180,7 @@ for n in range(1, 6):
         ("Nom, dans ses mots", ""),
         ("Déclencheur", "qu'est-ce qui la démarre"),
         ("Fois sur les 12 derniers mois", "un nombre, saisons comprises"),
-        ("Fois sur les 12 prochains mois", "estimation du client, plafonnée au calcul à 3 fois le passé"),
+        ("Fois sur les 12 prochains mois", f"estimation du client, plafonnée au calcul à {PLAFOND} fois le passé"),
         ("Ce volume est-il engagé", "non ☐   oui ☐, preuve, dates fixées, inscriptions, contrats signés"),
         ("Durée active en minutes", "la dernière fois"),
         ("Temps pour s'y remettre et s'en défaire", "20 % par défaut, corrigé si le client le dit   0 ☐  10 % ☐  30 % ☐"),

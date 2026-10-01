@@ -14,8 +14,7 @@ import {
   DOCUMENTATION,
   PART_RECUPERABLE,
   REPONSES_VIDES,
-  SUIVI_PREMIERE,
-  SUIVI_SUIVANTE,
+  SUIVI_PAR_PALIER,
   calculer,
   euros,
   heures,
@@ -628,9 +627,10 @@ function Resultat({
         {/* Le suivi s'annonce avant le retour et non en bas de page. C'est lui
             qui allonge le chiffre, le taire rendrait le retour invérifiable. */}
         <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
-          S&apos;y ajoute le suivi, {euros(SUIVI_PREMIERE)} hors taxes par mois
-          puis {euros(SUIVI_SUIVANTE)} par brique supplémentaire, soit{" "}
-          {euros(res.suiviMensuel)} par mois pour ce périmètre. Le retour
+          S&apos;y ajoute le suivi, de {euros(SUIVI_PAR_PALIER.simple)} à{" "}
+          {euros(SUIVI_PAR_PALIER.complexe)} hors taxes par mois et par brique
+          selon son palier, soit {euros(res.suiviMensuel)} par mois pour ce
+          périmètre. Le retour
           ci-dessous est calculé une fois ce suivi payé.
         </p>
         <p className="mt-5 text-[26px] font-semibold leading-tight tracking-[-0.02em] md:text-[32px]">
@@ -643,8 +643,8 @@ function Resultat({
         {res.teteNonViableSeule && (
           <p className="mt-4 border-t border-white/20 pt-4 text-[13.5px] leading-[1.65] text-white/70">
             À prendre ensemble. Isolée, la première tâche ne libère pas assez de
-            temps pour couvrir le suivi à {euros(SUIVI_PREMIERE)} par mois. C&apos;est
-            le regroupement qui la rend rentable, pas la tâche seule.
+            temps pour couvrir son propre suivi. C&apos;est le regroupement qui la
+            rend rentable, pas la tâche seule.
           </p>
         )}
       </section>
@@ -653,7 +653,7 @@ function Resultat({
         <h3 className="text-[17px] font-semibold">La suite</h3>
         <p className="mt-3 text-[14px] leading-[1.7] text-ink-soft">
           Le diagnostic à 500 € HT confirme ces chiffres sur vos données réelles
-          et vous remet un rapport de quatre pages sous 72 heures. Il est déduit
+          et vous remet sous 72 heures un rapport et une feuille de route datée. Il est déduit
           si vous nous confiez le chantier, et remboursé si l&apos;automatisation
           n&apos;est pas votre vraie réponse.
         </p>

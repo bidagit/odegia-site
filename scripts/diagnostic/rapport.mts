@@ -252,7 +252,7 @@ const partie3 = `
         <div>
           <h3>${esc(l.nom)}</h3>
           ${l.parcours ? `<p class="ligne-chiffres">Regroupe ${l.taches.map((t) => { const n = parId.get(t)!.nom; return esc(n.charAt(0).toLowerCase() + n.slice(1)); }).join(", ")}</p>` : ""}
-          <p class="ligne-chiffres">${heures(l.heuresRecuperees)} h rendues par mois · ${euros(l.gainMensuel)} de temps par mois · suivi ${euros(p.suivi)} · ${i === 0 ? "retour" : "retour à sa place"} ${mois(p.roiMois)}</p>
+          <p class="ligne-chiffres">${heures(l.heuresRecuperees)} h rendues par mois · ${euros(l.gainMensuel)} de temps par mois · suivi ${euros(p.suivi)} · retour ${mois(p.roiMois)}</p>
         </div>
       </li>`;
       })
@@ -323,7 +323,7 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
   </table>
   <div class="suivi">
     <span class="etiquette">Suivi mensuel, à partir de la livraison</span>
-    <p><strong>${euros(d.suiviMensuelHT)} HT par mois</strong> pour ${c.recommandees.length} brique${c.recommandees.length > 1 ? "s" : ""}, ${euros(c.parametres.SUIVI_PREMIERE)} pour la première puis ${euros(c.parametres.SUIVI_SUIVANTE)} par brique en plus. Sans engagement de durée.</p>
+    <p><strong>${euros(d.suiviMensuelHT)} HT par mois</strong> pour ${c.recommandees.length} brique${c.recommandees.length > 1 ? "s" : ""}, ${euros(c.parametres.SUIVI_PAR_PALIER.simple)}, ${euros(c.parametres.SUIVI_PAR_PALIER.intermediaire)} ou ${euros(c.parametres.SUIVI_PAR_PALIER.complexe)} par brique selon son palier. Sans engagement de durée.</p>
   </div>
   <ul class="conditions">
     <li>Vos abonnements aux outils restent à votre nom et sont réglés par vous.</li>

@@ -18,8 +18,8 @@
 
    Diagnostic et suivi relevés le 25/08/2026 après comparaison au marché
    américain. Diagnostic à 500 EUR pour un fondateur et dès 1 500 EUR pour une
-   PME, remboursé si l'automatisation n'est pas la réponse. Suivi à 190 EUR par
-   mois puis 100 EUR par brique supplémentaire. */
+   PME, remboursé si l'automatisation n'est pas la réponse. Suivi par palier
+   depuis le 01/10/2026, 40, 70 ou 120 EUR par brique et par mois. */
 
 export const SITE = {
   name: "Odegia",
@@ -78,6 +78,8 @@ export const NAV_LINKS = [
   { label: "La méthode", href: "/#principe" },
   { label: "Tarifs", href: "/#tarifs" },
   { label: "L'échelle", href: "/echelle" },
+  /* Premiere etude de cas, publiee le 01/10/2026 avec l accord du bureau. */
+  { label: "Étude de cas", href: "/cas/chamil-france" },
   { label: "Estimation", href: "/estimation" },
 ];
 
@@ -460,8 +462,10 @@ export const TRACKS: Track[] = [
            Conséquence assumée, une brique qui libère moins de 7,1 h par mois ne
            couvre plus son suivi en première position. La brique unique de
            faible volume cesse donc d'être vendable, et l'estimateur le dit. */
-        price: "190 EUR HT",
-        priceSuffix: "/ mois, puis 100 par brique en plus",
+        /* Par palier depuis le 01/10/2026, décision d'Adib, 40, 70 ou 120 EUR
+           par brique, sans socle. Voir SUIVI_PAR_PALIER dans estimator.ts. */
+        price: "dès 40 EUR HT",
+        priceSuffix: "/ mois par brique, 40, 70 ou 120 selon le palier",
         priceNote: "sans engagement de durée, vous ne payez que ce qui tourne",
         cta: "Ajouter le suivi",
       },

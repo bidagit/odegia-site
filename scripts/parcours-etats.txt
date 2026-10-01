@@ -15,3 +15,4 @@
 /cgv
 /confidentialite
 /mentions-legales
+/cas/chamil-france

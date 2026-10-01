@@ -461,7 +461,7 @@ export const TRACKS: Track[] = [
         price: "500 € HT",
         priceSuffix: "",
         priceNote: "déduits du chantier, remboursés si la réponse n'est pas l'automatisation",
-        cta: "Réserver le diagnostic",
+        cta: "Réserver 15 minutes",
         ctaHref: SITE.booking,
       },
       {
@@ -487,7 +487,9 @@ export const TRACKS: Track[] = [
         price: "600 à 2 400 € HT",
         priceSuffix: "/ tâche",
         priceNote: "selon ce que coûte une erreur, 20 % de remise dès la troisième",
-        cta: "Choisir mes briques",
+        /* Sans bouton depuis le 01/10/2026. Il menait a l agenda d appel
+           decouverte en promettant un choix de briques. */
+        cta: "",
       },
       {
         index: "03",
@@ -522,7 +524,7 @@ export const TRACKS: Track[] = [
         price: "40 à 120 € HT",
         priceSuffix: "/ mois par tâche",
         priceNote: "selon le prix de la tâche, sans engagement, vous ne payez que ce qui tourne",
-        cta: "Ajouter le suivi",
+        cta: "",
       },
     ],
   },

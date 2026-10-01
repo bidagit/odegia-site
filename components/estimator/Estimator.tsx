@@ -559,10 +559,7 @@ function Resultat({
           largement, dans un sens comme dans l&apos;autre.
         </p>
         <p className="mt-3 text-[13.5px] leading-[1.7] text-ink-soft">
-          Le diagnostic approfondi mesure vos volumes réels, tâche par tâche,
-          et remet un rapport de quatre pages avec les chiffres qui vous
-          engagent et la feuille de route. C&apos;est lui qui sert de base au
-          devis, cette estimation sert à décider si le sujet mérite un entretien.
+          Cette estimation sert à décider si le sujet mérite un entretien.
         </p>
       </div>
 
@@ -632,8 +629,8 @@ function Resultat({
             qui allonge le chiffre, le taire rendrait le retour invérifiable. */}
         <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
           S&apos;y ajoute le suivi, de {euros(SUIVI_PAR_PALIER.simple)} à{" "}
-          {euros(SUIVI_PAR_PALIER.complexe)} hors taxes par mois et par brique
-          selon son palier, soit {euros(res.suiviMensuel)} par mois pour ce
+          {euros(SUIVI_PAR_PALIER.complexe)} hors taxes par mois et par tâche
+          selon son prix, soit {euros(res.suiviMensuel)} par mois pour ce
           périmètre. Le retour
           ci-dessous est calculé une fois ce suivi payé.
         </p>
@@ -667,7 +664,7 @@ function Resultat({
           rel="noopener noreferrer"
           className="mt-6 inline-block rounded-full bg-vert px-7 py-3.5 text-[14.5px] font-medium text-white transition-colors hover:bg-vert-deep"
         >
-          Réserver le diagnostic
+          Réserver 15 minutes pour en parler
         </a>
       </section>
 

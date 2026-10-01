@@ -175,6 +175,7 @@ export function Pricing() {
                       {o.priceNote}
                     </p>
 
+                    {o.cta && (
                     <a
                       href={o.ctaHref ?? SITE.booking}
                       target="_blank"
@@ -187,6 +188,7 @@ export function Pricing() {
                     >
                       {o.cta}
                     </a>
+                    )}
                   </div>
                 </article>
               </li>

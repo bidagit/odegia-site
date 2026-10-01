@@ -80,7 +80,15 @@ export async function POST(req: Request) {
     source: "odegia-estimateur",
     recuLe: new Date().toISOString(),
     email,
-    prenom: typeof prenom === "string" ? prenom.slice(0, 80) : "",
+    /* Lettres, espaces, apostrophes et tirets seulement, depuis l audit du
+       01/10/2026. Le prenom entrait tel quel dans le HTML du mail n8n, un
+       visiteur pouvait y glisser un lien et faire envoyer par Odegia, depuis
+       son domaine authentifie, un mail piege a n importe quelle adresse. Le
+       nœud n8n echappe aussi la valeur, les deux gardes se doublent. */
+    prenom:
+      typeof prenom === "string"
+        ? prenom.normalize("NFC").replace(/[^\p{L}\p{M}' -]/gu, "").replace(/\s+/g, " ").trim().slice(0, 40)
+        : "",
     /* Consentement de prospection, séparé du service demandé. Il vaut pour
        la séquence Brevo, jamais pour l'envoi de l'estimation elle-même. */
     optinProspection: optin === true,

@@ -489,10 +489,10 @@ export default function Page() {
               &laquo;
             </span>
             <blockquote className="display text-[21px] leading-[1.4] tracking-[-0.01em] md:text-[25px]">
-              Grâce à Odegia, on a pu économiser un temps monstre sur
-              l&apos;administratif, qu&apos;on peut désormais consacrer à la relation
-              avec nos partenaires et à la participation aux événements locaux. La
-              méthode Odegia, c&apos;est vraiment le jour et la nuit.
+              C&apos;est le jour et la nuit. Grâce à Odegia, on a pu économiser un
+              temps monstre sur l&apos;administratif, qu&apos;on peut désormais
+              consacrer à la relation avec nos partenaires et à la participation
+              aux événements locaux.
             </blockquote>
             <figcaption className="mt-6 flex items-center gap-3">
               <Image

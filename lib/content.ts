@@ -213,7 +213,10 @@ export const LEVEL_RULE = {
    le reste du site parlant au nous. */
 export const FONDATEUR = {
   eyebrow: "Qui tient la méthode",
-  title: "Une méthode d'atelier,",
+  /* « Industrielle » depuis le 01/10/2026, decision d Adib, plutot que
+     « scientifique », qui promettait une validation que la grille n a pas
+     encore. */
+  title: "Une méthode industrielle,",
   titleAccent: "appliquée à l'administratif.",
   intro:
     "Odegia a été fondée par Adib Bensalem, docteur en sciences de gestion et professeur en école de commerce, après quinze ans passés à mesurer et à réduire des processus industriels.",

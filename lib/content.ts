@@ -520,9 +520,13 @@ export const TRACKS: Track[] = [
           { text: "Formation de vos équipes à la gouvernance", strong: false },
           { text: "Briques nouvelles créées si besoin", strong: false },
         ],
-        price: "dès 1 440 EUR HT",
+        /* Dès 2 400 depuis le 01/10/2026, décision d'Adib. Un domaine se
+           chiffre en parcours complexe, règle v1.1 du diagnostic. L'ancien
+           plancher de 1 440, trois briques simples remisées, annonçait moins
+           que ce que le rapport facture. */
+        price: "dès 2 400 EUR HT",
         priceSuffix: "",
-        priceNote: "le devis compte les briques, il n'y a pas de forfait caché",
+        priceNote: "un parcours de bout en bout, le devis compte les briques ou le parcours",
         cta: "Chiffrer un domaine",
       },
       {

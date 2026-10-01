@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 const CHIFFRES = [
   { valeur: "18,3 h", legende: "d'administratif par mois sur les 12 prochains mois" },
   { valeur: "13 188 €", legende: "par an, au taux de 60 € de l'heure retenu par l'association" },
-  { valeur: "9 mois", legende: "pour rembourser le parcours d'inscription" },
+  { valeur: "9 mois", legende: "pour rembourser l'investissement Odegia" },
 ];
 
 /* Inventaire des 23 taches, genere depuis calcul.json du diagnostic, trie par

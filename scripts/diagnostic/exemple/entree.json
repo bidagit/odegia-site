@@ -1,0 +1,163 @@
+{
+  "client": {
+    "nom": "Claire Lemaire",
+    "entite": "Lemaire Conseil RH (cas fictif)",
+    "representant": "Claire Lemaire",
+    "adresse": "12 rue de l'Exemple, 75011 Paris",
+    "activite": "Coaching de managers et ateliers QVT pour établissements médico-sociaux",
+    "taille": "Fondateur seul"
+  },
+  "dateEntretien": "2026-09-24",
+  "dateRapport": "2026-09-26",
+  "taux": 90,
+  "agace": "cr",
+  "pertes": "facturation",
+  "remiseGroupe": false,
+  "diagnostic": {
+    "prix": 500,
+    "deduit": true
+  },
+  "devis": {
+    "numero": "ODG-DEV-2026-000"
+  },
+  "taches": [
+    {
+      "id": "devis",
+      "nom": "Propositions commerciales aux établissements",
+      "catalogue": "devis",
+      "declencheur": "Demande d'un directeur par mail ou téléphone",
+      "entrees": "Notes d'appel, grille tarifaire Excel",
+      "sortie": "Proposition PDF de 3 pages",
+      "destinataire": "Directeur d'établissement",
+      "acteur": "Dirigeante",
+      "dureeMinutes": 90,
+      "regle": true,
+      "donneesExistent": true,
+      "sortieStandard": true,
+      "coutErreur": "eleve",
+      "motif": "Vos tarifs sont écrits et vos propositions suivent toujours le même plan. Vous relisez chaque proposition avant envoi.",
+      "frequenceAn": 44
+    },
+    {
+      "id": "facturation",
+      "nom": "Factures et relances",
+      "catalogue": "facturation",
+      "declencheur": "Fin d'une séance ou d'un atelier",
+      "entrees": "Agenda, bon de commande",
+      "sortie": "Facture et relance",
+      "destinataire": "Service comptable du client",
+      "acteur": "Dirigeante",
+      "dureeMinutes": 25,
+      "regle": true,
+      "donneesExistent": true,
+      "sortieStandard": true,
+      "coutErreur": "eleve",
+      "motif": "Chaque facture découle d'une séance déjà inscrite à l'agenda. Les relances suivent un calendrier fixe.",
+      "frequenceAn": 110
+    },
+    {
+      "id": "rdv",
+      "nom": "Caler les séances de coaching",
+      "catalogue": "rendez-vous",
+      "declencheur": "Nouveau coaché ou report",
+      "entrees": "Agenda Google",
+      "sortie": "Invitation et rappel",
+      "destinataire": "Manager coaché",
+      "acteur": "Dirigeante",
+      "dureeMinutes": 10,
+      "regle": true,
+      "donneesExistent": true,
+      "sortieStandard": true,
+      "coutErreur": "faible",
+      "motif": "Un lien de réservation et un rappel automatique la veille couvrent la totalité des cas décrits.",
+      "frequenceAn": 220
+    },
+    {
+      "id": "cr",
+      "nom": "Comptes rendus de séance pour l'employeur",
+      "catalogue": "comptes-rendus",
+      "declencheur": "Fin de séance",
+      "entrees": "Notes manuscrites",
+      "sortie": "Synthèse d'une page",
+      "destinataire": "DRH de l'établissement",
+      "acteur": "Dirigeante",
+      "dureeMinutes": 30,
+      "regle": true,
+      "donneesExistent": false,
+      "sortieStandard": true,
+      "coutErreur": "eleve",
+      "motif": "La synthèse suit un gabarit fixe, mais les notes sont aujourd'hui manuscrites. Il faut d'abord les saisir, d'où le palier supérieur.",
+      "frequenceAn": 176,
+      "regleEcrite": false
+    },
+    {
+      "id": "opco",
+      "nom": "Dossiers de prise en charge OPCO",
+      "catalogue": null,
+      "declencheur": "Signature d'une formation",
+      "entrees": "Convention, programme",
+      "sortie": "Dossier sur la plateforme OPCO",
+      "destinataire": "OPCO",
+      "acteur": "Dirigeante",
+      "dureeMinutes": 60,
+      "regle": true,
+      "donneesExistent": true,
+      "sortieStandard": true,
+      "coutErreur": "eleve",
+      "motif": "Le volume est trop faible pour qu'une brique se rembourse, deux dossiers par mois.",
+      "frequenceAn": 22
+    },
+    {
+      "id": "tri",
+      "nom": "Choisir les ateliers à proposer à chaque établissement",
+      "catalogue": null,
+      "declencheur": "Premier rendez-vous",
+      "entrees": "Entretien avec la direction",
+      "sortie": "Recommandation",
+      "destinataire": "Direction",
+      "acteur": "Dirigeante",
+      "dureeMinutes": 45,
+      "regle": false,
+      "donneesExistent": false,
+      "sortieStandard": false,
+      "coutErreur": "eleve",
+      "motif": "C'est votre expertise qui décide, au cas par cas. Cette tâche reste à votre main.",
+      "frequenceAn": 33
+    },
+    {
+      "id": "tableur",
+      "nom": "Recopier les heures dans un tableur de suivi",
+      "catalogue": null,
+      "declencheur": "Chaque vendredi",
+      "entrees": "Agenda",
+      "sortie": "Tableur",
+      "destinataire": "Personne",
+      "acteur": "Dirigeante",
+      "dureeMinutes": 30,
+      "regle": true,
+      "donneesExistent": true,
+      "sortieStandard": true,
+      "coutErreur": "faible",
+      "aSupprimer": true,
+      "motif": "Personne ne lit ce tableur, l'agenda porte déjà l'information. La tâche se supprime, elle ne s'automatise pas.",
+      "frequenceAn": 44
+    }
+  ],
+  "redaction": {
+    "synthese": "Votre administratif vous prend vingt-cinq heures par mois, soit plus de vingt-sept mille euros par an à votre taux. Les comptes rendus de séance et les propositions commerciales en font la moitié.",
+    "automatisable": "Quatre tâches s'automatisent, une se supprime, une reste à votre main parce qu'elle relève de votre jugement, et une n'a pas le volume pour se rembourser.",
+    "cadrage": "Les comptes rendus demandent une étape de plus avant construction, la saisie de vos notes. Elle est comprise dans le palier indiqué.",
+    "ordre": "Les comptes rendus passent en tête, c'est la tâche qui vous pèse le plus et son retour reste à moins d'un mois du meilleur. Les propositions suivent, puis les séances, la moins chère des trois à construire."
+  },
+  "chrono": {
+    "formulaire": 10,
+    "entretien": 95,
+    "calcul": 20,
+    "redaction": 60
+  },
+  "definition": {
+    "produit": "Des managers d'établissements médico-sociaux qui tiennent leur équipe, mesuré par l'absentéisme à six mois",
+    "pourQui": "Directeurs de MAS, ESAT et accueils de jour de 50 à 300 salariés en Île-de-France",
+    "fluxDeValeur": "De la demande d'un directeur à la synthèse remise à la DRH après coaching"
+  }
+}

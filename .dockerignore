@@ -10,3 +10,4 @@ DEPLOY.md
 docker-compose.prod.yml
 Dockerfile
 .dockerignore
+scripts/diagnostic

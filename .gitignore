@@ -18,3 +18,8 @@ design-sources/
 
 # Captures du compagnon parcours, regenerees a chaque deploiement.
 captures/
+
+# Sorties du diagnostic, seul le cas fictif d entree est versionne. Les dossiers
+# clients vivent sur P:\1. ORBIS\Odegia\Diagnostics, jamais dans ce depot.
+scripts/diagnostic/exemple/*
+!scripts/diagnostic/exemple/entree.json

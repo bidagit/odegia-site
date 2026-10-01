@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react";
 import { SITE } from "@/lib/content";
 
@@ -225,10 +226,23 @@ export default function Page() {
               l&apos;investissement rendu en temps, sur 3 ans
             </span>
           </div>
-          <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
-            Étude de cas
-          </span>
-          <h1 className="display mt-3 text-[34px] leading-[1.08] tracking-[-0.03em] md:text-[48px]">
+          <div className="flex items-center gap-3">
+            {/* Logo 2026 de l association, fond blanc retire, ajoute le
+                01/10/2026 a la demande d Adib. */}
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-paper">
+              <Image
+                src="/images/chamil-france-logo.png"
+                alt="Logo de Chamil France"
+                width={256}
+                height={275}
+                className="h-9 w-auto"
+              />
+            </span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
+              Étude de cas
+            </span>
+          </div>
+          <h1 className="display mt-4 text-[34px] leading-[1.08] tracking-[-0.03em] md:text-[48px]">
             Chamil France
             <br />
             <span className="text-vert">le diagnostic, avant de construire.</span>
@@ -463,6 +477,39 @@ export default function Page() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Temoignage de la presidente de Chamil France, ajoute le 01/10/2026 a
+          la demande d Adib. Coquilles corrigees, sens inchange. Texte valide par
+          Atika le 01/10/2026, il porte sur les automatisations deja en place. */}
+      <section className="border-t border-ink/10 py-16 md:py-20">
+        <figure className="mx-auto max-w-3xl px-5 sm:px-8">
+          <div className="ombre-dure relative rounded-[24px] border-2 border-ink bg-paper p-8 md:p-10">
+            <span aria-hidden="true" className="display absolute -top-7 left-8 text-[72px] leading-none text-vert">
+              &laquo;
+            </span>
+            <blockquote className="display text-[21px] leading-[1.4] tracking-[-0.01em] md:text-[25px]">
+              Grâce à Odegia, on a pu économiser un temps monstre sur
+              l&apos;administratif, qu&apos;on peut désormais consacrer à la relation
+              avec nos partenaires et à la participation aux événements locaux. La
+              méthode Odegia, c&apos;est vraiment le jour et la nuit.
+            </blockquote>
+            <figcaption className="mt-6 flex items-center gap-3">
+              <Image
+                src="/images/atika-chamil-france.webp"
+                alt="Atika, présidente de Chamil France"
+                width={320}
+                height={320}
+                className="h-14 w-14 shrink-0 rounded-full border-2 border-ink object-cover"
+              />
+              <span className="text-[14px] leading-[1.4]">
+                <span className="font-semibold">Atika</span>
+                <br />
+                <span className="text-ink-soft">Présidente de Chamil France</span>
+              </span>
+            </figcaption>
+          </div>
+        </figure>
       </section>
 
       <section className="bg-vert-soft py-16 md:py-20">

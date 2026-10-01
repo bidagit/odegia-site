@@ -378,7 +378,7 @@ export const EXEMPLES_PRIX = [
     quoi: "Son parcours d'inscription, de la première question au témoignage",
     chantier: "2 400 €",
     suivi: "120 € par mois",
-    detail: "1 parcours de 10 tâches, voir l'étude de cas",
+    detail: "1 parcours de 10 tâches, remboursé en 9 mois",
     lien: "/cas/chamil-france",
   },
   {

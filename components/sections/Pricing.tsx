@@ -211,8 +211,22 @@ export function Pricing() {
           </p>
           <ul className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
             {EXEMPLES_PRIX.map((e) => (
-              <li key={e.qui} className="ombre-dure-sm flex flex-col rounded-[20px] border-2 border-ink bg-surface p-6">
-                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">{e.qui}</span>
+              <li
+                key={e.qui}
+                className={`flex flex-col rounded-[20px] border-2 border-ink p-6 ${
+                  e.lien ? "ombre-dure bg-vert-soft" : "ombre-dure-sm bg-surface"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">{e.qui}</span>
+                  {/* Le seul exemple tire d un client reel, mis en avant le
+                      01/10/2026 a la demande d Adib. */}
+                  {e.lien && (
+                    <span className="rounded-full border-2 border-ink bg-banane px-2.5 py-0.5 text-[11px] font-semibold">
+                      Cas réel
+                    </span>
+                  )}
+                </div>
                 <p className="mt-2 text-[15px] font-semibold leading-[1.4] tracking-[-0.01em]">{e.quoi}</p>
                 <div className="mt-5 flex items-baseline gap-2">
                   <span className="display text-[30px] leading-none tracking-[-0.02em]">{e.chantier.replace(/ /g, "\u00a0")}</span>
@@ -221,9 +235,12 @@ export function Pricing() {
                 <p className="mt-1.5 text-[14px] font-medium text-vert">puis {e.suivi.replace(/ (?=€)/g, "\u00a0")}</p>
                 <p className="mt-3 flex-1 text-[12.5px] leading-[1.5] text-ink-soft">{e.detail}</p>
                 {e.lien && (
-                  <Link href={e.lien} className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-vert underline decoration-2 underline-offset-4 hover:text-ink">
-                    Lire l&apos;étude de cas
-                    <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
+                  <Link
+                    href={e.lien}
+                    className="bouton-relief ombre-dure-sm mt-4 inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-ink bg-banane px-5 py-2.5 text-[13.5px] font-semibold text-ink"
+                  >
+                    Lire l&apos;étude de cas Chamil France
+                    <ArrowUpRight className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />
                   </Link>
                 )}
               </li>

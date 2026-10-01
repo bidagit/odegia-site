@@ -40,6 +40,9 @@ const CHIFFRES = [
   { valeur: "18,3 h", legende: "d'administratif par mois sur les 12 prochains mois" },
   { valeur: "13 188 €", legende: "par an, au taux de 60 € de l'heure retenu par l'association" },
   { valeur: "9 mois", legende: "pour rembourser l'investissement Odegia" },
+  /* Retour sur 3 ans, (temps rendu - cout) / cout, (13 939 - 6 720) / 6 720,
+     demande d Adib du 01/10/2026. */
+  { valeur: "+107 %", legende: "de retour sur 3 ans, 13 939 € de temps rendu pour 6 720 € investis" },
 ];
 
 /* Inventaire des 23 taches, genere depuis calcul.json du diagnostic, trie par
@@ -236,7 +239,7 @@ export default function Page() {
             Découvrir les séjours de Chamil France
             <ArrowUpRight className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />
           </a>
-          <div className="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {CHIFFRES.map((c) => (
               <div
                 key={c.valeur}

@@ -116,7 +116,7 @@ export const HERO = {
     { value: "80 %", label: "du temps d'une tâche automatisée, récupéré" },
     /* 6 mois depuis le 01/10/2026, decision d Adib. « Des 2 mois » etait le
        meilleur cas de la grille, l etude de cas publiee en affiche 9. */
-    { value: "6 mois", label: "pour rembourser votre investissement" },
+    { value: "dès 6 mois", label: "pour rembourser votre investissement" },
   ],
   statsNote:
     "Estimations issues de notre grille de diagnostic. Le chiffre qui compte est le vôtre, il sort du rapport.",

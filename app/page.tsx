@@ -1,4 +1,5 @@
 import { Hero } from "@/components/sections/Hero";
+import { PrixEnBref } from "@/components/sections/PrixEnBref";
 import { Briques } from "@/components/sections/Briques";
 import { Principle } from "@/components/sections/Principle";
 import { Cadre } from "@/components/sections/Cadre";
@@ -37,6 +38,7 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
       />
       <Hero />
+      <PrixEnBref />
       <Briques />
       <Principle />
       <Cadre />

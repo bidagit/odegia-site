@@ -608,10 +608,14 @@ function Resultat({
       <section className="mt-12 rounded-2xl bg-vert p-7 text-white md:p-9">
         <h3 className="text-[17px] font-semibold">Ce que ça représente</h3>
         <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
-          Traiter les {res.recommandees.length} tâches se situe entre{" "}
-          {euros(res.coutBas)} et {euros(res.coutHaut)} hors taxes. Vous
-          n&apos;êtes pas obligé de tout prendre, la première seule coûte{" "}
-          {euros(res.recommandees[0]?.cout ?? 0)}.
+          {/* Prix exact du catalogue depuis le 01/10/2026, la fourchette a
+              plus ou moins 25 % brouillait des prix pourtant fixes. */}
+          Traiter {res.recommandees.length > 1 ? `les ${res.recommandees.length} tâches` : "cette tâche"} coûte{" "}
+          {euros(res.coutPlein)} hors taxes au prix du catalogue, à confirmer au
+          diagnostic.{res.recommandees.length > 1 && (
+            <> Vous n&apos;êtes pas obligé de tout prendre, la première seule coûte{" "}
+            {euros(res.recommandees[0]?.cout ?? 0)}.</>
+          )}
         </p>
         {/* La remise s'affiche avec son prix plein barré. Un rabais que le
             client ignore ne produit aucun effet, l'ancien forfait offrait

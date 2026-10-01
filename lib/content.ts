@@ -114,7 +114,9 @@ export const HERO = {
   stats: [
     { value: "jusqu'à 20 h", label: "récupérables chaque semaine" },
     { value: "80 %", label: "du temps d'une tâche automatisée, récupéré" },
-    { value: "dès 2 mois", label: "pour rembourser votre investissement" },
+    /* 6 mois depuis le 01/10/2026, decision d Adib. « Des 2 mois » etait le
+       meilleur cas de la grille, l etude de cas publiee en affiche 9. */
+    { value: "6 mois", label: "pour rembourser votre investissement" },
   ],
   statsNote:
     "Estimations issues de notre grille de diagnostic. Le chiffre qui compte est le vôtre, il sort du rapport.",
@@ -215,6 +217,11 @@ export const FONDATEUR = {
   titleAccent: "appliquée à l'administratif.",
   intro:
     "Odegia a été fondée par Adib Bensalem, docteur en sciences de gestion et professeur en école de commerce, après quinze ans passés à mesurer et à réduire des processus industriels.",
+  /* Ajoute le 01/10/2026 a la demande d Adib. Il tient la methode et la
+     strategie. Formulation retenue pour rester vraie des aujourd hui, plutot
+     que « Odegia reunit des specialistes », l equipe n existant pas encore. */
+  equipe:
+    "Les chantiers sont menés par des spécialistes de l'IA formés à sa méthode propriétaire.",
   lead: "Trois choses de ce parcours décident de ce que vous voyez sur cette page.",
   points: [
     {
@@ -238,12 +245,12 @@ export const STEPS = [
   {
     numeral: "i",
     title: "Diagnostic",
-    body: "Un formulaire de cinq minutes, puis un entretien de 90 minutes sur vos tâches les plus lourdes. Vous recevez un rapport de quatre pages sous 72 heures.",
+    body: "Un entretien sur vos tâches les plus lourdes. Sous 72 heures, vous recevez un rapport et une feuille de route datée.",
   },
   {
     numeral: "ii",
-    title: "Chiffrage",
-    body: "Le rapport range chaque tâche dans une brique, simple ou complexe, et dit clairement ce qui reste à votre main.",
+    title: "Devis",
+    body: "Le rapport arrive avec un devis ferme, tâche par tâche, son prix, son suivi mensuel et son retour. Il dit aussi ce qui reste à votre main.",
   },
   {
     numeral: "iii",
@@ -271,7 +278,7 @@ export type Brique = {
 
 export const BRIQUES: Brique[] = [
   { name: "Devis", said: "Je refais mes devis à la main à chaque fois" },
-  { name: "Facturation", said: "Je cours après mes règlements" },
+  { name: "Facturation", said: "Je cours après mes règlements", palier: "simple" },
   {
     name: "Appels d'offres",
     said: "Je réponds à des appels d'offres ou des dossiers de subvention",
@@ -343,6 +350,43 @@ export const BRIQUE_TYPES = [
   },
 ];
 
+/* ── Le prix en bref ───────────────────────────────────────────────────────
+   Ajoute le 01/10/2026 apres un retour de visiteurs, on ne comprenait pas
+   combien ca coute. La page affichait une douzaine de montants et aucun total.
+   Trois prix suffisent a repondre, dans l ordre ou on les paie. */
+export const PRIX_EN_BREF = [
+  { montant: "500 €", quoi: "le diagnostic", note: "déduit si vous lancez le chantier" },
+  { montant: "600 à 2 400 €", quoi: "par tâche automatisée", note: "une fois, selon ce que coûte une erreur" },
+  { montant: "40 à 120 €", quoi: "par mois de suivi", note: "par tâche, sans engagement" },
+];
+
+/* Trois budgets concrets. Les montants sortent de la grille de lib/estimator.ts,
+   ils sont recopies ici et doivent la suivre si elle change. */
+export const EXEMPLES_PRIX = [
+  {
+    qui: "Un consultant seul",
+    quoi: "Ses factures, émises et relancées sans lui",
+    chantier: "600 €",
+    suivi: "40 € par mois",
+    detail: "1 tâche simple, il valide chaque facture avant envoi",
+  },
+  {
+    qui: "Une association",
+    quoi: "Son parcours d'inscription, de la première question au témoignage",
+    chantier: "2 400 €",
+    suivi: "120 € par mois",
+    detail: "1 parcours de 10 tâches, voir l'étude de cas",
+    lien: "/cas/chamil-france",
+  },
+  {
+    qui: "Une TPE",
+    quoi: "Ses devis, l'accueil de chaque nouveau client et ses mails récurrents",
+    chantier: "2 880 €",
+    suivi: "210 € par mois",
+    detail: "3 tâches intermédiaires, remise de 20 % comprise",
+  },
+];
+
 /* ── Tarifs ────────────────────────────────────────────────────────────────
    Deux pistes, même unité de compte. La brique vaut le même prix pour tout le
    monde, ce qui change est le volume et l'accompagnement. C'est ce qui rend
@@ -377,10 +421,10 @@ export type Track = {
 export const TRACKS: Track[] = [
   {
     id: "fondateurs",
-    label: "Fondateurs et TPE",
-    audience: "Solo, ou moins de 10 personnes",
+    label: "Tarifs",
+    audience: "Pour tous",
     intro:
-      "On traite une à trois briques, choisies dans le catalogue, sur vos outils existants. Tout se fait à distance et le prix est connu d'avance.",
+      "Une grille unique, du fondateur seul à la PME. On traite les tâches une à une, sur vos outils existants, et le prix est connu d'avance.",
     offers: [
       {
         index: "01",
@@ -411,7 +455,7 @@ export const TRACKS: Track[] = [
         /* 290 EUR placait le diagnostic sous le plancher du marche, qui demarre
            a 500 dollars. Un audit vendu moins cher que partout ailleurs signale
            un travail sans valeur, ce qui est l'inverse du but. */
-        price: "500 EUR HT",
+        price: "500 € HT",
         priceSuffix: "",
         priceNote: "déduits du chantier, remboursés si la réponse n'est pas l'automatisation",
         cta: "Réserver le diagnostic",
@@ -427,7 +471,7 @@ export const TRACKS: Track[] = [
         forWho:
           "Ceux qui perdent leurs journées sur une tâche répétitive déjà identifiée.",
         deliverables: [
-          { text: "600 EUR la brique simple, 1 200 l'intermédiaire, 2 400 la complexe", strong: true },
+          { text: "600 € la tâche simple, 1 200 € l'intermédiaire, 2 400 € la complexe", strong: true },
           { text: "Remise de 20 % dès la troisième brique, quel que soit le mélange", strong: true },
           { text: "Construite sur vos outils, sans les remplacer", strong: false },
           {
@@ -437,9 +481,9 @@ export const TRACKS: Track[] = [
           { text: "Règles et limites écrites avant construction", strong: false },
           { text: "Vos abonnements restent à votre nom", strong: false },
         ],
-        price: "dès 600 EUR HT",
-        priceSuffix: "/ brique",
-        priceNote: "montant arrêté au diagnostic, de 600 à 2 400 EUR selon le palier",
+        price: "600 à 2 400 € HT",
+        priceSuffix: "/ tâche",
+        priceNote: "selon ce que coûte une erreur, 20 % de remise dès la troisième",
         cta: "Choisir mes briques",
       },
       {
@@ -472,94 +516,10 @@ export const TRACKS: Track[] = [
            faible volume cesse donc d'être vendable, et l'estimateur le dit. */
         /* Par palier depuis le 01/10/2026, décision d'Adib, 40, 70 ou 120 EUR
            par brique, sans socle. Voir SUIVI_PAR_PALIER dans estimator.ts. */
-        price: "dès 40 EUR HT",
-        priceSuffix: "/ mois par brique, 40, 70 ou 120 selon le palier",
-        priceNote: "sans engagement de durée, vous ne payez que ce qui tourne",
+        price: "40 à 120 € HT",
+        priceSuffix: "/ mois par tâche",
+        priceNote: "selon le prix de la tâche, sans engagement, vous ne payez que ce qui tourne",
         cta: "Ajouter le suivi",
-      },
-    ],
-  },
-  {
-    id: "organisations",
-    label: "Organisations et PME",
-    /* Liste d exemples et non un critere d entree. Le segment reserve aux
-       organisations a mission a ete abandonne, PME passe donc en tete pour que
-       la ligne ne se lise plus comme une restriction sectorielle. */
-    audience: "PME, associations, écoles, collectivités et ESS",
-    intro:
-      "Périmètre ouvert, plusieurs briques couvrant un domaine entier, et des contraintes propres au secteur, marchés publics, subventions et pièces justificatives.",
-    offers: [
-      {
-        index: "01",
-        name: "Diagnostic étendu",
-        duration: "2 semaines",
-        badge: "On mesure",
-        tagline:
-          "Le même instrument, élargi aux processus qui vivent hors des outils, et aux personnes qui les portent. Entretiens avec chaque fonction concernée.",
-        forWho:
-          "Les structures dont l'administratif est réparti entre plusieurs personnes.",
-        deliverables: [
-          { text: "Entretiens par fonction, pas seulement la direction", strong: false },
-          { text: "Niveau d'autonomie mesuré sur six dimensions", strong: true },
-          { text: "Cartographie des tâches et de leurs volumes", strong: false },
-          { text: "Chiffrage du coût de l'exécution manuelle", strong: true },
-          { text: "Plan séquencé, brique par brique", strong: false },
-          {
-            text: "Remboursé si l'automatisation n'est pas votre vraie réponse",
-            strong: true,
-          },
-        ],
-        price: "dès 1 500 EUR HT",
-        priceSuffix: "",
-        priceNote: "déduits du chantier, remboursés si la réponse n'est pas l'automatisation",
-        cta: "Demander un diagnostic",
-        ctaHref: SITE.booking,
-      },
-      {
-        index: "02",
-        name: "Domaine complet",
-        duration: "selon périmètre",
-        badge: "On construit",
-        tagline:
-          "Plusieurs briques couvrant un domaine entier, monté au niveau 4. Il décide et agit seul, vous n'intervenez plus que sur exception.",
-        forWho:
-          "Les structures qui veulent qu'une fonction entière tourne sans mobiliser quelqu'un en permanence.",
-        deliverables: [
-          { text: "Même unité de compte, la brique", strong: true },
-          { text: "600, 1 200 ou 2 400 EUR selon le palier de la brique", strong: true },
-          { text: "Intégration à vos outils existants", strong: false },
-          { text: "Tableau de bord, alertes et garde-fous", strong: true },
-          { text: "Formation de vos équipes à la gouvernance", strong: false },
-          { text: "Briques nouvelles créées si besoin", strong: false },
-        ],
-        /* Dès 2 400 depuis le 01/10/2026, décision d'Adib. Un domaine se
-           chiffre en parcours complexe, règle v1.1 du diagnostic. L'ancien
-           plancher de 1 440, trois briques simples remisées, annonçait moins
-           que ce que le rapport facture. */
-        price: "dès 2 400 EUR HT",
-        priceSuffix: "",
-        priceNote: "un parcours de bout en bout, le devis compte les briques ou le parcours",
-        cta: "Chiffrer un domaine",
-      },
-      {
-        index: "03",
-        name: "Gouvernance",
-        duration: "mensuel",
-        badge: "On gouverne",
-        tagline:
-          "Le système est à vous. On le surveille, on traite ce qu'il ne sait pas trancher, et on étend son périmètre. C'est par ici que passe le niveau 5.",
-        forWho:
-          "Les structures déjà déployées qui veulent monter en autonomie sans recruter une équipe technique.",
-        deliverables: [
-          { text: "Supervision continue et traitement des alertes", strong: true },
-          { text: "Arbitrage des exceptions escaladées", strong: false },
-          { text: "Extension progressive à de nouveaux domaines", strong: true },
-          { text: "Revue trimestrielle du niveau atteint", strong: false },
-        ],
-        price: "sur devis",
-        priceSuffix: "",
-        priceNote: "calé sur le nombre de briques en service",
-        cta: "Parler de la gouvernance",
       },
     ],
   },
@@ -568,6 +528,10 @@ export const TRACKS: Track[] = [
 export type FaqItem = { q: string; a: string; cadre?: boolean };
 
 export const FAQ: FaqItem[] = [
+  {
+    q: "Comment se fixe le prix d'une tâche ?",
+    a: "Par ce que coûte une erreur, pas par le temps gagné. 600 EUR quand une erreur se rattrape sans conséquence, caler un rendez-vous ou ranger une pièce. 1 200 EUR quand elle coûte cher, un devis ou un mail parti à votre nom. 2 400 EUR quand les informations sont dispersées ou que le résultat change à chaque fois, et pour un parcours qui enchaîne plusieurs tâches sur le même dossier. Le suivi suit la même logique, 40, 70 ou 120 EUR par mois. Le diagnostic range chacune de vos tâches et vous remet un devis ferme.",
+  },
   {
     q: "Pourquoi compter en briques ?",
     a: "Une brique est une tâche. Elle a son prix, son gain annuel et son retour sur investissement, ce qui vous laisse en acheter une, la voir tourner, puis décider de la suite. Vous pouvez aussi en prendre trois d'un coup, la remise de parc retire alors 20 % du total, à condition que les trois soient nommées dans le devis. Ce qui compte est de savoir ce que couvre le périmètre avant de le payer, la remise vient après. C'est aussi pourquoi un « automatisez-moi tout » se transforme d'abord en liste de briques, plus facile à tenir des deux côtés.",

@@ -1,13 +1,12 @@
-"use client";
-
-import { useState } from "react";
-import { Check } from "lucide-react";
-import { TRACKS, SITE } from "@/lib/content";
+import Link from "next/link";
+import { ArrowUpRight, Check } from "lucide-react";
+import { TRACKS, SITE, EXEMPLES_PRIX } from "@/lib/content";
 import { Objet3D } from "@/components/deco/Objet3D";
 
-/* Deux pistes tarifaires exposées via un sélecteur, plutôt que deux pages.
-   Le visiteur doit voir qu'il existe une entrée à son échelle avant de partir,
-   c'est tout l'intérêt de la piste Fondateurs.
+/* Une seule grille depuis le 01/10/2026. Les deux pistes, fondateurs et PME,
+   reprenaient la meme logique avec la meme unite de compte, et obligeaient le
+   visiteur a choisir son camp avant de lire un prix. La PME ne differe que par
+   son diagnostic, dit en une ligne sous les cartes.
 
    Les trois offres d'une piste ne sont PAS des formules concurrentes. C'est une
    progression, on mesure, on construit, on gouverne, et l'etape 2 ne s'achete
@@ -20,8 +19,7 @@ import { Objet3D } from "@/components/deco/Objet3D";
    reelle, l'ordre est contraignant. L'emphase sombre passe sur l'etape 1, la
    seule qu'un visiteur puisse acheter aujourd'hui. */
 export function Pricing() {
-  const [active, setActive] = useState<"fondateurs" | "organisations">("fondateurs");
-  const track = TRACKS.find((t) => t.id === active) ?? TRACKS[0];
+  const track = TRACKS[0];
 
   return (
     <section id="tarifs" className="scroll-mt-20 bg-paper-alt/45 py-20 md:py-28">
@@ -41,42 +39,14 @@ export function Pricing() {
             Tarifs
           </span>
           <h2 className="display mt-3 text-[34px] md:text-[44px] leading-[1.08] tracking-[-0.03em] ">
-            Deux façons d&apos;y venir.
+            Ce que ça coûte,
+            <br />
+            <span className="text-vert">en trois temps.</span>
           </h2>
           <p className="mt-4 text-[14.5px] leading-[1.7] text-ink-soft">
-            Le prix suit le temps d&apos;équipe consommé, pas la taille de votre
-            entreprise. Un fondateur seul n&apos;a pas besoin du même dispositif
-            qu&apos;une PME de quarante personnes.
+            {track.intro}
           </p>
         </div>
-
-        {/* sélecteur de piste */}
-        <div
-          role="tablist"
-          aria-label="Choisir une grille tarifaire"
-          className="mt-10 inline-flex rounded-full border-2 border-ink bg-surface p-1"
-        >
-          {TRACKS.map((t) => (
-            <button
-              key={t.id}
-              role="tab"
-              aria-selected={active === t.id}
-              onClick={() => setActive(t.id)}
-              className={`rounded-full px-5 py-2.5 text-[13.5px] font-medium transition-colors ${
-                active === t.id
-                  ? "bg-charbon text-banane"
-                  : "text-ink-soft hover:text-ink"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        <p className="mt-5 max-w-2xl text-[13.5px] leading-[1.7] text-ink-soft">
-          <span className="font-medium text-ink">{track.audience}.</span>{" "}
-          {track.intro}
-        </p>
 
         {/* La sequence dite en toutes lettres, avant meme les cartes. */}
         <p className="mt-4 max-w-2xl text-[13.5px] leading-[1.7] text-ink">
@@ -224,6 +194,42 @@ export function Pricing() {
           })}
         </ol>
 
+        <p className="mt-8 max-w-3xl text-[13.5px] leading-[1.7] text-ink-soft">
+          <span className="font-medium text-ink">Plus de 10 personnes ?</span>{" "}
+          Le diagnostic s&apos;élargit à un entretien par fonction concernée, dès
+          1&nbsp;500&nbsp;€. Le reste se chiffre de la même façon, tâche par tâche.
+        </p>
+
+        {/* Trois budgets concrets, ajoutes le 01/10/2026. Un total parle plus
+            qu une grille. */}
+        <div className="mt-14" data-reveal>
+          <h3 className="display text-[24px] leading-[1.15] tracking-[-0.02em] md:text-[28px]">
+            Trois exemples chiffrés
+          </h3>
+          <p className="mt-2 text-[13.5px] text-ink-soft">
+            Montants hors taxes. Le diagnostic de 500&nbsp;€ est déduit du chantier.
+          </p>
+          <ul className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
+            {EXEMPLES_PRIX.map((e) => (
+              <li key={e.qui} className="ombre-dure-sm flex flex-col rounded-[20px] border-2 border-ink bg-surface p-6">
+                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">{e.qui}</span>
+                <p className="mt-2 text-[15px] font-semibold leading-[1.4] tracking-[-0.01em]">{e.quoi}</p>
+                <div className="mt-5 flex items-baseline gap-2">
+                  <span className="display text-[30px] leading-none tracking-[-0.02em]">{e.chantier.replace(/ /g, "\u00a0")}</span>
+                  <span className="text-[13px] text-ink-soft">une fois</span>
+                </div>
+                <p className="mt-1.5 text-[14px] font-medium text-vert">puis {e.suivi.replace(/ (?=€)/g, "\u00a0")}</p>
+                <p className="mt-3 flex-1 text-[12.5px] leading-[1.5] text-ink-soft">{e.detail}</p>
+                {e.lien && (
+                  <Link href={e.lien} className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-vert underline decoration-2 underline-offset-4 hover:text-ink">
+                    Lire l&apos;étude de cas
+                    <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

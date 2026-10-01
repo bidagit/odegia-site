@@ -38,7 +38,10 @@ export type Palier = "simple" | "intermediaire" | "complexe";
 
 export const TACHES: TacheDef[] = [
   { id: "devis", label: "Refaire mes devis à la main", bareme: { mois: 3, semaine: 7, jour: 16 }, sensibilite: "moyenne", palier: "intermediaire" },
-  { id: "facturation", label: "Émettre mes factures et courir après les règlements", bareme: { mois: 3, semaine: 8, jour: 18 }, sensibilite: "moyenne", palier: "intermediaire" },
+  /* Facturation passee en simple le 01/10/2026, decision d Adib. L erreur y
+     coute cher, mais elle se couvre par la validation avant envoi, le niveau 3,
+     et non par le prix. */
+  { id: "facturation", label: "Émettre mes factures et courir après les règlements", bareme: { mois: 3, semaine: 8, jour: 18 }, sensibilite: "moyenne", palier: "simple" },
   { id: "appels-offres", label: "Répondre à des appels d'offres ou des dossiers de subvention", bareme: { mois: 6, semaine: 15, jour: 30 }, sensibilite: "moyenne", palier: "complexe" },
   { id: "onboarding", label: "La paperasse à chaque nouveau client", bareme: { mois: 3, semaine: 7, jour: 16 }, sensibilite: "moyenne", palier: "intermediaire" },
   { id: "rendez-vous", label: "Caler et rappeler des rendez-vous", bareme: { mois: 2, semaine: 5, jour: 12 }, sensibilite: "forte", palier: "simple" },

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { FONDATEUR } from "@/lib/content";
 
 /* Qui tient la methode, placee entre les tarifs et la FAQ.
@@ -26,6 +27,34 @@ export function Fondateur() {
             <p className="mt-5 max-w-md text-[14.5px] leading-[1.75] text-ink-soft">
               {FONDATEUR.intro}
             </p>
+            <p className="mt-3 max-w-md text-[14.5px] leading-[1.75] text-ink">
+              {FONDATEUR.equipe}
+            </p>
+
+            {/* Portrait detoure, pose sur une pastille menthe. Le haut du
+                portrait deborde du cercle, le bas est coupe par sa courbe, ce
+                qui evite le cadre rectangulaire d une photo d identite. */}
+            <figure className="mt-10">
+              <div className="relative h-[300px] w-[250px]">
+                <span
+                  aria-hidden="true"
+                  className="ombre-dure absolute bottom-0 left-0 h-[250px] w-[250px] rounded-full border-2 border-ink bg-vert-vif"
+                />
+                <div className="absolute bottom-0 left-0 h-[300px] w-[250px] overflow-hidden rounded-b-full">
+                  <Image
+                    src="/images/adib-bensalem.webp"
+                    alt="Adib Bensalem, fondateur d'Odegia"
+                    width={640}
+                    height={887}
+                    sizes="250px"
+                    className="absolute bottom-[-40px] left-1/2 w-[230px] max-w-none -translate-x-1/2"
+                  />
+                </div>
+              </div>
+              <figcaption className="mt-4 text-[13px] text-ink-soft">
+                <span className="font-semibold text-ink">Adib Bensalem</span>, fondateur
+              </figcaption>
+            </figure>
           </div>
 
           <div data-reveal>

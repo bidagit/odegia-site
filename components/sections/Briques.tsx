@@ -1,4 +1,4 @@
-import { BRIQUES, BRIQUE_TYPES } from "@/lib/content";
+import { BRIQUES } from "@/lib/content";
 import { Objet3D } from "@/components/deco/Objet3D";
 import { ChuteBriques } from "@/components/sections/ChuteBriques";
 
@@ -42,6 +42,9 @@ export function Briques() {
                citation y passe donc en encre pleine, 10,72:1. */
             const surBanane = !complexe && i % 3 === 2;
             const prix = { simple: "600", intermediaire: "1 200", complexe: "2 400" }[palier];
+            /* Le suivi figure a cote du prix depuis le 01/10/2026. Le visiteur
+               lit son prix complet sur sa tache, sans passer par la grille. */
+            const suivi = { simple: "40", intermediaire: "70", complexe: "120" }[palier];
             /* Le <li> ne sert plus qu au placement et porte la rotation de
                .penche. Tout l habillage descend sur l enfant, qui devient la
                carte visible et peut donc tomber en entier. Auparavant seul le
@@ -73,15 +76,13 @@ export function Briques() {
                     suppose un tarif unique et trouve cher ce qui ne l'est pas,
                     reproche fait le 27/08/2026 sur les rendez-vous. */}
                 <span
-                  className={`mt-4 inline-block rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] ${
+                  className={`mt-4 inline-block rounded-full px-3 py-1 text-[12px] font-semibold ${
                     complexe
                       ? "bg-vert-vif text-charbon"
                       : "border border-ink/20 text-ink"
                   }`}
                 >
-                  {palier === "intermediaire" ? "Intermédiaire" : palier === "simple" ? "Simple" : "Complexe"}
-                  {" · "}
-                  {prix} EUR
+                  {prix}&nbsp;€ puis {suivi}&nbsp;€/mois
                 </span>
                 </div>
               </li>
@@ -89,36 +90,12 @@ export function Briques() {
           })}
         </ul>
 
-        {/* Les deux cartes de prix passent en vert profond plein. En menthe
-            pale elles reprenaient une teinte du catalogue juste au-dessus et se
-            lisaient comme deux briques de plus, alors qu elles donnent la cle de
-            lecture des neuf autres. Le blanc sur vert profond tient a 5,30:1, et
-            le prix en banane est un texte large, donc conforme a 3,55:1. */}
-        <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
-          {BRIQUE_TYPES.map((t) => (
-            <div
-              key={t.label}
-              className="ombre-dure rounded-[22px] border-2 border-ink bg-vert p-6 text-paper"
-            >
-              <div className="flex items-baseline justify-between gap-4">
-                <h3 className="text-[15.5px] font-semibold">{t.label}</h3>
-                <span className="display text-[26px] text-banane">
-                  {t.price}
-                </span>
-              </div>
-              <p className="mt-2.5 text-[13px] leading-[1.65] text-paper">
-                {t.criteria}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <p className="mt-5 text-[13px] leading-[1.7] text-ink-soft">
-          À partir de trois briques, la remise de parc retire 20 % du total.
-          Une tâche absente du catalogue passe par les deux mêmes questions et
-          se range dans l&apos;une des deux lignes. Quand les deux réponses
-          manquent, elle devient un chantier sur devis, cadré et chiffré au
-          diagnostic.
+        {/* Les cartes de criteres sont parties en FAQ le 01/10/2026. Elles
+            obligeaient le visiteur a classer sa tache avant de lire un prix,
+            alors que chaque carte porte desormais le sien. */}
+        <p className="mt-6 max-w-3xl text-[13px] leading-[1.7] text-ink-soft">
+          À partir de trois tâches, la remise de parc retire 20&nbsp;% du
+          chantier. Une tâche absente de cette liste se chiffre au diagnostic.
         </p>
       </div>
     </section>

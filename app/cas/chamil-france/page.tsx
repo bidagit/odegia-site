@@ -145,7 +145,8 @@ const LECONS = [
   },
 ];
 
-/* La valeur du temps rendu face au cout d Odegia, demande d Adib du 01/10/2026.
+/* La valeur du temps rendu face au cout d Odegia, demande d Adib du 01/10/2026,
+   en montants annuels depuis le meme jour, plus parlants qu un mois.
    Le plateau penche du cote le plus lourd, l angle suit l ecart relatif et se
    borne a 12 degres pour rester lisible. Les deux blocs ont une hauteur
    proportionnelle a leur montant. Dessin en SVG, sans bibliotheque, aux
@@ -156,7 +157,7 @@ function Balancoire({ valeur, cout }: { valeur: number; cout: number }) {
   const max = Math.max(valeur, cout);
   const hV = 70 + (60 * valeur) / max;
   const hC = 70 + (60 * cout) / max;
-  const euro = (n: number) => `${n} €`;
+  const euro = (n: number) => `${n.toLocaleString("fr-FR")} €`;
   return (
     <svg
       viewBox="0 0 640 280"
@@ -371,21 +372,21 @@ export default function Page() {
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
           <h2 className="display text-[26px] leading-[1.12] tracking-[-0.02em] md:text-[32px]">
-            Le parcours, chaque mois
+            Le parcours, chaque année
           </h2>
           <div className="ombre-dure mt-8 rounded-[20px] border-2 border-ink bg-paper p-5 md:p-8">
             <p className="text-center text-[12.5px] text-ink-soft">
-              {nb("Chaque mois, coût d'Odegia = suivi de 120 € et chantier de 2 400 € étalé sur 3 ans")}
+              {nb("Chaque année, coût d'Odegia = suivi de 1 440 € et chantier de 2 400 € étalé sur 3 ans, soit 800 €")}
             </p>
-            <Balancoire valeur={387} cout={187} />
+            <Balancoire valeur={4646} cout={2240} />
             <div className="mt-4 grid grid-cols-2 gap-6 border-t border-ink/10 pt-5">
               <div>
-                <span className="display block text-[26px] leading-none">{nb("6,5 h")}</span>
-                <span className="mt-2 block text-[12.5px] text-ink-soft">de temps rendu au bureau chaque mois</span>
+                <span className="display block text-[26px] leading-none">{nb("77 h")}</span>
+                <span className="mt-2 block text-[12.5px] text-ink-soft">de temps rendu au bureau chaque année</span>
               </div>
               <div>
-                <span className="display block text-[26px] leading-none text-vert">{nb("+201 €")}</span>
-                <span className="mt-2 block text-[12.5px] text-ink-soft">par mois en faveur de l&apos;association</span>
+                <span className="display block text-[26px] leading-none text-vert">{nb("+2 406 €")}</span>
+                <span className="mt-2 block text-[12.5px] text-ink-soft">par an en faveur de l&apos;association</span>
               </div>
             </div>
           </div>

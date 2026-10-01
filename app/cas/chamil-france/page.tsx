@@ -40,9 +40,6 @@ const CHIFFRES = [
   { valeur: "18,3 h", legende: "d'administratif par mois sur les 12 prochains mois" },
   { valeur: "13 188 €", legende: "par an, au taux de 60 € de l'heure retenu par l'association" },
   { valeur: "9 mois", legende: "pour rembourser l'investissement Odegia" },
-  /* Retour sur 3 ans, (temps rendu - cout) / cout, (13 939 - 6 720) / 6 720,
-     demande d Adib du 01/10/2026. */
-  { valeur: "+107 %", legende: "de retour sur 3 ans, 13 939 € de temps rendu pour 6 720 € investis" },
 ];
 
 /* Inventaire des 23 taches, genere depuis calcul.json du diagnostic, trie par
@@ -215,7 +212,19 @@ export default function Page() {
   return (
     <div className="border-t border-ink/10">
       <section className="bg-vert-soft pb-16 pt-14 md:pb-20">
-        <div className="mx-auto max-w-5xl px-5 sm:px-8">
+        <div className="relative mx-auto max-w-5xl px-5 sm:px-8">
+          {/* Mention speciale, demande d Adib du 01/10/2026. Le retour sur 3 ans,
+              13 939 EUR de temps rendu pour 6 720 EUR investis, se dit x2 plutot
+              qu en pourcentage. Pastille de cote sur grand ecran, en ligne sur
+              mobile. */}
+          <div
+            className="ombre-dure absolute right-8 top-0 hidden h-[168px] w-[168px] rotate-6 flex-col items-center justify-center rounded-full border-2 border-ink bg-banane text-center lg:flex"
+          >
+            <span className="display text-[46px] leading-none tracking-[-0.03em]">×2</span>
+            <span className="mt-1.5 px-5 text-[11.5px] leading-[1.35] text-ink">
+              l&apos;investissement rendu en temps, sur 3 ans
+            </span>
+          </div>
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
             Étude de cas
           </span>
@@ -230,16 +239,20 @@ export default function Page() {
             éducateur pour chaque participant. 3 bénévoles au bureau, et 3
             séjours à 9 participants sur les 12 prochains mois.
           </p>
+          <p className="mt-5 flex w-fit items-center gap-2 rounded-full border-2 border-ink bg-banane px-4 py-1.5 text-[13px] font-medium text-ink lg:hidden">
+            <span className="display text-[18px] leading-none">×2</span>
+            l&apos;investissement rendu en temps, sur 3 ans
+          </p>
           <a
             href="https://chamilinternational.org"
             target="_blank"
             rel="noopener"
-            className="mt-5 inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-paper px-4 py-2 text-[13.5px] font-medium text-ink transition-colors hover:bg-vert-vif"
+            className="mt-4 inline-flex lg:mt-5 items-center gap-1.5 rounded-full border-2 border-ink bg-paper px-4 py-2 text-[13.5px] font-medium text-ink transition-colors hover:bg-vert-vif"
           >
             Découvrir les séjours de Chamil France
             <ArrowUpRight className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />
           </a>
-          <div className="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {CHIFFRES.map((c) => (
               <div
                 key={c.valeur}

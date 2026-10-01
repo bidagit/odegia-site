@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { NAV_LINKS, SITE } from "@/lib/content";
+import { HEADER_LINKS, SITE } from "@/lib/content";
 
 /* Barre haute sur charbon, dans la continuite du hero. Le mot-marque doit
    porter sa couleur explicitement, il heriterait sinon de l encre foncee du
@@ -25,7 +25,7 @@ export function Nav() {
         </Link>
 
         <div className="hidden items-center gap-8 lg:flex">
-          {NAV_LINKS.map((l) => (
+          {HEADER_LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
@@ -37,7 +37,7 @@ export function Nav() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          {/* Pas de bouton Tarifs ici, l entree existe deja dans NAV_LINKS.
+          {/* Pas de bouton Tarifs ici, l entree existe deja dans HEADER_LINKS.
               L action de droite reste unique, la prise de rendez-vous. */}
           <a
             href={SITE.booking}

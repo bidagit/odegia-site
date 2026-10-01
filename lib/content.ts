@@ -83,6 +83,14 @@ export const NAV_LINKS = [
   { label: "Estimation", href: "/estimation" },
 ];
 
+/* Barre haute reduite a quatre entrees le 01/10/2026, six onglets faisaient
+   trop, remarque d Adib. Ce qu on automatise et l echelle restent dans le pied
+   de page, la premiere est la section qui suit le hero, la seconde une page de
+   cadre pour ceux qui veulent comprendre avant d acheter. */
+export const HEADER_LINKS = NAV_LINKS.filter((l) =>
+  ["/#principe", "/#tarifs", "/cas/chamil-france", "/estimation"].includes(l.href)
+);
+
 export const HERO = {
   eyebrow: "Autonomisation administrative",
   title: ["Votre administratif", "tourne sans vous."],

@@ -131,7 +131,7 @@ const LECONS = [
   {
     titre: "Construit avant d'être mesuré.",
     texte:
-      "Les premières automatisations ont été montées au printemps 2026, pour 4 dossiers par an. À ce volume, la méthode dit d'écrire les règles et d'attendre. Le parcours ne devient rentable qu'avec les 3 séjours des 12 prochains mois.",
+      "Avec 4 dossiers par an, la méthode aurait dit d'écrire les règles et d'attendre. Le parcours ne devient rentable qu'avec les 3 séjours des 12 prochains mois.",
   },
   {
     titre: "Sans supervision.",

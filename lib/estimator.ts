@@ -375,10 +375,17 @@ export function calculer(r: Reponses): Resultat {
       tri.unshift(pref);
     }
   }
-  /* La brique de tête porte le socle. Si elle ne le couvre pas, elle ne peut
-     pas être vendue seule, et l'estimateur doit le dire plutôt que d'afficher un
-     retour calculé au tarif marginal. */
-  const recommandees = tri.slice(0, 3);
+  /* La brique de tête porte toujours le socle du suivi. Le filtre au suivi le
+     plus favorable laissait passer en tête une brique qui, achetée seule, ne se
+     remboursait pas dans le plafond, défaut trouvé au diagnostic de Chamil le
+     01/10/2026. On place en tête la première qui passe avec le socle. Sans elle
+     rien ne se recommande, puisque tout parc commence par une première brique. */
+  const passeEnTete = (l: LigneResultat) =>
+    l.gainAnnuel / 12 - SUIVI_PREMIERE > 0 &&
+    l.cout / (l.gainAnnuel / 12 - SUIVI_PREMIERE) <= SEUIL_RETOUR_MOIS;
+  const iTete = tri.findIndex(passeEnTete);
+  if (iTete > 0) tri.unshift(tri.splice(iTete, 1)[0]);
+  const recommandees = iTete === -1 ? [] : tri.slice(0, 3);
   const tete = recommandees[0];
   const gainTeteAvecSocle = tete
     ? tete.gainAnnuel / 12 - SUIVI_PREMIERE

@@ -14,7 +14,9 @@ import {
   DOCUMENTATION,
   PART_RECUPERABLE,
   REPONSES_VIDES,
-  SUIVI_PAR_PALIER,
+  ENGAGEMENT_MOIS,
+  RACHAT_MENSUALITES,
+  DIAGNOSTIC,
   calculer,
   euros,
   heures,
@@ -477,7 +479,7 @@ function Resultat({
     return (
       <div className="mx-auto max-w-2xl px-5 py-14 sm:px-8">
         <h2 className="text-[26px] font-semibold leading-[1.15] tracking-[-0.02em] md:text-[32px]">
-          Votre administratif ne justifie pas encore un chantier.
+          Votre administratif ne justifie pas encore une automatisation.
         </h2>
         <p className="mt-5 text-[15px] leading-[1.75] text-ink-soft">
           D&apos;après vos réponses, ce que vous récupéreriez ne couvrirait pas
@@ -497,8 +499,8 @@ function Resultat({
   }
 
   /* Volume suffisant, mais éclaté sur des tâches trop petites pour qu'une seule
-     couvre son propre suivi. Cas distinct du plancher, et il mérite sa propre
-     réponse plutôt qu'un retour à plusieurs années. */
+     couvre sa propre mensualité. Cas distinct du plancher, et il mérite sa
+     propre réponse plutôt qu'une recommandation qui coûterait plus que la main. */
   if (res.aucunRetour) {
     return (
       <div className="mx-auto max-w-2xl px-5 py-14 sm:px-8">
@@ -507,9 +509,8 @@ function Resultat({
         </h2>
         <p className="mt-5 text-[15px] leading-[1.75] text-ink-soft">
           Votre administratif pèse, mais même regroupées, vos tâches ne libèrent
-          pas assez de temps pour couvrir le suivi du système. Automatiser dans
-          ces conditions
-          vous coûterait plus que la main. Le diagnostic sert justement à voir si
+          pas assez de temps pour couvrir leur mensualité. Automatiser dans ces
+          conditions vous coûterait plus que la main. Le diagnostic sert justement à voir si
           plusieurs de ces tâches se regroupent en une seule brique, et nous
           préférons le vérifier avant de vous vendre quoi que ce soit.
         </p>
@@ -594,8 +595,8 @@ function Resultat({
                 </span>
               </div>
               <p className="mt-1.5 text-[13px] text-ink-soft">
-                {euros(l.gainAnnuel)} récupérés par an, chantier{" "}
-                {NOM_PALIER[l.palier]}, {euros(l.cout)}
+                {euros(l.gainAnnuel / 12)} de temps rendu par mois, pour{" "}
+                {euros(l.mensualite)} par mois, tâche {NOM_PALIER[l.palier]}
               </p>
             </li>
           ))}
@@ -605,58 +606,52 @@ function Resultat({
       <section className="mt-12 rounded-2xl bg-vert p-7 text-white md:p-9">
         <h3 className="text-[17px] font-semibold">Ce que ça représente</h3>
         <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
-          {/* Prix exact du catalogue depuis le 01/10/2026, la fourchette a
-              plus ou moins 25 % brouillait des prix pourtant fixes. */}
-          Traiter {res.recommandees.length > 1 ? `les ${res.recommandees.length} tâches` : "cette tâche"} coûte{" "}
-          {euros(res.coutPlein)} hors taxes au prix du catalogue, à confirmer au
-          diagnostic.{res.recommandees.length > 1 && (
+          {/* Une seule mensualite depuis le 02/10/2026, construction et
+              surveillance comprises. Le prix de chantier et le delai de retour
+              ont disparu avec lui. */}
+          Faire tourner {res.recommandees.length > 1 ? `ces ${res.recommandees.length} tâches` : "cette tâche"} coûte{" "}
+          {euros(res.mensualitePleine)} hors taxes par mois, construction et
+          surveillance comprises, à confirmer au diagnostic. Vous ne payez rien
+          d&apos;avance pour la construction.{res.recommandees.length > 1 && (
             <> Vous n&apos;êtes pas obligé de tout prendre, la première seule coûte{" "}
-            {euros(res.recommandees[0]?.cout ?? 0)}.</>
+            {euros(res.recommandees[0]?.mensualite ?? 0)} par mois.</>
           )}
         </p>
         {/* La remise s'affiche avec son prix plein barré. Un rabais que le
-            client ignore ne produit aucun effet, l'ancien forfait offrait
-            700 EUR sans que personne ne le sache. */}
+            client ignore ne produit aucun effet. */}
         {res.remiseAppliquee && (
           <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
             À partir de trois tâches la remise de parc s&apos;applique.{" "}
-            <span className="line-through">{euros(res.coutPlein)}</span> devient{" "}
-            <strong className="text-white">{euros(res.coutChantier)}</strong>,
-            soit {euros(res.remiseEuros)} de moins.
+            <span className="line-through">{euros(res.mensualitePleine)}</span> devient{" "}
+            <strong className="text-white">{euros(res.mensualite)}</strong> par
+            mois, soit {euros(res.remiseEuros)} de moins.
           </p>
         )}
-        {/* Le suivi s'annonce avant le retour et non en bas de page. C'est lui
-            qui allonge le chiffre, le taire rendrait le retour invérifiable. */}
         <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
-          S&apos;y ajoute le suivi, de {euros(SUIVI_PAR_PALIER.simple)} à{" "}
-          {euros(SUIVI_PAR_PALIER.complexe)} hors taxes par mois et par tâche
-          selon son prix, soit {euros(res.suiviMensuel)} par mois pour ce
-          périmètre. Le retour
-          ci-dessous est calculé une fois ce suivi payé.
+          Ces tâches vous rendent environ {euros(res.gainMensuel)} de temps par
+          mois.
         </p>
         <p className="mt-5 text-[26px] font-semibold leading-tight tracking-[-0.02em] md:text-[32px]">
-          Ce périmètre se rembourse en{" "}
-          <span className="text-banane">{res.roiMois} mois</span>.
+          Il vous reste{" "}
+          <span className="text-banane">{euros(res.gainNetPerimetre)} par mois</span>,
+          mensualité payée, dès que{" "}
+          {res.recommandees.length > 1 ? "ces tâches tournent" : "cette tâche tourne"}.
         </p>
-        {/* Le suivi étant dégressif, une brique peut couvrir sa surveillance
-            marginale sans couvrir le socle. Le dire évite un devis à une brique
-            que personne ne tiendrait. */}
-        {res.teteNonViableSeule && (
-          <p className="mt-4 border-t border-white/20 pt-4 text-[13.5px] leading-[1.65] text-white/70">
-            À prendre ensemble. Isolée, la première tâche ne libère pas assez de
-            temps pour couvrir son propre suivi. C&apos;est le regroupement qui la
-            rend rentable, pas la tâche seule.
-          </p>
-        )}
+        {/* L engagement se lit a cote du prix et non dans les conditions. Une
+            mensualite sans duree annoncee se retournerait contre nous au devis. */}
+        <p className="mt-4 border-t border-white/20 pt-4 text-[13.5px] leading-[1.65] text-white/70">
+          Chaque tâche engage {ENGAGEMENT_MOIS} mois. Ensuite vous arrêtez avec
+          trente jours de préavis, ou vous la rachetez pour {RACHAT_MENSUALITES}{" "}
+          mensualités et elle vous reste acquise.
+        </p>
       </section>
 
       <section className="mt-10">
         <h3 className="text-[17px] font-semibold">La suite</h3>
         <p className="mt-3 text-[14px] leading-[1.7] text-ink-soft">
-          Le diagnostic à 500 € HT confirme ces chiffres sur vos données réelles
-          et vous remet sous 72 heures un rapport et une feuille de route datée. Il est déduit
-          si vous nous confiez le chantier, et remboursé si l&apos;automatisation
-          n&apos;est pas votre vraie réponse.
+          Le diagnostic confirme ces chiffres sur vos données réelles et vous
+          remet sous 72 heures un rapport et une feuille de route datée. Il vaut{" "}
+          {DIAGNOSTIC} € HT, et il vous est offert contre votre témoignage.
         </p>
         <a
           href={SITE.booking}

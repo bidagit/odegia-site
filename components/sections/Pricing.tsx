@@ -51,7 +51,7 @@ export function Pricing() {
         {/* La sequence dite en toutes lettres, avant meme les cartes. */}
         <p className="mt-4 max-w-2xl text-[13.5px] leading-[1.7] text-ink">
           Les trois étapes ci-dessous s&apos;enchaînent. Le diagnostic ouvre la
-          marche, et son montant est déduit du chantier qui le suit.
+          marche, et il vous est offert contre votre témoignage.
         </p>
 
         {/* offres */}
@@ -209,7 +209,8 @@ export function Pricing() {
             Trois exemples chiffrés
           </h3>
           <p className="mt-2 text-[13.5px] text-ink-soft">
-            Montants hors taxes. Le diagnostic de 500&nbsp;€ est déduit du chantier.
+            Montants hors taxes, par mois, construction et surveillance
+            comprises. Le diagnostic est offert contre un témoignage.
           </p>
           <ul className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
             {EXEMPLES_PRIX.map((e) => (
@@ -231,10 +232,10 @@ export function Pricing() {
                 </div>
                 <p className="mt-2 text-[15px] font-semibold leading-[1.4] tracking-[-0.01em]">{e.quoi}</p>
                 <div className="mt-5 flex items-baseline gap-2">
-                  <span className="display text-[30px] leading-none tracking-[-0.02em]">{e.chantier.replace(/ /g, "\u00a0")}</span>
-                  <span className="text-[13px] text-ink-soft">une fois</span>
+                  <span className="display text-[30px] leading-none tracking-[-0.02em]">{e.mensualite.replace(/ /g, "\u00a0")}</span>
+                  <span className="text-[13px] text-ink-soft">par mois</span>
                 </div>
-                <p className="mt-1.5 text-[14px] font-medium text-vert">puis {e.suivi.replace(/ (?=€)/g, "\u00a0")}</p>
+                <p className="mt-1.5 text-[14px] font-medium text-vert">rien à payer d&apos;avance</p>
                 <p className="mt-3 flex-1 text-[12.5px] leading-[1.5] text-ink-soft">{e.detail}</p>
                 {e.lien && (
                   <Link

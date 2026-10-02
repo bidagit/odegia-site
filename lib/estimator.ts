@@ -176,9 +176,37 @@ export const REPONSES_VIDES: Reponses = {
    paramètre commercial, c'est une mesure, et elle n'a jamais été mesurée. La
    valeur retenue est affichée au visiteur pour qu'il puisse la contester. */
 export const PART_RECUPERABLE = 0.8;
-/* Trois paliers depuis le 27/08/2026. Le tarif unique à 1 200 faisait facturer
-   un lien de réservation au prix d'un moteur de facturation, ce qui se voyait
-   et décrédibilisait toute la grille. */
+
+/* ── Mensualité unique, depuis le 02/10/2026, décision d'Adib ──────────────
+   Une brique n'a plus de prix de chantier ni de suivi séparé. Elle a une
+   mensualité constante, construction et surveillance comprises, qui court tant
+   que la brique tourne. Le prix d'entrée était le frein, remarque faite par un
+   prospect et recoupée par des devis restés sans suite.
+
+   Les trois montants amortissent l'ancien prix de chantier sur trois ans et y
+   ajoutent l'ancien suivi, 600/36 + 40, 1 200/36 + 70, 2 400/36 + 120, arrondis.
+   Le palier garde son sens, il suit ce que coûte une erreur. */
+export const MENSUALITE: Record<Palier, number> = {
+  simple: 60,
+  intermediaire: 100,
+  complexe: 190,
+};
+export const mensualiteDe = (p: Palier) => MENSUALITE[p];
+
+/* Chaque brique engage douze mois, puis se résilie avec trente jours de
+   préavis. Après ces douze mois le client peut la racheter pour six
+   mensualités, elle lui reste alors acquise, sans surveillance. */
+export const ENGAGEMENT_MOIS = 12;
+export const RACHAT_MENSUALITES = 6;
+/* Ce que vaut le diagnostic. Il est offert contre un témoignage publiable
+   depuis le 02/10/2026. Payé, il vaut les premières mensualités à hauteur de
+   son montant. */
+export const DIAGNOSTIC = 500;
+
+/* ── Anciens prix, internes ────────────────────────────────────────────────
+   Le prix de chantier et le suivi par palier ne sont plus des prix publics.
+   Ils restent ici le temps que la chaîne du diagnostic, scripts/diagnostic,
+   soit migrée vers la mensualité. Le site ne les affiche plus nulle part. */
 export const PRIX: Record<Palier, number> = {
   simple: 600,
   intermediaire: 1200,
@@ -193,15 +221,20 @@ export const NOM_PALIER: Record<Palier, string> = {
   complexe: "complexe",
 };
 
-/* Remise de parc, en pourcentage et non en montant fixe. Le forfait à 2 900 EUR
-   supposait trois briques à 1 200. Avec des paliers mixtes il devenait absurde,
-   trois simples valant 1 800 à l'unité et 2 900 en pack.
-
-   À 20 %, trois intermédiaires donnent 2 880 EUR, soit l'ancien forfait à vingt
-   euros près, et tout mélange se calcule seul. La remise s'affiche, un rabais
-   que le client ignore ne sert personne. */
+/* Remise de parc, en pourcentage et non en montant fixe, pour que tout mélange
+   de paliers se calcule seul. Depuis le 02/10/2026 elle porte sur la
+   mensualité, trois intermédiaires donnent 240 EUR par mois au lieu de 300.
+   La remise s'affiche, un rabais que le client ignore ne sert personne. */
 export const REMISE_PACK = 0.2;
 export const SEUIL_PACK = 3;
+
+/* La mensualité d'un parc, pleine puis remisée, arrondie aux cinq euros. */
+export const mensualitePour = (paliers: Palier[]) => {
+  const pleine = paliers.reduce((s, p) => s + mensualiteDe(p), 0);
+  const remise = paliers.length >= SEUIL_PACK;
+  const nette = remise ? Math.round((pleine * (1 - REMISE_PACK)) / 5) * 5 : pleine;
+  return { pleine, nette, remise };
+};
 
 /* En dessous, l'estimateur dit au visiteur de ne rien faire. Le seuil porte sur
    le coût annuel de son administratif, pas sur le prix d'un chantier. Abaissé de
@@ -251,13 +284,13 @@ export type LigneResultat = {
   heuresRecuperees: number;
   gainAnnuel: number;
   palier: Palier;
-  cout: number;
-  /* Gain mensuel une fois le suivi de la brique déduit. C'est lui qui rembourse
-     le chantier, le gain brut ne rembourse rien. */
+  /* Ce que la brique coûte chaque mois, construction et surveillance
+     comprises. */
+  mensualite: number;
+  /* Ce que la brique rapporte chaque mois une fois sa mensualité payée. */
   gainNetMensuel: number;
-  roiMois: number;
-  /* Vrai quand le suivi absorbe le gain. La brique ne se rembourse alors jamais
-     et il faut le dire, plutôt que d'afficher un retour à plusieurs années. */
+  /* Vrai quand la mensualité absorbe le gain. La brique coûterait alors plus
+     qu'elle ne rapporte et ne se recommande pas. */
   absorbee: boolean;
 };
 
@@ -268,23 +301,19 @@ export type Resultat = {
   taux: number;
   lignes: LigneResultat[];
   recommandees: LigneResultat[];
-  coutChantier: number;
-  /* Somme des briques avant remise, pour pouvoir afficher le rabais. */
-  coutPlein: number;
+  /* Somme des mensualités avant remise, pour pouvoir afficher le rabais. */
+  mensualitePleine: number;
+  /* Mensualité du périmètre recommandé, remise de parc déduite. */
+  mensualite: number;
   remiseAppliquee: boolean;
+  /* Ce que la remise retire chaque mois. */
   remiseEuros: number;
-  coutBas: number;
-  coutHaut: number;
-  /* Suivi mensuel du périmètre recommandé, une fois le chantier livré. */
-  suiviMensuel: number;
-  /* Gain mensuel du périmètre une fois le suivi déduit. */
+  /* Valeur du temps rendu chaque mois par le périmètre recommandé. */
+  gainMensuel: number;
+  /* Le même, mensualité déduite. C'est le chiffre mis en avant. */
   gainNetPerimetre: number;
-  /* La brique de tête ne couvre pas le socle, elle ne se vend donc
-     pas seule. Le périmètre reste valable, mais il faut le dire. */
-  teteNonViableSeule: boolean;
-  roiMois: number;
-  /* Aucune des briques recommandées ne se rembourse une fois le suivi déduit.
-     Le dire franchement vaut mieux que d'étirer un chiffre. */
+  /* Aucune brique ne rapporte plus que sa mensualité. Le dire franchement vaut
+     mieux que de vendre une automatisation qui coûte plus que la main. */
   aucunRetour: boolean;
   sousLePlancher: boolean;
   cadrageAlourdi: boolean;
@@ -326,13 +355,11 @@ export function calculer(r: Reponses): Resultat {
     const heuresMois = heures * facteur;
     const heuresRecuperees = heuresMois * PART_RECUPERABLE;
     const gainAnnuel = heuresRecuperees * 12 * taux;
-    const cout = prixDe(def.palier);
-    /* Le suivi de la brique se déduit du gain avant de calculer le retour. Une
-       brique qui libère 40 EUR de temps par mois et coûte 40 EUR de suivi ne
-       rembourse rien, quel que soit son prix d'achat. Depuis le suivi par
-       palier, une brique porte le même suivi à toute position. */
-    const gainNetMensuel = gainAnnuel / 12 - suiviDe(def.palier);
-    const roiMois = gainNetMensuel > 0 ? cout / gainNetMensuel : Infinity;
+    const mensualite = mensualiteDe(def.palier);
+    /* Une seule comparaison décide, ce que la brique rend chaque mois contre ce
+       qu'elle coûte chaque mois. Il n'y a plus de chantier à rembourser, donc
+       plus de délai de retour. */
+    const gainNetMensuel = gainAnnuel / 12 - mensualite;
     return {
       id: def.id,
       label: def.label,
@@ -340,10 +367,9 @@ export function calculer(r: Reponses): Resultat {
       heuresRecuperees,
       gainAnnuel,
       palier: def.palier,
-      cout,
+      mensualite,
       gainNetMensuel,
-      roiMois,
-      absorbee: gainNetMensuel <= 0 || roiMois > SEUIL_RETOUR_MOIS,
+      absorbee: gainNetMensuel <= 0,
     };
   });
 
@@ -351,64 +377,37 @@ export function calculer(r: Reponses): Resultat {
   const heuresRecuperees = lignes.reduce((s, l) => s + l.heuresRecuperees, 0);
   const coutAnnuel = lignes.reduce((s, l) => s + l.gainAnnuel, 0);
 
-  /* Priorisation, règles de calibration de la note de diagnostic. On classe par
-     retour croissant, puis la tâche citée comme la plus agaçante ne remonte en
-     tête que si son retour reste à un mois près du meilleur. Au-delà, le calcul
-     reprend la main. */
-  /* Une brique dont le suivi absorbe le gain ne se recommande pas, même si le
-     visiteur l'a citée comme la plus agaçante. On l'écarte avant le tri plutôt
-     que de la classer dernière, sans quoi elle remonterait dès que le visiteur
-     n'a coché que trois tâches. */
-  const tri = lignes.filter((l) => !l.absorbee).sort((a, b) => a.roiMois - b.roiMois);
+  /* Priorisation. On classe par gain net décroissant, la brique qui laisse le
+     plus dans la poche du client passe en premier. La tâche citée comme la plus
+     agaçante ne remonte en tête que si son gain net reste à dix pour cent du
+     meilleur. Au-delà, le calcul reprend la main. L'ancienne règle disait « à un
+     mois de retour près », elle n'a plus d'objet sans prix de chantier, et ce
+     seuil de dix pour cent est un réglage provisoire à confronter aux premiers
+     diagnostics. */
+  /* Une brique dont la mensualité absorbe le gain ne se recommande pas, même si
+     le visiteur l'a citée comme la plus agaçante. On l'écarte avant le tri
+     plutôt que de la classer dernière, sans quoi elle remonterait dès que le
+     visiteur n'a coché que trois tâches. */
+  const tri = lignes
+    .filter((l) => !l.absorbee)
+    .sort((a, b) => b.gainNetMensuel - a.gainNetMensuel);
   if (r.agace) {
     const i = tri.findIndex((l) => l.id === r.agace);
-    if (i > 0 && tri[i].roiMois - tri[0].roiMois <= 1) {
+    if (i > 0 && tri[i].gainNetMensuel >= 0.9 * tri[0].gainNetMensuel) {
       const [pref] = tri.splice(i, 1);
       tri.unshift(pref);
     }
   }
-  /* La brique de tête porte toujours le socle du suivi. Le filtre au suivi le
-     plus favorable laissait passer en tête une brique qui, achetée seule, ne se
-     remboursait pas dans le plafond, défaut trouvé au diagnostic de Chamil le
-     01/10/2026. On place en tête la première qui passe avec le socle. Sans elle
-     rien ne se recommande, puisque tout parc commence par une première brique. */
-  const passeEnTete = (l: LigneResultat) =>
-    l.gainAnnuel / 12 - suiviDe(l.palier) > 0 &&
-    l.cout / (l.gainAnnuel / 12 - suiviDe(l.palier)) <= SEUIL_RETOUR_MOIS;
-  const iTete = tri.findIndex(passeEnTete);
-  if (iTete > 0) tri.unshift(tri.splice(iTete, 1)[0]);
-  const recommandees = iTete === -1 ? [] : tri.slice(0, 3);
-  const tete = recommandees[0];
-  const gainTeteAvecSocle = tete
-    ? tete.gainAnnuel / 12 - suiviDe(tete.palier)
-    : 0;
-  const teteNonViableSeule = !!tete && gainTeteAvecSocle <= 0;
+  const recommandees = tri.slice(0, 3);
 
-  /* Le prix plein sert à afficher la remise. Un rabais que le client ignore ne
-     produit aucun effet commercial, et l'ancien forfait à 2 900 masquait
-     exactement cela, 700 EUR offerts sans que personne ne le sache. */
-  const coutPlein = recommandees.reduce((s, l) => s + l.cout, 0);
-  const remiseAppliquee = recommandees.length >= SEUIL_PACK;
-  const coutChantier = remiseAppliquee
-    ? Math.round((coutPlein * (1 - REMISE_PACK)) / 10) * 10
-    : coutPlein;
-  const remiseEuros = coutPlein - coutChantier;
+  /* La mensualité pleine sert à afficher la remise. Un rabais que le client
+     ignore ne produit aucun effet commercial. */
+  const parc = mensualitePour(recommandees.map((l) => l.palier));
 
-  /* Le chiffre mis en avant est celui de la première brique recommandée, jamais
-     une moyenne. Une moyenne dilue le meilleur retour et produit un résultat
-     systématiquement plus mauvais que celui annoncé en page d'accueil. */
-  /* Le retour affiché est celui du périmètre recommandé dans son ensemble, et
-     non celui d'une brique isolée au tarif marginal. Avec un suivi dégressif,
-     un retour par brique donnerait un chiffre que le client ne retrouverait
-     jamais sur sa facture. */
-  const gainMensuelRecommande = recommandees.reduce(
-    (s, l) => s + l.gainAnnuel / 12,
-    0
-  );
-  const suiviMensuel = suiviMensuelPour(recommandees.map((l) => l.palier));
-  const gainNetPerimetre = gainMensuelRecommande - suiviMensuel;
-  const roiMois =
-    gainNetPerimetre > 0 ? Math.ceil(coutChantier / gainNetPerimetre) : 0;
+  /* Le chiffre mis en avant est celui du périmètre recommandé dans son
+     ensemble, remise comprise, celui que le client retrouvera sur sa facture. */
+  const gainMensuel = recommandees.reduce((s, l) => s + l.gainAnnuel / 12, 0);
+  const gainNetPerimetre = gainMensuel - parc.nette;
 
   return {
     heuresMois,
@@ -417,20 +416,13 @@ export function calculer(r: Reponses): Resultat {
     taux,
     lignes,
     recommandees,
-    coutChantier,
-    coutPlein,
-    remiseAppliquee,
-    remiseEuros,
-    coutBas: Math.round((coutChantier * 0.75) / 100) * 100,
-    coutHaut: Math.round((coutChantier * 1.25) / 100) * 100,
-    suiviMensuel,
+    mensualitePleine: parc.pleine,
+    mensualite: parc.nette,
+    remiseAppliquee: parc.remise,
+    remiseEuros: parc.pleine - parc.nette,
+    gainMensuel,
     gainNetPerimetre,
-    roiMois,
-    teteNonViableSeule,
-    aucunRetour:
-      recommandees.length === 0 ||
-      gainNetPerimetre <= 0 ||
-      roiMois > SEUIL_RETOUR_MOIS,
+    aucunRetour: recommandees.length === 0 || gainNetPerimetre <= 0,
     sousLePlancher: coutAnnuel < SEUIL_PLANCHER,
     cadrageAlourdi,
   };

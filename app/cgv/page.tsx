@@ -5,7 +5,7 @@ import { SITE, LEGAL } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Conditions générales de vente",
   description:
-    "Conditions générales de vente d'Odegia, marque d'Orbis Optima SASU. Diagnostic, briques, suivi, propriété des livrables et confidentialité.",
+    "Conditions générales de vente d'Odegia, marque d'Orbis Optima SASU. Diagnostic, briques, mensualité, durée, rachat et confidentialité.",
   alternates: { canonical: "/cgv" },
 };
 
@@ -39,11 +39,11 @@ export default function Page() {
             ],
             [
               "Brique",
-              "Automatisation d'une tâche identifiée, livrée au niveau d'autonomie convenu dans la proposition.",
+              "Automatisation d'une tâche identifiée, construite puis surveillée, au niveau d'autonomie convenu dans la proposition.",
             ],
             [
-              "Suivi et gouvernance",
-              "Supervision, correction des dérives et ajustements, par abonnement mensuel.",
+              "Mensualité",
+              "Prix unique d'une brique, par mois. Elle comprend la construction, la supervision, la correction des dérives et les ajustements.",
             ],
           ]}
         />
@@ -60,14 +60,20 @@ export default function Page() {
           le devis fait foi. Un devis est valable trente jours.
         </p>
         <p>
-          Le diagnostic est payable à la commande. Les chantiers sont facturés
-          pour moitié à la commande et pour moitié à la livraison, sauf
-          échelonnement prévu au devis. Les abonnements sont facturés
-          mensuellement à terme échu.
+          Le diagnostic est offert au client qui s&apos;engage, à la commande,
+          à remettre un témoignage publiable dans les trente jours suivant la
+          remise du rapport. Le témoignage est publié sous le nom du client et
+          de son organisation, après validation de son texte par le client. À
+          défaut de témoignage dans ce délai, le diagnostic est dû au prix
+          indiqué au devis.
         </p>
         <p>
-          Le montant du diagnostic est déduit du chantier si celui-ci est
-          confié dans les trois mois suivant la remise du rapport.
+          Chaque brique est facturée par mensualités, par prélèvement, la
+          première à la commande de la brique. Aucun prix de construction ne
+          s&apos;ajoute à la mensualité. Lorsque le diagnostic a été payé, son
+          montant vaut les premières mensualités, à hauteur de ce montant, si la
+          construction est commandée dans les trois mois suivant la remise du
+          rapport.
         </p>
         <p>
           En cas de retard, des pénalités égales à trois fois le taux
@@ -92,9 +98,9 @@ export default function Page() {
       <Block title="5. Nature de l'engagement">
         <p>
           Nous sommes tenus à une obligation de moyens. Les gains de temps et
-          les délais de retour sur investissement figurant dans nos documents
-          sont des estimations fondées sur les informations transmises par le
-          client, ils ne constituent pas une garantie de résultat.
+          leur valeur mensuelle figurant dans nos documents sont des
+          estimations fondées sur les informations transmises par le client,
+          ils ne constituent pas une garantie de résultat.
         </p>
         <p>
           Les systèmes livrés produisent ou décident selon des règles écrites et
@@ -107,13 +113,19 @@ export default function Page() {
 
       <Block title="6. Propriété des livrables">
         <p>
-          Le rapport de diagnostic est la propriété du client dès son paiement
-          intégral.
+          Le rapport de diagnostic est la propriété du client dès sa remise
+          lorsqu&apos;il est offert, dès son paiement intégral sinon.
         </p>
         <p>
-          Les briques livrées, paramétrages et documentations associés sont
-          cédés au client au paiement intégral du chantier, pour ses besoins
-          propres. {LEGAL.editeur} conserve la propriété de sa méthode, de ses
+          Tant que la mensualité d&apos;une brique est payée, le client dispose
+          d&apos;un droit d&apos;usage de cette brique, de ses paramétrages et
+          de sa documentation, pour ses besoins propres.
+        </p>
+        <p>
+          Au terme de la durée initiale, le client peut racheter une brique pour
+          un montant égal à six de ses mensualités. La brique, ses paramétrages
+          et sa documentation lui sont alors cédés, et la supervision prend fin.{" "}
+          {LEGAL.editeur} conserve la propriété de sa méthode, de ses
           composants génériques et de son savoir-faire, et reste libre de les
           réutiliser pour d&apos;autres clients.
         </p>
@@ -134,15 +146,21 @@ export default function Page() {
         </p>
       </Block>
 
-      <Block title="8. Résiliation">
+      <Block title="8. Durée et résiliation">
         <p>
-          Les abonnements de suivi et de gouvernance sont sans engagement de
-          durée et résiliables par écrit avec un préavis de trente jours, la
-          période en cours restant due.
+          Chaque brique est souscrite pour une durée initiale de douze mois à
+          compter de sa commande. Elle se poursuit ensuite sans limite de durée
+          et se résilie par écrit avec un préavis de trente jours, la période en
+          cours restant due.
         </p>
         <p>
-          L&apos;abandon d&apos;un chantier en cours par le client donne lieu au
-          règlement des travaux réalisés à la date d&apos;arrêt.
+          Si le client met fin à une brique avant le terme de sa durée initiale,
+          les mensualités restant à courir jusqu&apos;à ce terme sont dues.
+        </p>
+        <p>
+          À la fin de l&apos;abonnement, la brique qui n&apos;a pas été rachetée
+          cesse d&apos;être exploitée. Les données du client lui sont
+          restituées.
         </p>
       </Block>
 

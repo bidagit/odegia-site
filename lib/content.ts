@@ -7,19 +7,25 @@
    Le modèle tarifaire vient des notes du vault du 2026-08-24, fiches
    « Odegia - Diagnostic Automatisation Admin » et « Odegia - Estimateur en
    ligne ». L'unité de compte est la brique, y compris quand plusieurs sont
-   vendues ensemble. Trois paliers depuis le 27/08/2026, brique simple à
-   600 EUR, intermédiaire à 1 200, complexe à 2 400, et une remise de parc de
-   20 % dès la troisième brique. Ne pas réinventer ces
-   montants ici, ils sont l'étalon commercial.
+   vendues ensemble. Trois paliers depuis le 27/08/2026, et depuis le
+   02/10/2026 une seule mensualité par brique, 60 EUR la simple, 100
+   l'intermédiaire, 190 la complexe, construction et surveillance comprises,
+   avec une remise de parc de 20 % dès la troisième brique. Le prix de chantier
+   et le suivi séparé ont disparu ce jour-là, décision d'Adib, le prix d'entrée
+   étant le frein. Ne pas réinventer ces montants ici, ils sont l'étalon
+   commercial et vivent dans lib/estimator.ts.
 
    Le pack reste compatible avec la doctrine parce que les trois briques sont
    nommées au devis. Ce qui est écarté est le forfait à périmètre indéfini, pas
    la remise sur un périmètre connu.
 
-   Diagnostic et suivi relevés le 25/08/2026 après comparaison au marché
-   américain. Diagnostic à 500 EUR pour un fondateur et dès 1 500 EUR pour une
-   PME, remboursé si l'automatisation n'est pas la réponse. Suivi par palier
-   depuis le 01/10/2026, 40, 70 ou 120 EUR par brique et par mois. */
+   Le diagnostic vaut 500 EUR pour un fondateur et dès 1 500 EUR pour une PME.
+   Depuis le 02/10/2026 il est offert contre un témoignage publiable, décision
+   d'Adib, c'était le dernier paiement d'avance du parcours. Le prix reste
+   affiché, il dit ce que vaut le travail, et il reste dû sans témoignage. Ne
+   jamais écrire « premiers clients » ni borner l'offre à un nombre, le site ne
+   dit pas que l'activité démarre. Chaque brique engage douze mois, puis se
+   résilie à trente jours ou se rachète pour six mensualités. */
 
 export const SITE = {
   name: "Odegia",
@@ -56,7 +62,7 @@ export const LEGAL = {
   hebergeur: "OVH SAS",
   hebergeurAdresse: "2 rue Kellermann, 59100 Roubaix, France",
   hebergeurTel: "1007",
-  maj: "24 août 2026",
+  maj: "2 octobre 2026",
 };
 
 export const LEGAL_LINKS = [
@@ -114,9 +120,12 @@ export const HERO = {
   stats: [
     { value: "jusqu'à 20 h", label: "récupérables chaque semaine" },
     { value: "80 %", label: "du temps d'une tâche automatisée, récupéré" },
-    /* 6 mois depuis le 01/10/2026, decision d Adib. « Des 2 mois » etait le
-       meilleur cas de la grille, l etude de cas publiee en affiche 9. */
-    { value: "dès 6 mois", label: "pour rembourser votre investissement" },
+    /* Sans prix de chantier depuis le 02/10/2026, il n y a plus rien a
+       rembourser. Une brique ne se recommande que si elle rend plus chaque
+       mois que sa mensualite, d ou la promesse. « En service » parce que la
+       construction precede, le diagnostic couvrant les mensualites de cette
+       periode. */
+    { value: "dès le 1er mois", label: "rentable, une fois la tâche en service" },
   ],
   statsNote:
     "Estimations issues de notre grille de diagnostic. Le chiffre qui compte est le vôtre, il sort du rapport.",
@@ -229,7 +238,7 @@ export const FONDATEUR = {
   points: [
     {
       title: "On mesure avant de changer.",
-      body: "C'est la discipline apprise chez Toyota, où l'amélioration commence par un relevé et jamais par une idée. C'est pourquoi le diagnostic précède le chantier, et pourquoi son prix est déduit de ce qui suit.",
+      body: "C'est la discipline apprise chez Toyota, où l'amélioration commence par un relevé et jamais par une idée. C'est pourquoi le diagnostic précède toujours le chantier.",
     },
     {
       title: "On élimine avant d'automatiser.",
@@ -253,7 +262,7 @@ export const STEPS = [
   {
     numeral: "ii",
     title: "Devis",
-    body: "Le rapport arrive avec un devis ferme, tâche par tâche, son prix, son suivi mensuel et son retour. Il dit aussi ce qui reste à votre main.",
+    body: "Le rapport arrive avec un devis ferme, tâche par tâche, sa mensualité et ce qu'elle vous rend chaque mois. Il dit aussi ce qui reste à votre main.",
   },
   {
     numeral: "iii",
@@ -335,19 +344,19 @@ export const BRIQUES: Brique[] = [
 export const BRIQUE_TYPES = [
   {
     label: "Brique simple",
-    price: "600 EUR HT",
+    price: "60 EUR HT par mois",
     criteria:
       "Les deux réponses sont oui, et une erreur se rattrape sans conséquence. Caler un rendez-vous, ranger une pièce comptable.",
   },
   {
     label: "Brique intermédiaire",
-    price: "1 200 EUR HT",
+    price: "100 EUR HT par mois",
     criteria:
       "Les deux réponses sont oui, mais une erreur non détectée coûte cher. Tout ce qui touche à l'argent ou part au nom du client.",
   },
   {
     label: "Brique complexe",
-    price: "2 400 EUR HT",
+    price: "190 EUR HT par mois",
     criteria:
       "Une des deux réponses manque, données dispersées ou sortie qui change à chaque fois.",
   },
@@ -356,11 +365,12 @@ export const BRIQUE_TYPES = [
 /* ── Le prix en bref ───────────────────────────────────────────────────────
    Ajoute le 01/10/2026 apres un retour de visiteurs, on ne comprenait pas
    combien ca coute. La page affichait une douzaine de montants et aucun total.
-   Trois prix suffisent a repondre, dans l ordre ou on les paie. */
+   Depuis le 02/10/2026 il n y a plus que deux prix, le diagnostic et la
+   mensualite. La troisieme case dit la duree, qui se lit comme un prix. */
 export const PRIX_EN_BREF = [
-  { montant: "500 €", quoi: "le diagnostic", note: "déduit si vous lancez le chantier" },
-  { montant: "600 à 2 400 €", quoi: "par tâche automatisée", note: "une fois, selon ce que coûte une erreur" },
-  { montant: "40 à 120 €", quoi: "par mois de suivi", note: "par tâche, sans engagement" },
+  { montant: "Offert", quoi: "le diagnostic", note: "contre votre témoignage, 500 € sinon" },
+  { montant: "60 à 190 €", quoi: "par mois et par tâche", note: "construction et surveillance comprises" },
+  { montant: "12 mois", quoi: "d'engagement par tâche", note: "ensuite vous arrêtez, ou vous la rachetez" },
 ];
 
 /* Trois budgets concrets. Les montants sortent de la grille de lib/estimator.ts,
@@ -369,23 +379,20 @@ export const EXEMPLES_PRIX = [
   {
     qui: "Un consultant seul",
     quoi: "Ses factures, émises et relancées sans lui",
-    chantier: "600 €",
-    suivi: "40 € par mois",
+    mensualite: "60 €",
     detail: "1 tâche simple, il valide chaque facture avant envoi",
   },
   {
     qui: "Une association",
     quoi: "Son parcours d'inscription, de la première question au témoignage",
-    chantier: "2 400 €",
-    suivi: "120 € par mois",
-    detail: "1 parcours de 10 tâches, remboursé en 9 mois",
+    mensualite: "190 €",
+    detail: "1 parcours de 10 tâches, qui rend en temps le double de ce qu'il coûte",
     lien: "/cas/chamil-france",
   },
   {
     qui: "Une TPE",
     quoi: "Ses devis, l'accueil de chaque nouveau client et ses mails récurrents",
-    chantier: "2 880 €",
-    suivi: "210 € par mois",
+    mensualite: "240 €",
     detail: "3 tâches intermédiaires, remise de 20 % comprise",
   },
 ];
@@ -448,34 +455,37 @@ export const TRACKS: Track[] = [
             strong: true,
           },
           { text: "Trois briques maximum, dans l'ordre où s'y prendre", strong: false },
-          { text: "Le retour sur investissement de chacune, en mois", strong: true },
+          { text: "Ce que chacune vous rend par mois, mensualité déduite", strong: true },
           { text: "Un devis ferme, valable trente jours", strong: false },
           {
-            text: "Remboursé si l'automatisation n'est pas votre vraie réponse",
+            text: "Offert contre votre témoignage sur le diagnostic",
             strong: true,
           },
         ],
         /* 290 EUR placait le diagnostic sous le plancher du marche, qui demarre
            a 500 dollars. Un audit vendu moins cher que partout ailleurs signale
            un travail sans valeur, ce qui est l'inverse du but. */
-        price: "500 € HT",
-        priceSuffix: "",
-        priceNote: "déduits du chantier, remboursés si la réponse n'est pas l'automatisation",
+        /* Offert contre temoignage depuis le 02/10/2026. Le prix reste lisible
+           dans la note, il dit ce que vaut le travail. */
+        price: "Offert",
+        priceSuffix: "contre votre témoignage",
+        priceNote: "sans témoignage, 500 € HT",
         cta: "Réserver 15 minutes",
         ctaHref: SITE.booking,
       },
       {
         index: "02",
         name: "Briques",
-        duration: "à l'unité",
+        duration: "par mois",
         badge: "On construit",
         tagline:
           "On automatise tâche par tâche. Vous commencez par une seule brique, celle qui vous coûte le plus cher, et vous ajoutez les suivantes quand elle a fait ses preuves.",
         forWho:
           "Ceux qui perdent leurs journées sur une tâche répétitive déjà identifiée.",
         deliverables: [
-          { text: "600 € la tâche simple, 1 200 € l'intermédiaire, 2 400 € la complexe", strong: true },
-          { text: "Remise de 20 % dès la troisième brique, quel que soit le mélange", strong: true },
+          { text: "60 € par mois la tâche simple, 100 € l'intermédiaire, 190 € la complexe", strong: true },
+          { text: "Construction comprise, rien à payer d'avance", strong: true },
+          { text: "Remise de 20 % dès la troisième brique, quel que soit le mélange", strong: false },
           { text: "Construite sur vos outils, sans les remplacer", strong: false },
           {
             text: "La tâche part seule, ou vous validez avant envoi",
@@ -484,9 +494,9 @@ export const TRACKS: Track[] = [
           { text: "Règles et limites écrites avant construction", strong: false },
           { text: "Vos abonnements restent à votre nom", strong: false },
         ],
-        price: "600 à 2 400 € HT",
-        priceSuffix: "/ tâche",
-        priceNote: "selon ce que coûte une erreur, 20 % de remise dès la troisième",
+        price: "60 à 190 € HT",
+        priceSuffix: "/ mois par tâche",
+        priceNote: "selon ce que coûte une erreur, engagement de douze mois par tâche",
         /* Sans bouton depuis le 01/10/2026. Il menait a l agenda d appel
            decouverte en promettant un choix de briques. */
         cta: "",
@@ -494,10 +504,10 @@ export const TRACKS: Track[] = [
       {
         index: "03",
         name: "Suivi",
-        duration: "mensuel",
+        duration: "compris dans la mensualité",
         badge: "On gouverne",
         tagline:
-          "Le système est à vous. On le surveille, on corrige les dérives et on l'ajuste quand votre activité change. C'est aussi par ici qu'on monte les domaines suivants, un à un.",
+          "La surveillance fait partie de la mensualité. On corrige les dérives et on ajuste quand votre activité change. C'est aussi par ici qu'on monte les domaines suivants, un à un.",
         forWho:
           "Ceux qui ne veulent pas devenir l'administrateur technique de leur propre système.",
         deliverables: [
@@ -506,6 +516,7 @@ export const TRACKS: Track[] = [
           { text: "Support asynchrone sous deux jours ouvrés", strong: false },
           { text: "Revue trimestrielle de votre autonomie", strong: true },
           { text: "Nouveaux domaines montés un à un", strong: false },
+          { text: "Rachat possible après douze mois, pour six mensualités", strong: true },
         ],
         /* Indexé à la brique depuis le 25/08/2026, dégressif le même jour après
            comparaison au marché américain, où le récurrent va de 1 200 à
@@ -519,11 +530,11 @@ export const TRACKS: Track[] = [
            Conséquence assumée, une brique qui libère moins de 7,1 h par mois ne
            couvre plus son suivi en première position. La brique unique de
            faible volume cesse donc d'être vendable, et l'estimateur le dit. */
-        /* Par palier depuis le 01/10/2026, décision d'Adib, 40, 70 ou 120 EUR
-           par brique, sans socle. Voir SUIVI_PAR_PALIER dans estimator.ts. */
-        price: "40 à 120 € HT",
-        priceSuffix: "/ mois par tâche",
-        priceNote: "selon le prix de la tâche, sans engagement, vous ne payez que ce qui tourne",
+        /* Compris dans la mensualité depuis le 02/10/2026. Le suivi n'a plus de
+           prix à lui, voir MENSUALITE dans estimator.ts. */
+        price: "Compris",
+        priceSuffix: "",
+        priceNote: "dans la mensualité de chaque tâche, tant qu'elle tourne",
         cta: "",
       },
     ],
@@ -535,11 +546,15 @@ export type FaqItem = { q: string; a: string; cadre?: boolean };
 export const FAQ: FaqItem[] = [
   {
     q: "Comment se fixe le prix d'une tâche ?",
-    a: "Par ce que coûte une erreur, pas par le temps gagné. 600 EUR quand une erreur se rattrape sans conséquence, caler un rendez-vous ou ranger une pièce. 1 200 EUR quand elle coûte cher, un devis ou un mail parti à votre nom. 2 400 EUR quand les informations sont dispersées ou que le résultat change à chaque fois, et pour un parcours qui enchaîne plusieurs tâches sur le même dossier. Le suivi suit la même logique, 40, 70 ou 120 EUR par mois. Le diagnostic range chacune de vos tâches et vous remet un devis ferme.",
+    a: "Par ce que coûte une erreur, pas par le temps gagné. 60 EUR par mois quand une erreur se rattrape sans conséquence, caler un rendez-vous ou ranger une pièce. 100 EUR par mois quand elle coûte cher, un devis ou un mail parti à votre nom. 190 EUR par mois quand les informations sont dispersées ou que le résultat change à chaque fois, et pour un parcours qui enchaîne plusieurs tâches sur le même dossier. La mensualité comprend la construction et la surveillance, vous ne payez rien d'avance. Le diagnostic range chacune de vos tâches et vous remet un devis ferme.",
   },
   {
     q: "Pourquoi compter en briques ?",
-    a: "Une brique est une tâche. Elle a son prix, son gain annuel et son retour sur investissement, ce qui vous laisse en acheter une, la voir tourner, puis décider de la suite. Vous pouvez aussi en prendre trois d'un coup, la remise de parc retire alors 20 % du total, à condition que les trois soient nommées dans le devis. Ce qui compte est de savoir ce que couvre le périmètre avant de le payer, la remise vient après. C'est aussi pourquoi un « automatisez-moi tout » se transforme d'abord en liste de briques, plus facile à tenir des deux côtés.",
+    a: "Une brique est une tâche. Elle a sa mensualité et ce qu'elle vous rend chaque mois, ce qui vous laisse en lancer une, la voir tourner, puis décider de la suite. Vous pouvez aussi en prendre trois d'un coup, la remise de parc retire alors 20 % de la mensualité, à condition que les trois soient nommées dans le devis. Ce qui compte est de savoir ce que couvre le périmètre avant de le payer, la remise vient après. C'est aussi pourquoi un « automatisez-moi tout » se transforme d'abord en liste de briques, plus facile à tenir des deux côtés.",
+  },
+  {
+    q: "Que se passe-t-il si j'arrête ?",
+    a: "Chaque tâche engage douze mois. Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis, et la tâche cesse de tourner. Vous pouvez aussi la racheter pour six mensualités. Elle vous reste alors acquise, avec ses règles écrites et sa documentation, et vous la faites tourner sans notre surveillance.",
   },
   {
     q: "Faut-il viser le niveau 4 partout ?",
@@ -555,7 +570,7 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "Que se passe-t-il si une tâche n'est pas automatisable ?",
-    a: "Nous l'indiquons dans le rapport, avec la raison. Si votre décision relève du jugement plutôt que d'une règle, l'automatisation tiendrait mal dans le temps. Vous dire ce qui ne s'automatise pas fait partie du travail que vous payez, et cela vous évite d'investir au mauvais endroit.",
+    a: "Nous l'indiquons dans le rapport, avec la raison. Si votre décision relève du jugement plutôt que d'une règle, l'automatisation tiendrait mal dans le temps. Vous dire ce qui ne s'automatise pas fait partie du diagnostic, et cela vous évite d'investir au mauvais endroit.",
   },
   {
     q: "En quoi est-ce différent d'une prestation d'automatisation ?",

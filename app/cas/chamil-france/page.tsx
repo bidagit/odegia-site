@@ -7,10 +7,16 @@ import { SITE } from "@/lib/content";
 /* Etude de cas Chamil France, premier terrain d Odegia.
 
    Publiee le 01/10/2026 avec l accord du bureau de l association. Les
-   chiffres viennent du rapport de diagnostic du meme jour, methode v1.9,
-   suivi par palier, dossier
+   heures et la valeur du temps viennent du rapport de diagnostic du meme jour,
+   methode v1.9, dossier
    P:\1. ORBIS\Odegia\Diagnostics\2026-10 Chamil France\. Aucune donnee de
    beneficiaire.
+
+   Le cout est reecrit le 02/10/2026 au tarif en vigueur, decision d Adib. Le
+   parcours est une brique complexe, 190 EUR par mois, construction et
+   surveillance comprises, soit 2 280 EUR par an. Il n y a plus de chantier a
+   rembourser, donc plus de delai de retour. Le temps rendu, 4 646 EUR par an,
+   vaut le double de ce cout chaque annee.
 
    Le cas parle des 12 prochains mois, decision d Adib du 01/10/2026, un
    dirigeant decidant sur ce qui l attend. Les chiffres s ecrivent en chiffres.
@@ -40,7 +46,7 @@ export const metadata: Metadata = {
 const CHIFFRES = [
   { valeur: "18,3 h", legende: "d'administratif par mois sur les 12 prochains mois" },
   { valeur: "13 188 €", legende: "par an, au taux de 60 € de l'heure retenu par l'association" },
-  { valeur: "9 mois", legende: "pour rembourser l'investissement Odegia" },
+  { valeur: "+2 366 €", legende: "par an en faveur de l'association, mensualité Odegia payée" },
 ];
 
 /* Inventaire des 23 taches, genere depuis calcul.json du diagnostic, trie par
@@ -164,7 +170,7 @@ function Balancoire({ valeur, cout }: { valeur: number; cout: number }) {
       viewBox="0 0 640 280"
       className="h-auto w-full"
       role="img"
-      aria-label={`Valeur du temps rendu ${euro(valeur)} par mois, face au coût d'Odegia ${euro(cout)} par mois. La balance penche du côté du temps rendu.`}
+      aria-label={`Valeur du temps rendu ${euro(valeur)} par an, face au coût d'Odegia ${euro(cout)} par an. La balance penche du côté du temps rendu.`}
     >
       <line x1="40" y1="262" x2="600" y2="262" stroke="var(--color-ink)" strokeOpacity="0.15" strokeWidth="2" />
       <polygon points="320,186 284,262 356,262" fill="var(--color-banane)" stroke="var(--color-ink)" strokeWidth="3" strokeLinejoin="round" />
@@ -214,16 +220,16 @@ export default function Page() {
     <div className="border-t border-ink/10">
       <section className="bg-vert-soft pb-16 pt-14 md:pb-20">
         <div className="relative mx-auto max-w-5xl px-5 sm:px-8">
-          {/* Mention speciale, demande d Adib du 01/10/2026. Le retour sur 3 ans,
-              13 939 EUR de temps rendu pour 6 720 EUR investis, se dit x2 plutot
-              qu en pourcentage. Pastille de cote sur grand ecran, en ligne sur
-              mobile. */}
+          {/* Mention speciale, demande d Adib du 01/10/2026. Chaque annee,
+              4 646 EUR de temps rendu pour 2 280 EUR de mensualites, ce qui se
+              dit x2 plutot qu en pourcentage. Pastille de cote sur grand ecran,
+              en ligne sur mobile. */}
           <div
             className="ombre-dure absolute right-8 top-0 hidden h-[168px] w-[168px] rotate-6 flex-col items-center justify-center rounded-full border-2 border-ink bg-banane text-center lg:flex"
           >
             <span className="display text-[46px] leading-none tracking-[-0.03em]">×2</span>
             <span className="mt-1.5 px-5 text-[11.5px] leading-[1.35] text-ink">
-              l&apos;investissement rendu en temps, sur 3 ans
+              ce que coûte Odegia, rendu en temps, chaque année
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -255,7 +261,7 @@ export default function Page() {
           </p>
           <p className="mt-5 flex w-fit items-center gap-2 rounded-full border-2 border-ink bg-banane px-4 py-1.5 text-[13px] font-medium text-ink lg:hidden">
             <span className="display text-[18px] leading-none">×2</span>
-            l&apos;investissement rendu en temps, sur 3 ans
+            ce que coûte Odegia, rendu en temps, chaque année
           </p>
           <a
             href="https://chamilinternational.org"
@@ -382,7 +388,7 @@ export default function Page() {
           </h2>
           <p className="mt-4 max-w-2xl text-[14.5px] leading-[1.75] text-ink-soft">
             10 tâches s&apos;enchaînent sur le même dossier. Mesurées une par
-            une, aucune ne remboursait son suivi. Regroupées en un seul
+            une, aucune ne couvrait sa mensualité. Regroupées en un seul
             parcours, elles se construisent et se surveillent comme un seul
             système.
           </p>
@@ -406,24 +412,24 @@ export default function Page() {
           </h2>
           <div className="ombre-dure mt-8 rounded-[20px] border-2 border-ink bg-paper p-5 md:p-8">
             <p className="text-center text-[12.5px] text-ink-soft">
-              {nb("Chaque année, coût d'Odegia = suivi de 1 440 € et chantier de 2 400 € étalé sur 3 ans, soit 800 €")}
+              {nb("Chaque année, coût d'Odegia = 12 mensualités de 190 €, construction et surveillance comprises")}
             </p>
-            <Balancoire valeur={4646} cout={2240} />
+            <Balancoire valeur={4646} cout={2280} />
             <div className="mt-4 grid grid-cols-2 gap-6 border-t border-ink/10 pt-5">
               <div>
                 <span className="display block text-[26px] leading-none">{nb("77 h")}</span>
                 <span className="mt-2 block text-[12.5px] text-ink-soft">de temps rendu au bureau chaque année</span>
               </div>
               <div>
-                <span className="display block text-[26px] leading-none text-vert">{nb("+2 406 €")}</span>
+                <span className="display block text-[26px] leading-none text-vert">{nb("+2 366 €")}</span>
                 <span className="mt-2 block text-[12.5px] text-ink-soft">par an en faveur de l&apos;association</span>
               </div>
             </div>
           </div>
           <p className="mt-5 max-w-2xl text-[13px] leading-[1.7] text-ink-soft">
-            Sur 3 ans, {nb("13 939 €")} de temps rendu pour {nb("6 720 €")}{" "}
-            payés, chantier et suivi compris. Le chantier se rembourse en{" "}
-            {nb("9 mois")}, et ce délai raccourcit à chaque séjour de plus.
+            L&apos;association ne paie rien d&apos;avance pour la construction.
+            Sur 3 ans, {nb("13 939 €")} de temps rendu pour {nb("6 840 €")}{" "}
+            de mensualités, et l&apos;écart grandit à chaque séjour de plus.
           </p>
         </div>
       </section>

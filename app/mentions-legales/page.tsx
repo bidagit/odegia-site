@@ -65,7 +65,7 @@ export default function Page() {
       <Block title="Responsabilité">
         <p>
           Les estimations affichées sur ce site, notamment les heures
-          récupérables et les délais de retour sur investissement, sont des
+          récupérables et leur valeur mensuelle, sont des
           ordres de grandeur issus de notre grille de diagnostic. Elles ne
           constituent ni un devis ni un engagement contractuel. Seul le
           diagnostic permet un chiffrage ferme.

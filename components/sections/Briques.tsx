@@ -1,4 +1,5 @@
 import { BRIQUES } from "@/lib/content";
+import { MENSUALITE } from "@/lib/estimator";
 import { Objet3D } from "@/components/deco/Objet3D";
 import { ChuteBriques } from "@/components/sections/ChuteBriques";
 
@@ -22,8 +23,8 @@ export function Briques() {
           </h2>
           <p className="mt-4 text-[14.5px] leading-[1.7] text-ink-soft">
             Pas de forfait, pas de périmètre flou. Chaque tâche répétitive
-            devient une brique, avec son prix, son gain annuel et son retour sur
-            investissement. Vous commencez par une seule.
+            devient une brique, avec sa mensualité et ce qu&apos;elle vous rend
+            chaque mois. Vous commencez par une seule.
           </p>
         </div>
 
@@ -41,10 +42,9 @@ export function Briques() {
             /* L encre douce tombe a 4,07:1 sur la banane, sous le seuil AA. La
                citation y passe donc en encre pleine, 10,72:1. */
             const surBanane = !complexe && i % 3 === 2;
-            const prix = { simple: "600", intermediaire: "1 200", complexe: "2 400" }[palier];
-            /* Le suivi figure a cote du prix depuis le 01/10/2026. Le visiteur
-               lit son prix complet sur sa tache, sans passer par la grille. */
-            const suivi = { simple: "40", intermediaire: "70", complexe: "120" }[palier];
+            /* Une seule mensualite depuis le 02/10/2026, lue dans la grille de
+               l estimateur. Le visiteur lit son prix complet sur sa tache. */
+            const mensualite = MENSUALITE[palier];
             /* Le <li> ne sert plus qu au placement et porte la rotation de
                .penche. Tout l habillage descend sur l enfant, qui devient la
                carte visible et peut donc tomber en entier. Auparavant seul le
@@ -82,7 +82,7 @@ export function Briques() {
                       : "border border-ink/20 text-ink"
                   }`}
                 >
-                  {prix}&nbsp;€ puis {suivi}&nbsp;€/mois
+                  {mensualite}&nbsp;€ par mois
                 </span>
                 </div>
               </li>
@@ -94,8 +94,8 @@ export function Briques() {
             obligeaient le visiteur a classer sa tache avant de lire un prix,
             alors que chaque carte porte desormais le sien. */}
         <p className="mt-6 max-w-3xl text-[13px] leading-[1.7] text-ink-soft">
-          À partir de trois tâches, la remise de parc retire 20&nbsp;% du
-          chantier. Une tâche absente de cette liste se chiffre au diagnostic.
+          À partir de trois tâches, la remise de parc retire 20&nbsp;% de la
+          mensualité. Une tâche absente de cette liste se chiffre au diagnostic.
         </p>
       </div>
     </section>

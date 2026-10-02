@@ -365,15 +365,29 @@ export const BRIQUE_TYPES = [
   },
 ];
 
-/* ── Le prix en bref ───────────────────────────────────────────────────────
-   Ajoute le 01/10/2026 apres un retour de visiteurs, on ne comprenait pas
-   combien ca coute. La page affichait une douzaine de montants et aucun total.
-   Depuis le 02/10/2026 il n y a plus que deux prix, le diagnostic et la
-   mensualite. La troisieme case dit la duree, qui se lit comme un prix. */
-export const PRIX_EN_BREF = [
-  { montant: "Diagnostic offert", quoi: "", note: "à condition d'une estimation préalable positive" },
-  { montant: "60 à 190 €", quoi: "par mois et par tâche", note: "construction et surveillance comprises" },
-  { montant: "12 mois", quoi: "d'engagement par tâche", note: "ensuite vous arrêtez, ou vous la rachetez" },
+/* ── Ce que ça change pour vous ────────────────────────────────────────────
+   Trois benefices, juste sous le hero. Ils remplacent le 02/10/2026 la bande
+   « Ce que ça coûte », decision d Adib, le premier ecran devant dire ce que le
+   client gagne avant ce qu il paie.
+
+   Le hero dit deja « vous récupérez vos soirées » et « jusqu'à 20 h », la
+   bande ne les redit pas. Elle ajoute ce que ces heures evitent, ce qu elles
+   changent pour les clients du client, et ce que ca demande pour commencer.
+   La troisieme carte garde le prix d entree, des visiteurs ne le trouvaient
+   pas avant le 01/10/2026. */
+export const BENEFICES = [
+  {
+    titre: "Une assistante de moins à recruter",
+    texte: "Le travail d'un mi-temps administratif, sans contrat à signer ni poste à remplacer l'été.",
+  },
+  {
+    titre: "Des clients servis plus vite",
+    texte: "Le devis part le jour même, la facture est relancée à l'heure, le rendez-vous se cale sans échange de mails.",
+  },
+  {
+    titre: "Rien à payer d'avance",
+    texte: "Une mensualité par tâche, dès 60 € par mois, et un diagnostic offert pour commencer.",
+  },
 ];
 
 /* Trois budgets concrets. Les montants sortent de la grille de lib/estimator.ts,
@@ -473,7 +487,7 @@ export const TRACKS: Track[] = [
            mene a l estimateur, c est lui qui ouvre le droit au diagnostic. */
         price: "Offert",
         priceSuffix: "d'une valeur de 500 € HT",
-        priceNote: "à condition d'une estimation préalable positive",
+        priceNote: "sous condition d'une estimation préalable positive",
         cta: "Faire mon estimation",
         ctaHref: "/estimation",
       },

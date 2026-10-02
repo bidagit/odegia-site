@@ -18,7 +18,7 @@ export function PrixEnBref() {
           <ol className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-3">
             {PRIX_EN_BREF.map((p, i) => (
               <li
-                key={p.quoi}
+                key={p.montant}
                 className="ombre-dure-sm flex items-start gap-3 rounded-[18px] border-2 border-ink bg-paper px-4 py-3.5"
               >
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-banane font-mono text-[11px] font-semibold">

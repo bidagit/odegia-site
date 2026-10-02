@@ -1,8 +1,8 @@
 /* Moteur de calcul du diagnostic payant.
 
    Il importe les constantes de l estimateur au lieu de les recopier. Le rapport
-   payant et l estimation gratuite sortent donc les memes prix, le meme suivi, la
-   meme part recuperable et les memes seuils, par construction. Une grille
+   et l estimation en ligne sortent donc les memes mensualites, la meme remise,
+   la meme part recuperable et la meme regle de decision, par construction. Une grille
    recopiee dans un tableur finit toujours par diverger, et le client le voit
    quand il compare les deux documents.
 
@@ -17,15 +17,15 @@
 import {
   TACHES,
   TAILLES,
-  PRIX,
+  MENSUALITE,
+  mensualiteDe,
+  mensualitePour,
+  ENGAGEMENT_MOIS,
+  RACHAT_MENSUALITES,
   NOM_PALIER,
   PART_RECUPERABLE,
   REMISE_PACK,
   SEUIL_PACK,
-  SEUIL_RETOUR_MOIS,
-  SUIVI_PAR_PALIER,
-  suiviDe,
-  suiviMensuelPour,
   facteurEffectif,
   type Palier,
   type Frequence,
@@ -35,12 +35,20 @@ import {
    change a chaque regle de decision, definition de mesure ou grille modifiee,
    et le protocole du vault dit ce que chaque version contient. Un rapport se
    relit toujours avec les regles de sa version. */
-export const METHODE_VERSION = "1.9";
+export const METHODE_VERSION = "2.0";
 
-/* Remise accordee a tout client deja servi par une autre marque du groupe,
-   decision du 26/08/2026. Elle porte sur le premier chantier seulement et ne
-   s affiche jamais sur le site, une remise publiee devenant un prix. D ou sa
-   place ici et non dans estimator.ts. */
+/* v2.0, decision d Adib du 02/10/2026. Une brique n a plus de prix de chantier
+   ni de suivi separe, elle a une mensualite constante, construction et
+   surveillance comprises. Tout ce qui se calculait en delai de retour se
+   calcule desormais en solde mensuel, ce que la brique rend moins ce qu elle
+   coute. Une brique se recommande quand ce solde est positif.
+
+   Remise accordee a tout client deja servi par une autre marque du groupe,
+   decision du 26/08/2026. Elle portait sur le premier chantier. Sans chantier,
+   elle porte sur la mensualite pendant les douze mois d engagement, puis le
+   prix public revient. Une remise sans fin sur du recurrent serait une perte
+   permanente. Elle ne s affiche jamais sur le site, une remise publiee
+   devenant un prix. D ou sa place ici et non dans estimator.ts. */
 export const REMISE_GROUPE = 0.2;
 
 /* Le taux est celui que declare le client, pour chaque acteur, decision du
@@ -48,18 +56,20 @@ export const REMISE_GROUPE = 0.2;
    rapport l annonce alors comme une hypothese. */
 export const TAUX_PAR_DEFAUT = 60;
 
-/* Regle de calibration 3 de la fiche. Au-dela, le rapport dit que le volume ne
-   justifie pas encore un chantier, au lieu d etirer un chiffre. */
-export const SEUIL_RETOUR_ANNONCABLE = 4;
+/* Ecart tolere pour que la tache la plus agacante passe en tete. Elle remonte
+   si son solde mensuel atteint 90 % du meilleur. Remplace depuis la v2.0 la
+   regle « a un mois de retour pres », qui n a plus d objet. Reglage provisoire,
+   a confronter aux premiers diagnostics. */
+export const TOLERANCE_AGACE = 0.9;
 
 /* Regles v1.1, arretees par Adib le 01/10/2026 apres l essai Chamil.
 
    Un parcours regroupe des taches qui s enchainent sur la meme occurrence, la
    sortie de l une declenchant la suivante, comme la demande, le devis, le
    dossier, la facture et les relances d une meme inscription. Mesurees une par
-   une, elles echouaient toutes face au suivi, alors qu elles se construisent et
+   une, aucune ne couvrait sa mensualite, alors qu elles se construisent et
    se surveillent comme un seul systeme. Un parcours se chiffre en une brique
-   complexe et porte un seul suivi. Trois taches au moins, en dessous ce n est
+   complexe et porte une seule mensualite. Trois taches au moins, en dessous ce n est
    qu une paire de briques.
 
    Le controle de coherence compare l inventaire aux heures que le client
@@ -81,8 +91,8 @@ export const BASCULE_DEFAUT = 0.2;
    a zero disparait de la phrase du rapport. */
 export const CADENCE_LIVRE = { jour: 15, semaine: 45, mois: 120 };
 
-/* Projection, v1.4, decision d Adib du 01/10/2026. Un chantier se rembourse
-   sur l avenir, le verdict se calcule donc sur l estimation du client pour les
+/* Projection, v1.4, decision d Adib du 01/10/2026. Une brique se paie sur
+   l avenir, le verdict se calcule donc sur l estimation du client pour les
    douze prochains mois, plafonnee a quatre fois le volume mesure. Le plafond
    protege contre l optimisme d un client qui veut se soulager. Passe de deux a
    trois pour ne pas ecarter une startup en forte croissance, puis a quatre le
@@ -104,8 +114,8 @@ export const SEMAINES_SOCLE_MAX = 6;
 export const SEMAINES_PALIER: Record<Palier, number> = { simple: 1, intermediaire: 2, complexe: 4 };
 export const SEMAINES_SUPERVISION = 1;
 export const SEMAINES_RODAGE = 4;
-/* Horizon de lissage du chantier, dans la comparaison mensuelle du rapport. */
-export const MOIS_LISSAGE = 36;
+/* Horizon de la comparaison longue du rapport, temps rendu contre mensualites. */
+export const HORIZON_MOIS = 36;
 
 export const PALIER_PARCOURS: Palier = "complexe";
 export const TACHES_MIN_PARCOURS = 3;
@@ -171,7 +181,9 @@ export type Entree = {
   agace: string | null;
   pertes: string | null;
   remiseGroupe: boolean;
-  diagnostic: { prix: number; deduit: boolean };
+  /* offert, le cas courant depuis le 02/10/2026. deduit, un diagnostic paye
+     dont le montant vaut les premieres mensualites. */
+  diagnostic: { prix: number; deduit: boolean; offert?: boolean };
   taches: TacheDiag[];
   /* Etape 0 du livre, v1.3. Ce que l organisation produit, pour qui, et par
      quel flux principal la valeur se fabrique. */
@@ -193,13 +205,14 @@ export type Unite = {
   parcours: boolean;
   taches: string[];
   palier: Palier;
-  prix: number;
+  mensualite: number;
   niveau: 3 | 4;
   heuresMois: number;
   heuresRecuperees: number;
   gainMensuel: number;
+  /* Ce que l unite rend chaque mois une fois sa mensualite payee. */
   gainNetMensuel: number;
-  roiMois: number;
+  /* La mensualite absorbe le gain, l unite ne se recommande pas. */
   absorbee: boolean;
 };
 
@@ -224,9 +237,8 @@ export type LigneDiag = TacheDiag & {
   niveau: 3 | 4;
   heuresRecuperees: number;
   gainMensuel: number;
-  prix: number;
+  mensualite: number;
   gainNetMensuel: number;
-  roiMois: number;
   absorbee: boolean;
   /* Etalon, jamais montre au client. */
   bande: Frequence | null;
@@ -239,7 +251,7 @@ export type LigneDiag = TacheDiag & {
 export const bandeDe = (frequenceAn: number): Frequence =>
   frequenceAn >= 144 ? "jour" : frequenceAn >= 48 ? "semaine" : "mois";
 
-const arrondi10 = (n: number) => Math.round(n / 10) * 10;
+const arrondi5 = (n: number) => Math.round(n / 5) * 5;
 
 export function diagnostiquer(e: Entree) {
   if (!TAILLES.includes(e.client.taille)) {
@@ -293,12 +305,10 @@ export function diagnostiquer(e: Entree) {
 
     const heuresRecuperees = heuresMois * PART_RECUPERABLE;
     const gainMensuel = heuresRecuperees * taux;
-    const prix = palier ? PRIX[palier] : 0;
-    /* Meme lecture que l estimateur, le suivi le plus favorable pour trier et
-       filtrer, le socle reel pour le chiffre de tete. */
-    /* Suivi par palier depuis la v1.9, chaque brique porte le sien. */
-    const gainNetMensuel = gainMensuel - (palier ? suiviDe(palier) : 0);
-    const roiMois = gainNetMensuel > 0 ? prix / gainNetMensuel : Infinity;
+    /* Meme lecture que l estimateur depuis la v2.0, ce que la brique rend
+       chaque mois contre ce qu elle coute chaque mois. */
+    const mensualite = palier ? mensualiteDe(palier) : 0;
+    const gainNetMensuel = gainMensuel - mensualite;
 
     const bande = def ? bandeDe(t.frequenceAn) : null;
     const heuresBareme = def && bande
@@ -323,11 +333,9 @@ export function diagnostiquer(e: Entree) {
       niveau: t.coutErreur === "eleve" ? 3 : 4,
       heuresRecuperees,
       gainMensuel,
-      prix,
+      mensualite,
       gainNetMensuel,
-      roiMois,
-      absorbee:
-        verdict === "brique" && (gainNetMensuel <= 0 || roiMois > SEUIL_RETOUR_MOIS),
+      absorbee: verdict === "brique" && gainNetMensuel <= 0,
       bande,
       heuresBareme,
       /* L estimateur ne connait que le temps actif, l etalon compare donc a lui. */
@@ -339,12 +347,11 @@ export function diagnostiquer(e: Entree) {
      sa propre brique. Les taches d un meme parcours, verdict brique, n en
      forment qu une. Celles qui relevent du jugement ou se suppriment restent
      hors du parcours, il ne les automatise pas. */
-  const suiviParcours = suiviDe(PALIER_PARCOURS);
   const groupes = new Map<string, LigneDiag[]>();
   /* Une tache sur devis appartient au parcours dont elle fait partie, v1.6,
      decision d Adib du 01/10/2026. Ses donnees dispersees et sa sortie variable
-     demandent un travail de structuration que le prix d un parcours complexe
-     couvre deja. Cas d origine, les questions des familles de Chamil avant
+     demandent un travail de structuration que la mensualite d un parcours
+     complexe couvre deja. Cas d origine, les questions des familles de Chamil avant
      preinscription, porte d entree du parcours. */
   const dansUnParcours = (l: LigneDiag) => (l.verdict === "brique" || l.verdict === "sur-devis") && !!l.parcours;
   for (const l of lignes) {
@@ -361,97 +368,75 @@ export function diagnostiquer(e: Entree) {
     if (l.verdict !== "brique") continue;
     unites.push({
       id: l.id, nom: l.nom, parcours: false, taches: [l.id], palier: l.palier!,
-      prix: l.prix, niveau: l.niveau, heuresMois: l.heuresMois,
+      mensualite: l.mensualite, niveau: l.niveau, heuresMois: l.heuresMois,
       heuresRecuperees: l.heuresRecuperees, gainMensuel: l.gainMensuel,
-      gainNetMensuel: l.gainNetMensuel, roiMois: l.roiMois, absorbee: l.absorbee,
+      gainNetMensuel: l.gainNetMensuel, absorbee: l.absorbee,
     });
   }
   for (const id of parcoursRetenus) {
     const ls = groupes.get(id)!;
-    const prix = PRIX[PALIER_PARCOURS];
+    const mensualite = mensualiteDe(PALIER_PARCOURS);
     const gainMensuel = ls.reduce((a, l) => a + l.gainMensuel, 0);
-    const gainNetMensuel = gainMensuel - suiviParcours;
-    const roiMois = gainNetMensuel > 0 ? prix / gainNetMensuel : Infinity;
+    const gainNetMensuel = gainMensuel - mensualite;
     unites.push({
       id, nom: e.parcours?.[id] ?? id, parcours: true, taches: ls.map((l) => l.id),
-      palier: PALIER_PARCOURS, prix,
+      palier: PALIER_PARCOURS, mensualite,
       /* Une seule etape a cout d erreur eleve suffit pour que le client valide. */
       niveau: ls.some((l) => l.niveau === 3) ? 3 : 4,
       heuresMois: ls.reduce((a, l) => a + l.heuresMois, 0),
       heuresRecuperees: ls.reduce((a, l) => a + l.heuresRecuperees, 0),
-      gainMensuel, gainNetMensuel, roiMois,
-      absorbee: gainNetMensuel <= 0 || roiMois > SEUIL_RETOUR_MOIS,
+      gainMensuel, gainNetMensuel,
+      absorbee: gainNetMensuel <= 0,
     });
   }
   const uniteDe = (tacheId: string) => unites.find((u) => u.taches.includes(tacheId));
 
-  /* Priorisation, regles 1 et 2 de la fiche, identiques a l estimateur, sur
-     les unites et non plus sur les taches. */
-  const tri = unites.filter((u) => !u.absorbee).sort((a, b) => a.roiMois - b.roiMois);
+  /* Priorisation, identique a l estimateur, sur les unites et non plus sur les
+     taches. Le plus gros solde mensuel d abord. */
+  const tri = unites.filter((u) => !u.absorbee).sort((a, b) => b.gainNetMensuel - a.gainNetMensuel);
   let agaceRemontee = false;
   let agaceEcartee = false;
   const agace = e.agace ? uniteDe(e.agace)?.id : undefined;
   if (agace) {
     const i = tri.findIndex((u) => u.id === agace);
-    if (i > 0 && tri[i].roiMois - tri[0].roiMois <= 1) {
+    if (i > 0 && tri[i].gainNetMensuel >= TOLERANCE_AGACE * tri[0].gainNetMensuel) {
       tri.unshift(tri.splice(i, 1)[0]);
       agaceRemontee = true;
     } else if (i > 0) {
       agaceEcartee = true;
     }
   }
-  /* La premiere brique porte toujours le socle du suivi. Le filtre au suivi le
-     plus favorable laissait passer en tete une unite qui, achetee seule, mettait
-     37 mois a se rembourser, decouvert sur Chamil le 01/10/2026. On met en tete
-     la premiere unite qui passe le seuil avec le socle, et sans elle rien ne se
-     recommande, puisque tout chantier commence par une premiere brique. */
-  const passeEnTete = (u: Unite) =>
-    u.gainMensuel - suiviDe(u.palier) > 0 &&
-    u.prix / (u.gainMensuel - suiviDe(u.palier)) <= SEUIL_RETOUR_MOIS;
-  const iTete = tri.findIndex(passeEnTete);
-  if (iTete > 0) {
-    tri.unshift(tri.splice(iTete, 1)[0]);
-    agaceRemontee = false;
-  }
-  const recommandees = iTete === -1 ? [] : tri.slice(0, 3);
-  const suivantes = iTete === -1 ? [] : tri.slice(3);
+  const recommandees = tri.slice(0, 3);
+  const suivantes = tri.slice(3);
   const tete = recommandees[0] ?? null;
 
-  /* Le chiffre de tete, celui de la premiere brique achetee seule, donc
-     portant le socle du suivi. C est le seul chiffre en gras du rapport. */
-  const gainTeteNet = tete ? tete.gainMensuel - suiviDe(tete.palier) : 0;
-  const roiTete = tete && gainTeteNet > 0 ? Math.ceil(tete.prix / gainTeteNet) : null;
+  /* Le chiffre de tete, ce que la premiere brique laisse chaque mois une fois
+     sa mensualite payee. C est le seul chiffre en gras du rapport. */
+  const gainNetTete = tete ? tete.gainNetMensuel : null;
 
-  /* Retour de chaque brique a sa place dans l ordre. La premiere porte le
-     socle, les suivantes leur seule part marginale, soit exactement ce que la
-     facture de suivi dira une fois le parc construit. */
-  const positions = recommandees.map((l, i) => {
-    const suivi = suiviDe(l.palier);
-    const net = l.gainMensuel - suivi;
-    return { id: l.id, suivi, gainNetMensuel: net, roiMois: net > 0 ? Math.ceil(l.prix / net) : null };
-  });
+  /* Chaque brique a sa place dans l ordre, avec sa mensualite et son solde. */
+  const positions = recommandees.map((l) => ({
+    id: l.id, mensualite: l.mensualite, gainNetMensuel: l.gainNetMensuel,
+  }));
 
-  const coutPlein = recommandees.reduce((s, l) => s + l.prix, 0);
-  const remisePack = recommandees.length >= SEUIL_PACK;
-  const apresPack = remisePack ? arrondi10(coutPlein * (1 - REMISE_PACK)) : coutPlein;
-  const apresGroupe = e.remiseGroupe ? arrondi10(apresPack * (1 - REMISE_GROUPE)) : apresPack;
-  const deduction = e.diagnostic.deduit ? Math.min(e.diagnostic.prix, apresGroupe) : 0;
-  const chantierHT = apresGroupe - deduction;
+  /* La mensualite du perimetre. Remise de parc d abord, sans fin, puis remise
+     du groupe pendant les douze mois d engagement seulement. */
+  const parc = mensualitePour(recommandees.map((u) => u.palier));
+  const mensualiteEnsuite = parc.nette;
+  const mensualiteEngagement = e.remiseGroupe
+    ? arrondi5(mensualiteEnsuite * (1 - REMISE_GROUPE))
+    : mensualiteEnsuite;
+  /* Un diagnostic paye vaut les premieres mensualites, a hauteur de son prix. */
+  const creditDiagnostic = e.diagnostic.deduit && !e.diagnostic.offert ? e.diagnostic.prix : 0;
 
-  const suiviMensuel = suiviMensuelPour(recommandees.map((u) => u.palier));
   const gainMensuelPerimetre = recommandees.reduce((s, l) => s + l.gainMensuel, 0);
-  const gainNetPerimetre = gainMensuelPerimetre - suiviMensuel;
-  /* Le retour du perimetre se calcule sur ce que le client paie pour le
-     chantier, remises faites. Le diagnostic deja regle ne se compte pas deux
-     fois, il est deduit du prix et ne rembourse rien de plus. */
-  const roiPerimetre =
-    gainNetPerimetre > 0 ? Math.ceil(apresGroupe / gainNetPerimetre) : null;
+  const gainNetPerimetre = gainMensuelPerimetre - mensualiteEngagement;
 
   const heuresMois = lignes.reduce((s, l) => s + l.heuresMois, 0);
   const coutAnnuel = lignes.reduce((s, l) => s + l.coutAnnuel, 0);
 
   /* Orientation de chaque tache, les quatre routes du livre, v1.3. Une tache
-     a regle qui ne paie pas son automatisation a ce volume se delegue, avec
+     a regle qui ne couvre pas sa mensualite a ce volume se delegue, avec
      des instructions ecrites. Documenter d abord vaut pour toute tache dont la
      regle n est ecrite nulle part, quelle que soit la suite. */
   const retenues = new Set([...recommandees, ...suivantes].map((u) => u.id));
@@ -498,51 +483,47 @@ export function diagnostiquer(e: Entree) {
     })(),
   };
 
-  /* Ce que le client recupere et ce qu il paie, chaque mois, le chantier etale
-     sur trois ans. Sur le perimetre recommande, ou a defaut sur le chantier le
-     plus proche, pour qu il puisse passer outre en connaissance de cause. */
+  /* Ce que le client recupere et ce qu il paie, chaque mois. Sur le perimetre
+     recommande, ou a defaut sur l automatisation la plus proche, pour qu il
+     puisse passer outre en connaissance de cause. */
+  const avecGroupe = (m: number) => (e.remiseGroupe ? arrondi5(m * (1 - REMISE_GROUPE)) : m);
   const bilanMensuel = (() => {
     const base = recommandees.length
-      ? { recommande: true, heures: recommandees.reduce((a, u) => a + u.heuresRecuperees, 0), valeur: gainMensuelPerimetre, chantier: apresGroupe, suivi: suiviMensuelPour(recommandees.map((u) => u.palier)) }
+      ? { recommande: true, heures: recommandees.reduce((a, u) => a + u.heuresRecuperees, 0), valeur: gainMensuelPerimetre, mensualite: mensualiteEngagement, ensuite: mensualiteEnsuite }
       : unites.length
         ? (() => {
             const u = [...unites].sort((a, b) => b.gainMensuel - a.gainMensuel)[0];
-            const prix = e.remiseGroupe ? arrondi10(u.prix * (1 - REMISE_GROUPE)) : u.prix;
-            return { recommande: false, heures: u.heuresRecuperees, valeur: u.gainMensuel, chantier: prix, suivi: suiviDe(u.palier) };
+            return { recommande: false, heures: u.heuresRecuperees, valeur: u.gainMensuel, mensualite: avecGroupe(u.mensualite), ensuite: u.mensualite };
           })()
         : null;
     if (!base) return null;
-    const lisse = base.chantier / MOIS_LISSAGE;
-    return { ...base, chantierLisse: lisse, coutMensuel: lisse + base.suivi, solde: base.valeur - lisse - base.suivi,
-      valeur36: base.valeur * MOIS_LISSAGE, cout36: base.chantier + base.suivi * MOIS_LISSAGE };
+    return { ...base, solde: base.valeur - base.mensualite,
+      valeurHorizon: base.valeur * HORIZON_MOIS,
+      coutHorizon: base.mensualite * ENGAGEMENT_MOIS + base.ensuite * (HORIZON_MOIS - ENGAGEMENT_MOIS) };
   })();
 
-  /* Les chantiers les plus proches du seuil, recommandes ou non, chacun lu
-     comme s il etait achete seul, donc portant le socle du suivi. Le calcul ne
-     compte que le temps rendu, ni la charge mentale ni l usage du temps libere.
-     Le client doit pouvoir passer outre en connaissance de cause, d ou les
-     chiffres complets et le seuil qui ferait basculer le verdict. */
+  /* Les automatisations les plus proches du seuil, recommandees ou non,
+     chacune lue seule. Le calcul ne compte que le temps rendu, ni la charge
+     mentale ni l usage du temps libere. Le client doit pouvoir passer outre en
+     connaissance de cause, d ou les chiffres complets et le seuil qui ferait
+     basculer le verdict. */
   const candidats = [...unites]
     .sort((a, b) => b.gainMensuel - a.gainMensuel)
     .slice(0, 3)
     .map((u) => {
-      const net = u.gainMensuel - suiviDe(u.palier);
       const valeurHeure = u.heuresRecuperees > 0 ? u.gainMensuel / u.heuresRecuperees : 0;
-      const gainSeuil = u.prix / SEUIL_RETOUR_MOIS + suiviDe(u.palier);
       return {
         id: u.id,
         recommande: recommandees.some((r) => r.id === u.id),
-        prix: u.prix,
+        mensualite: u.mensualite,
         heuresRecuperees: u.heuresRecuperees,
         gainMensuel: u.gainMensuel,
-        suivi: suiviDe(u.palier),
-        netMensuel: net,
-        roiMois: net > 0 ? Math.ceil(u.prix / net) : null,
-        /* Heures rendues par mois a partir desquelles il se rembourse en
-           SEUIL_RETOUR_MOIS mois, au taux de ses propres taches. */
-        heuresSeuil: valeurHeure > 0 ? gainSeuil / valeurHeure : null,
-        /* Sur deux ans, ce qu il coute et ce qu il rend en temps. */
-        cout24: u.prix + 24 * suiviDe(u.palier),
+        netMensuel: u.gainNetMensuel,
+        /* Heures rendues par mois a partir desquelles la mensualite est
+           couverte, au taux de ses propres taches. */
+        heuresSeuil: valeurHeure > 0 ? u.mensualite / valeurHeure : null,
+        /* Sur deux ans, ce qu elle coute et ce qu elle rend en temps. */
+        cout24: 24 * u.mensualite,
         rendu24: 24 * u.gainMensuel,
       };
     });
@@ -560,16 +541,15 @@ export function diagnostiquer(e: Entree) {
     methode: METHODE_VERSION,
     genereLe: new Date().toISOString(),
     parametres: {
-      PRIX,
+      MENSUALITE,
       NOM_PALIER,
       PART_RECUPERABLE,
       REMISE_PACK,
       SEUIL_PACK,
       REMISE_GROUPE,
-      SUIVI_PAR_PALIER,
-      SEUIL_RETOUR_MOIS,
-      SEUIL_RETOUR_ANNONCABLE,
-      MOIS_LISSAGE,
+      ENGAGEMENT_MOIS,
+      RACHAT_MENSUALITES,
+      HORIZON_MOIS,
       BASCULE_MAX,
       PLAFOND_PROJECTION,
       tauxHypothese: e.taux === null,
@@ -596,27 +576,29 @@ export function diagnostiquer(e: Entree) {
     agaceRemontee,
     agaceEcartee,
     tete: tete?.id ?? null,
-    roiTete,
+    gainNetTete,
     positions,
-    /* Regle 3, aucune brique ne se rembourse assez vite pour etre annoncee. */
-    retourLong: roiTete === null || roiTete > SEUIL_RETOUR_ANNONCABLE,
-    /* Promesse du site, le diagnostic est rembourse si l automatisation n est
-       pas la vraie reponse. Le calcul le signale, Adib decide. */
-    remboursementAEnvisager: recommandees.length === 0,
+    /* Rien ne rend plus que sa mensualite. Le rapport le dit et ne propose
+       aucun devis, sauf a la demande du client. */
+    aucuneRecommandation: recommandees.length === 0,
     devis: {
-      coutPlein,
-      remisePack,
-      remisePackEuros: coutPlein - apresPack,
+      mensualitePleine: parc.pleine,
+      remisePack: parc.remise,
+      remisePackEuros: parc.pleine - mensualiteEnsuite,
       remiseGroupe: e.remiseGroupe,
-      remiseGroupeEuros: apresPack - apresGroupe,
-      apresRemises: apresGroupe,
-      deductionDiagnostic: deduction,
-      chantierHT,
-      tva: Math.round(chantierHT * 0.2 * 100) / 100,
-      chantierTTC: Math.round(chantierHT * 1.2 * 100) / 100,
-      suiviMensuelHT: suiviMensuel,
+      remiseGroupeEuros: mensualiteEnsuite - mensualiteEngagement,
+      /* Ce que le client paie chaque mois pendant l engagement, puis ensuite. */
+      mensualiteHT: mensualiteEngagement,
+      mensualiteEnsuiteHT: mensualiteEnsuite,
+      tva: Math.round(mensualiteEngagement * 0.2 * 100) / 100,
+      mensualiteTTC: Math.round(mensualiteEngagement * 1.2 * 100) / 100,
+      engagementMois: ENGAGEMENT_MOIS,
+      engagementHT: mensualiteEngagement * ENGAGEMENT_MOIS,
+      creditDiagnostic,
+      /* Rachat possible au terme de l engagement, au prix public. */
+      rachatHT: mensualiteEnsuite * RACHAT_MENSUALITES,
     },
-    perimetre: { gainMensuel: gainMensuelPerimetre, gainNetMensuel: gainNetPerimetre, roiMois: roiPerimetre },
+    perimetre: { gainMensuel: gainMensuelPerimetre, gainNetMensuel: gainNetPerimetre },
   };
 }
 

@@ -371,7 +371,7 @@ export const BRIQUE_TYPES = [
    Depuis le 02/10/2026 il n y a plus que deux prix, le diagnostic et la
    mensualite. La troisieme case dit la duree, qui se lit comme un prix. */
 export const PRIX_EN_BREF = [
-  { montant: "Offert", quoi: "le diagnostic", note: "dès que votre estimation est positive" },
+  { montant: "Diagnostic offert", quoi: "", note: "à condition d'une estimation préalable positive" },
   { montant: "60 à 190 €", quoi: "par mois et par tâche", note: "construction et surveillance comprises" },
   { montant: "12 mois", quoi: "d'engagement par tâche", note: "ensuite vous arrêtez, ou vous la rachetez" },
 ];
@@ -461,7 +461,7 @@ export const TRACKS: Track[] = [
           { text: "Ce que chacune vous rend par mois, mensualité déduite", strong: true },
           { text: "Un devis ferme, valable trente jours", strong: false },
           {
-            text: "Offert dès que votre estimation en ligne est positive",
+            text: "Offert après une estimation en ligne positive",
             strong: true,
           },
         ],
@@ -473,7 +473,7 @@ export const TRACKS: Track[] = [
            mene a l estimateur, c est lui qui ouvre le droit au diagnostic. */
         price: "Offert",
         priceSuffix: "d'une valeur de 500 € HT",
-        priceNote: "dès que votre estimation en ligne est positive",
+        priceNote: "à condition d'une estimation préalable positive",
         cta: "Faire mon estimation",
         ctaHref: "/estimation",
       },

@@ -15,7 +15,8 @@
   "remiseGroupe": false,
   "diagnostic": {
     "prix": 500,
-    "deduit": true
+    "deduit": false,
+    "offert": true
   },
   "devis": {
     "numero": "ODG-DEV-2026-000"
@@ -104,7 +105,7 @@
       "donneesExistent": true,
       "sortieStandard": true,
       "coutErreur": "eleve",
-      "motif": "Le volume est trop faible pour qu'une brique se rembourse, deux dossiers par mois.",
+      "motif": "Le volume est trop faible pour couvrir une mensualité, deux dossiers par mois.",
       "frequenceAn": 22
     },
     {
@@ -145,9 +146,9 @@
   ],
   "redaction": {
     "synthese": "Votre administratif vous prend vingt-cinq heures par mois, soit plus de vingt-sept mille euros par an à votre taux. Les comptes rendus de séance et les propositions commerciales en font la moitié.",
-    "automatisable": "Quatre tâches s'automatisent, une se supprime, une reste à votre main parce qu'elle relève de votre jugement, et une n'a pas le volume pour se rembourser.",
+    "automatisable": "Quatre tâches s'automatisent, une se supprime, une reste à votre main parce qu'elle relève de votre jugement, et une n'a pas le volume pour couvrir sa mensualité.",
     "cadrage": "Les comptes rendus demandent une étape de plus avant construction, la saisie de vos notes. Elle est comprise dans le palier indiqué.",
-    "ordre": "Les comptes rendus passent en tête, c'est la tâche qui vous pèse le plus et son retour reste à moins d'un mois du meilleur. Les propositions suivent, puis les séances, la moins chère des trois à construire."
+    "ordre": "Les comptes rendus passent en tête, c'est la tâche qui vous pèse le plus et celle qui vous laisse le plus chaque mois. Les propositions suivent, puis les factures, la moins chère des trois."
   },
   "chrono": {
     "formulaire": 10,

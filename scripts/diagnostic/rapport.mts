@@ -35,7 +35,6 @@ const uniteId = new Map(c.unites.map((u) => [u.id, u]));
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const para = (s?: string) => (s ? `<p class="prose">${esc(s)}</p>` : "");
-const mois = (n: number | null) => (n === null ? "jamais" : `${n} mois`);
 
 const dateFr = (iso: string) =>
   new Date(iso + "T12:00:00").toLocaleDateString("fr-FR", {
@@ -205,24 +204,23 @@ const partie2 = c.lignes.length > 8 ? partie2Dense : `
 /* ── 3. L ordre dans lequel s y prendre ──────────────────────────────────── */
 const tete = c.tete ? uniteId.get(c.tete)! : null;
 const accroche = !tete
-  ? `<div class="accroche accroche-neutre"><p>Au seul calcul du temps, aucun chantier ne se justifie aujourd'hui.</p></div>`
-  : c.retourLong
-    ? `<div class="accroche"><p>${tete.parcours ? "Votre parcours" : "Votre première brique"} se rembourse en <strong>${mois(c.roiTete)}</strong>.</p></div>`
-    : `<div class="accroche"><p>${tete.parcours ? "Votre parcours" : "Votre première brique"} se rembourse en <strong>${mois(c.roiTete)}</strong>.</p></div>`;
+  ? `<div class="accroche accroche-neutre"><p>Au seul calcul du temps, aucune automatisation ne se justifie aujourd'hui.</p></div>`
+  : `<div class="accroche"><p>${tete.parcours ? "Votre parcours" : "Votre première brique"} vous laisse <strong>${euros(c.gainNetTete ?? 0)} par mois</strong>, mensualité payée.</p></div>`;
 
-/* Sans chantier recommande, les chiffres des plus proches, pour que le client
-   decide lui-meme s il passe outre. */
+/* Sans automatisation recommandee, les chiffres des plus proches, pour que le
+   client decide lui-meme s il passe outre. */
 const candidats = c.candidats.filter((k) => !k.recommande);
+const solde = (n: number) => `${n >= 0 ? "+" : "−"} ${euros(Math.abs(n))}`;
 const tableCandidats = !tete && candidats.length ? `
   <table class="dense candidats">
-    <thead><tr><th>Chantier possible</th><th class="n">H rendues / mois</th><th class="n">Temps rendu / mois</th><th class="n">Suivi</th><th class="n">Prix</th><th class="n">Retour</th><th class="n">Seuil</th></tr></thead>
-    <tbody>${candidats.map((k) => `<tr><td>${esc(uniteId.get(k.id)!.nom)}</td><td class="n">${heures(k.heuresRecuperees)} h</td><td class="n">${euros(k.gainMensuel)}</td><td class="n">${euros(k.suivi)}</td><td class="n">${euros(k.prix)}</td><td class="n">${k.roiMois === null ? "jamais" : `${k.roiMois} mois`}</td><td class="n">${k.heuresSeuil === null ? "" : `${heures(k.heuresSeuil)} h`}</td></tr>`).join("")}</tbody>
+    <thead><tr><th>Automatisation possible</th><th class="n">H rendues / mois</th><th class="n">Temps rendu / mois</th><th class="n">Mensualité</th><th class="n">Solde</th><th class="n">Seuil</th></tr></thead>
+    <tbody>${candidats.map((k) => `<tr><td>${esc(uniteId.get(k.id)!.nom)}</td><td class="n">${heures(k.heuresRecuperees)} h</td><td class="n">${euros(k.gainMensuel)}</td><td class="n">${euros(k.mensualite)}</td><td class="n">${solde(k.netMensuel)}</td><td class="n">${k.heuresSeuil === null ? "" : `${heures(k.heuresSeuil)} h`}</td></tr>`).join("")}</tbody>
   </table>
-  <p class="note">Retour, le prix divisé par le temps rendu chaque mois une fois le suivi payé. Jamais, quand le suivi coûte plus que le temps rendu. Seuil, les heures rendues par mois à partir desquelles le chantier se rembourse en ${c.parametres.SEUIL_RETOUR_MOIS} mois. Sur deux ans, le premier coûte ${euros(candidats[0].cout24)} et rend ${euros(candidats[0].rendu24)} de temps.</p>
-  <p class="prose">Ce calcul ne compte que le temps. Il ignore la charge mentale d'une tâche qui revient, et ce que vous feriez des heures libérées. Si ces deux coûts pèsent plus lourd pour vous, vous pouvez lancer un chantier quand même, en connaissance de cause. Le devis correspondant est en page 4.</p>` : "";
+  <p class="note">Solde, le temps rendu chaque mois moins la mensualité. Seuil, les heures rendues par mois à partir desquelles la mensualité est couverte. Sur deux ans, la première coûte ${euros(candidats[0].cout24)} et rend ${euros(candidats[0].rendu24)} de temps.</p>
+  <p class="prose">Ce calcul ne compte que le temps. Il ignore la charge mentale d'une tâche qui revient, et ce que vous feriez des heures libérées. Si ces deux coûts pèsent plus lourd pour vous, vous pouvez lancer une automatisation quand même, en connaissance de cause. Le devis correspondant est en page 4.</p>` : "";
 
-/* Chaque mois, ce que le client recupere et ce qu il paie, chantier etale sur
-   trois ans. C est la comparaison qu il fait de tete, autant la lui donner. */
+/* Chaque mois, ce que le client recupere et ce qu il paie. C est la
+   comparaison qu il fait de tete, autant la lui donner. */
 const b = c.bilanMensuel;
 const bilan = b ? `
   <div class="bilan">
@@ -230,10 +228,10 @@ const bilan = b ? `
     <div class="bilan-grille">
       <div><span class="valeur">${heures(b.heures)} h</span><span class="legende">de temps rendu</span></div>
       <div><span class="valeur">${euros(b.valeur)}</span><span class="legende">valeur de ce temps</span></div>
-      <div><span class="valeur">${euros(b.coutMensuel)}</span><span class="legende">suivi ${euros(b.suivi)} et chantier ${euros(b.chantier)} étalé sur ${c.parametres.MOIS_LISSAGE} mois, ${euros(b.chantierLisse)}</span></div>
-      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${b.solde >= 0 ? "+" : "−"} ${euros(Math.abs(b.solde))}</span><span class="legende">de solde, temps rendu moins ce que vous payez</span></div>
+      <div><span class="valeur">${euros(b.mensualite)}</span><span class="legende">de mensualité, construction et surveillance comprises${b.ensuite !== b.mensualite ? `, puis ${euros(b.ensuite)} après ${c.parametres.ENGAGEMENT_MOIS} mois` : ""}</span></div>
+      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">de solde, temps rendu moins ce que vous payez</span></div>
     </div>
-    <p class="note">Sur trois ans, ${euros(b.valeur36)} de temps rendu pour ${euros(b.cout36)} payés, chantier et suivi compris.</p>
+    <p class="note">Sur trois ans, ${euros(b.valeurHorizon)} de temps rendu pour ${euros(b.coutHorizon)} de mensualités. Vous ne payez rien d'avance pour la construction.</p>
   </div>` : "";
 
 const partie3 = `
@@ -252,7 +250,7 @@ const partie3 = `
         <div>
           <h3>${esc(l.nom)}</h3>
           ${l.parcours ? `<p class="ligne-chiffres">Regroupe ${l.taches.map((t) => { const n = parId.get(t)!.nom; return esc(n.charAt(0).toLowerCase() + n.slice(1)); }).join(", ")}</p>` : ""}
-          <p class="ligne-chiffres">${heures(l.heuresRecuperees)} h rendues par mois · ${euros(l.gainMensuel)} de temps par mois · suivi ${euros(p.suivi)} · retour ${mois(p.roiMois)}</p>
+          <p class="ligne-chiffres">${heures(l.heuresRecuperees)} h rendues par mois · ${euros(l.gainMensuel)} de temps par mois · mensualité ${euros(p.mensualite)} · solde ${solde(p.gainNetMensuel)}</p>
         </div>
       </li>`;
       })
@@ -261,40 +259,44 @@ const partie3 = `
   ${para(r.ordre)}
   ${c.suivantes.length ? `<p class="note">Ensuite, ${c.suivantes.map((id) => esc(uniteId.get(id)!.nom)).join(", ")}. Elles se reconsidèrent une fois les trois premières en service.</p>` : ""}
   ${para(r.ensuite)}
-  <p class="note">Temps rendu calculé à ${Math.round(c.parametres.PART_RECUPERABLE * 100)} % du temps relevé, le reste couvre le contrôle et les cas particuliers. Le retour déduit le suivi mensuel du gain avant de le comparer au prix.${proj ? ` Il se calcule sur les douze prochains mois tels que vous les estimez, plafonnés à ${c.parametres.PLAFOND_PROJECTION} fois le volume mesuré.` : ""}</p>
+  <p class="note">Temps rendu calculé à ${Math.round(c.parametres.PART_RECUPERABLE * 100)} % du temps relevé, le reste couvre le contrôle et les cas particuliers. Le solde est la valeur de ce temps moins la mensualité.${proj ? ` Il se calcule sur les douze prochains mois tels que vous les estimez, plafonnés à ${c.parametres.PLAFOND_PROJECTION} fois le volume mesuré.` : ""}</p>
 </section>`;
 
 /* ── 4. Ce que ca coute, le devis ────────────────────────────────────────── */
 const d = c.devis;
+const designation = (u: { parcours: boolean; palier: keyof typeof NOM_PALIER; niveau: 3 | 4 }, suite = "") =>
+  `${u.parcours ? "Parcours" : "Brique"} ${NOM_PALIER[u.palier]}, ${u.niveau === 3 ? "validation avant envoi" : "exécution autonome"}${suite}`;
 const lignesDevis = c.recommandees
   .map((id) => {
     const l = uniteId.get(id)!;
-    return `<tr><td>${esc(l.nom)}<span class="sous">${l.parcours ? "Parcours" : "Brique"} ${NOM_PALIER[l.palier]}, ${l.niveau === 3 ? "validation avant envoi" : "exécution autonome"}</span></td><td class="n">${euros(l.prix)}</td></tr>`;
+    return `<tr><td>${esc(l.nom)}<span class="sous">${designation(l)}</span></td><td class="n">${euros(l.mensualite)}</td></tr>`;
   })
   .join("");
 const numero = entree.devis?.numero ?? "à attribuer";
+const E = c.parametres.ENGAGEMENT_MOIS;
+const R = c.parametres.RACHAT_MENSUALITES;
 
 /* Rien a construire, pas de devis. La page dit ce qui se passe pour le
-   diagnostic, offert ou rembourse selon la promesse du site. */
-const offert = !!(entree.diagnostic as { offert?: boolean }).offert;
+   diagnostic, offert, ou rembourse s il avait ete paye. */
+const offert = !!entree.diagnostic.offert;
 const partie4Vide = `
 <section class="page">
   <p class="eyebrow">04</p>
   <h1>Ce que ça coûte</h1>
-  <div class="accroche accroche-neutre"><p>Le calcul ne recommande aucun chantier aujourd'hui.</p></div>
+  <div class="accroche accroche-neutre"><p>Le calcul ne recommande aucune automatisation aujourd'hui.</p></div>
   <p class="prose">${offert ? "Ce diagnostic vous a été offert." : `Conformément à notre engagement, le diagnostic de ${euros(entree.diagnostic.prix)} vous est remboursé, l'automatisation n'étant pas la réponse à votre volume actuel.`} La feuille de route qui suit reste valable, et le calcul se refait sans frais le jour où votre volume change.</p>
   ${candidats.length ? (() => {
     const k = candidats[0];
     const u = uniteId.get(k.id)!;
-    const ht = entree.remiseGroupe ? Math.round((k.prix * 0.8) / 10) * 10 : k.prix;
-    return `<span class="etiquette">Si vous décidez de le lancer quand même, à votre demande</span>
+    const ht = entree.remiseGroupe ? Math.round((k.mensualite * (1 - c.parametres.REMISE_GROUPE)) / 5) * 5 : k.mensualite;
+    return `<span class="etiquette">Si vous décidez de la lancer quand même, à votre demande</span>
   <table class="devis">
-    <thead><tr><th>Désignation</th><th class="n">Montant HT</th></tr></thead>
-    <tbody><tr><td>${esc(u.nom)}<span class="sous">${u.parcours ? "Parcours" : "Brique"} ${NOM_PALIER[u.palier]}, ${u.niveau === 3 ? "validation avant envoi" : "exécution autonome"}, hors recommandation</span></td><td class="n">${euros(k.prix)}</td></tr>
-    ${entree.remiseGroupe ? `<tr class="remise"><td>Remise client du groupe Orbis Optima, premier chantier</td><td class="n">− ${euros(k.prix - ht)}</td></tr>` : ""}</tbody>
-    <tfoot><tr><td>Total HT</td><td class="n">${euros(ht)}</td></tr><tr class="leger"><td>TVA 20 %</td><td class="n">${euros(ht * 0.2)}</td></tr><tr><td>Total TTC</td><td class="n">${euros(ht * 1.2)}</td></tr></tfoot>
+    <thead><tr><th>Désignation</th><th class="n">Par mois, HT</th></tr></thead>
+    <tbody><tr><td>${esc(u.nom)}<span class="sous">${designation(u, ", hors recommandation")}</span></td><td class="n">${euros(k.mensualite)}</td></tr>
+    ${entree.remiseGroupe ? `<tr class="remise"><td>Remise client du groupe Orbis Optima, pendant les ${E} premiers mois</td><td class="n">− ${euros(k.mensualite - ht)}</td></tr>` : ""}</tbody>
+    <tfoot><tr><td>Mensualité HT</td><td class="n">${euros(ht)}</td></tr><tr class="leger"><td>TVA 20 %</td><td class="n">${euros(ht * 0.2)}</td></tr><tr><td>Mensualité TTC</td><td class="n">${euros(ht * 1.2)}</td></tr></tfoot>
   </table>
-  <p class="note">Puis ${euros(k.suivi)} HT par mois de suivi à partir de la livraison, sans engagement. Devis valable jusqu'au ${dateFr(validite)}.</p>`;
+  <p class="note">Construction et surveillance comprises, rien à payer d'avance. Engagement de ${E} mois, puis résiliable avec trente jours de préavis. Devis valable jusqu'au ${dateFr(validite)}.</p>`;
   })() : ""}
 </section>`;
 const partie4 = c.recommandees.length === 0 ? partie4Vide : `
@@ -307,23 +309,23 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
     <div><span class="etiquette">Devis</span><p>N° ${esc(numero)}<br/>Émis le ${dateFr(dateRapport)}<br/>Valable jusqu'au ${dateFr(validite)}</p></div>
   </div>
   <table class="devis">
-    <thead><tr><th>Désignation</th><th class="n">Montant HT</th></tr></thead>
+    <thead><tr><th>Désignation</th><th class="n">Par mois, HT</th></tr></thead>
     <tbody>
       ${lignesDevis}
       ${d.remisePack ? `<tr class="remise"><td>Remise de parc, ${Math.round(c.parametres.REMISE_PACK * 100)} % dès la troisième brique</td><td class="n">− ${euros(d.remisePackEuros)}</td></tr>` : ""}
-      ${d.remiseGroupe ? `<tr class="remise"><td>Remise client du groupe Orbis Optima, premier chantier</td><td class="n">− ${euros(d.remiseGroupeEuros)}</td></tr>` : ""}
-      ${d.deductionDiagnostic ? `<tr class="remise"><td>Diagnostic déjà réglé, déduit</td><td class="n">− ${euros(d.deductionDiagnostic)}</td></tr>` : ""}
-      ${(entree.diagnostic as { offert?: boolean }).offert ? `<tr class="remise"><td>Diagnostic de ${euros(entree.diagnostic.prix)}, offert</td><td class="n">inclus</td></tr>` : ""}
+      ${d.remiseGroupe ? `<tr class="remise"><td>Remise client du groupe Orbis Optima, pendant les ${E} premiers mois</td><td class="n">− ${euros(d.remiseGroupeEuros)}</td></tr>` : ""}
+      ${offert ? `<tr class="remise"><td>Diagnostic d'une valeur de ${euros(entree.diagnostic.prix)}, offert</td><td class="n">inclus</td></tr>` : ""}
     </tbody>
     <tfoot>
-      <tr><td>Total HT</td><td class="n">${euros(d.chantierHT)}</td></tr>
+      <tr><td>Mensualité HT</td><td class="n">${euros(d.mensualiteHT)}</td></tr>
       <tr class="leger"><td>TVA 20 %</td><td class="n">${euros(d.tva)}</td></tr>
-      <tr><td>Total TTC</td><td class="n">${euros(d.chantierTTC)}</td></tr>
+      <tr><td>Mensualité TTC</td><td class="n">${euros(d.mensualiteTTC)}</td></tr>
     </tfoot>
   </table>
   <div class="suivi">
-    <span class="etiquette">Suivi mensuel, à partir de la livraison</span>
-    <p><strong>${euros(d.suiviMensuelHT)} HT par mois</strong> pour ${c.recommandees.length} brique${c.recommandees.length > 1 ? "s" : ""}, ${euros(c.parametres.SUIVI_PAR_PALIER.simple)}, ${euros(c.parametres.SUIVI_PAR_PALIER.intermediaire)} ou ${euros(c.parametres.SUIVI_PAR_PALIER.complexe)} par brique selon son palier. Sans engagement de durée.</p>
+    <span class="etiquette">Ce que la mensualité comprend, et sa durée</span>
+    <p><strong>La construction, la surveillance, la correction des dérives et les ajustements.</strong> Vous ne payez rien d'avance, la première mensualité est prélevée à la commande.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
+    <p>Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteEnsuiteHT)} HT.` : ""} Ensuite vous arrêtez avec trente jours de préavis, ou vous rachetez ${c.recommandees.length > 1 ? "ces briques" : "cette brique"} pour ${R} mensualités, ${euros(d.rachatHT)} HT, et ${c.recommandees.length > 1 ? "elles vous restent acquises" : "elle vous reste acquise"}.</p>
   </div>
   <ul class="conditions">
     <li>Vos abonnements aux outils restent à votre nom et sont réglés par vous.</li>
@@ -358,7 +360,7 @@ const partie5 = `
   <p class="note">Délais indicatifs, comptés en semaines à partir de la signature.</p>
   <ol class="temps">
     <li><span class="rang">1</span><div><h3>Le socle <span class="delai">${semaines(f.calendrier.socle)}</span></h3>${socle}</div></li>
-    <li><span class="rang">2</span><div><h3>La construction ${f.calendrier.briques.length ? `<span class="delai">${semaines({ debut: f.calendrier.briques[0].debut, fin: f.calendrier.briques[f.calendrier.briques.length - 1].fin })}</span>` : ""}</h3>${f.construire.length ? `<p>Dans l'ordre de la page 3.</p><ul class="puces">${f.construire.map((u) => { const cal = f.calendrier.briques.find((x) => x.id === u.id)!; return `<li>${esc(uniteId.get(u.id)!.nom)}, ${u.niveau === 3 ? "vous validez avant envoi" : "part seule"}, ${semaines(cal)}</li>`; }).join("")}</ul>` : "<p>Au seul calcul du temps, aucune construction ne se justifie.</p>"}${f.deleguer.length ? `<p><strong>À confier à quelqu'un</strong>, avec des instructions écrites. ${f.construire.length ? "Ces tâches restent hors de la construction, trop légères pour que leur automatisation se rembourse seule." : "Leur automatisation ne se rembourse pas à ce volume."}</p>${liste(f.deleguer)}` : ""}</div></li>
+    <li><span class="rang">2</span><div><h3>La construction ${f.calendrier.briques.length ? `<span class="delai">${semaines({ debut: f.calendrier.briques[0].debut, fin: f.calendrier.briques[f.calendrier.briques.length - 1].fin })}</span>` : ""}</h3>${f.construire.length ? `<p>Dans l'ordre de la page 3.</p><ul class="puces">${f.construire.map((u) => { const cal = f.calendrier.briques.find((x) => x.id === u.id)!; return `<li>${esc(uniteId.get(u.id)!.nom)}, ${u.niveau === 3 ? "vous validez avant envoi" : "part seule"}, ${semaines(cal)}</li>`; }).join("")}</ul>` : "<p>Au seul calcul du temps, aucune construction ne se justifie.</p>"}${f.deleguer.length ? `<p><strong>À confier à quelqu'un</strong>, avec des instructions écrites. ${f.construire.length ? "Ces tâches restent hors de la construction, trop légères pour couvrir leur mensualité." : "À ce volume, leur automatisation coûterait plus qu'elle ne rend."}</p>${liste(f.deleguer)}` : ""}</div></li>
     <li><span class="rang">3</span><div><h3>La supervision ${f.calendrier.supervision ? `<span class="delai">${semaines(f.calendrier.supervision)}</span>` : ""}</h3>${f.calendrier.supervision ? `<p>Une semaine de mise en place après la première livraison, puis quatre semaines de rodage où tout passe par votre validation.</p>` : ""}<p>${f.fileExceptions.length ? "Tout ce qui attend votre validation arrive dans une seule file, au lieu d'être éparpillé dans vos mails. " : ""}Un tableau montre ce qui tourne. Vous le regardez ${[[f.cadence.jour, "par jour"], [f.cadence.semaine, "par semaine"], [f.cadence.mois, "par mois"]].filter(([m]) => (m as number) > 0).map(([m, u]) => `${fmtCadence(m as number)} ${u}`).join(", ")}, et vous ne touchez plus à l'exécution.</p></div></li>
     <li><span class="rang">4</span><div><h3>Le calibrage ${f.calendrier.calibrage ? `<span class="delai">dès la semaine ${f.calendrier.calibrage}, en continu</span>` : ""}</h3><p>Chaque semaine, la part de ce que le système produit et que vous acceptez sans retouche. Quand elle baisse, on corrige les règles. C'est ce qui rend le système plus juste de mois en mois au lieu de le laisser dériver.</p></div></li>
   </ol>
@@ -492,10 +494,10 @@ const etalon = [
         ...Object.entries(entree.chrono).map(([k, v]) => `| ${k} | ${v} |`),
         `| **total** | **${Object.values(entree.chrono).reduce((s, v) => s + v, 0)}** |`,
         "",
-        `A ${entree.diagnostic.prix} EUR, le diagnostic rapporte ${Math.round(
+        `Diagnostic d une valeur de ${entree.diagnostic.prix} EUR${entree.diagnostic.offert ? ", offert" : ""}, soit ${Math.round(
           entree.diagnostic.prix /
             (Object.values(entree.chrono).reduce((s, v) => s + v, 0) / 60)
-        )} EUR de l heure passee.`,
+        )} EUR de l heure passee${entree.diagnostic.offert ? ", a regagner sur les mensualites" : ""}.`,
       ]
     : ["Chronometrage non renseigne dans entree.json, champ chrono."]),
   "",
@@ -504,9 +506,8 @@ const etalon = [
   ...c.lignes
     .filter((l) => l.paliersMontes)
     .map((l) => `- ${l.nom} monte d un palier, un seul non aux questions de prix. Regle proposee, a valider.`),
-  ...(c.agaceEcartee ? ["- La tache la plus agacante est restee hors tete, son retour depasse le meilleur de plus d un mois. Le rapport doit l expliquer."] : []),
-  ...(c.remboursementAEnvisager ? ["- Aucune brique recommandee, la clause de remboursement du diagnostic s applique a priori."] : []),
-  ...(c.retourLong ? ["- Premiere brique au-dela de quatre mois, regle 3, le rapport le dit sans etirer."] : []),
+  ...(c.agaceEcartee ? ["- La tache la plus agacante est restee hors tete, son solde mensuel est a plus de dix pour cent sous le meilleur. Le rapport doit l expliquer."] : []),
+  ...(c.aucuneRecommandation ? ["- Aucune brique recommandee, rien ne rend plus que sa mensualite. Pas de devis, sauf a la demande du client."] : []),
   "",
   `Catalogue de reference, ${TACHES.length} taches de lib/estimator.ts.`,
 ].join("\n");
@@ -518,10 +519,10 @@ console.log(
       heuresMois: Math.round(c.totaux.heuresMois * 10) / 10,
       coutAnnuel: Math.round(c.totaux.coutAnnuel),
       recommandees: c.recommandees,
-      roiTete: c.roiTete,
-      retourLong: c.retourLong,
-      chantierHT: c.devis.chantierHT,
-      suiviMensuel: c.devis.suiviMensuelHT,
+      gainNetTete: c.gainNetTete === null ? null : Math.round(c.gainNetTete),
+      mensualiteHT: c.devis.mensualiteHT,
+      mensualiteEnsuiteHT: c.devis.mensualiteEnsuiteHT,
+      engagementHT: c.devis.engagementHT,
       ecrit: ["calcul.json", "rapport.html", "etalon.md"],
     },
     null,

@@ -203,16 +203,10 @@ export const RACHAT_MENSUALITES = 6;
    hauteur de son montant. */
 export const DIAGNOSTIC = 500;
 
-/* ── Anciens prix, internes ────────────────────────────────────────────────
-   Le prix de chantier et le suivi par palier ne sont plus des prix publics.
-   Ils restent ici le temps que la chaîne du diagnostic, scripts/diagnostic,
-   soit migrée vers la mensualité. Le site ne les affiche plus nulle part. */
-export const PRIX: Record<Palier, number> = {
-  simple: 600,
-  intermediaire: 1200,
-  complexe: 2400,
-};
-export const prixDe = (p: Palier) => PRIX[p];
+/* Le prix de chantier, 600, 1 200 et 2 400 EUR, et le suivi par palier, 40, 70
+   et 120 EUR par mois, ont quitté le code le 02/10/2026, avec le plafond de
+   retour de 24 mois qui les accompagnait. Le site et la chaîne du diagnostic,
+   méthode v2.0, ne connaissent plus que la mensualité. */
 
 /* Nommage unique des paliers, repris par le site et par l'email d'estimation. */
 export const NOM_PALIER: Record<Palier, string> = {
@@ -241,41 +235,6 @@ export const mensualitePour = (paliers: Palier[]) => {
    1 500 à 900 le 27/08/2026, en même temps que l'arrivée de la brique à 600, un
    administratif à 1 000 EUR par an pouvant désormais trouver son compte. */
 export const SEUIL_PLANCHER = 900;
-
-/* Suivi mensuel, par palier depuis le 01/10/2026, décision d'Adib. Il entre
-   dans le calcul du retour depuis le 25/08/2026.
-
-   Chaque brique porte son propre suivi, sans socle, au palier de sa
-   construction. Surveiller un lien de réservation ne coûte presque rien,
-   surveiller une facturation demande du travail, et le prix suit cette
-   différence comme le prix du chantier la suit déjà.
-
-   Avant, un socle de 190 EUR pour la première brique puis 100 par brique en
-   plus. Sur trois ans une brique simple coûtait onze fois son prix en suivi,
-   et une tâche devait déjà prendre 4,5 h par mois pour qu'une brique seule se
-   rembourse en deux ans. Au palier, il en faut 1,4 h pour une simple. */
-export const SUIVI_PAR_PALIER: Record<Palier, number> = {
-  simple: 40,
-  intermediaire: 70,
-  complexe: 120,
-};
-export const suiviDe = (p: Palier) => SUIVI_PAR_PALIER[p];
-
-/* Le suivi d'un parc, somme des suivis de ses briques. */
-export const suiviMensuelPour = (paliers: Palier[]) =>
-  paliers.reduce((s, p) => s + suiviDe(p), 0);
-
-/* Plafond de retour au-delà duquel une brique ne se recommande pas. Une tâche
-   qui met plus de dix-huit mois à se rembourser ne vaut pas le chantier, la
-   situation du client aura changé avant. Sans ce plafond, l'estimateur affiche
-   des retours à quarante mois, qui sont arithmétiquement justes et
-   commercialement absurdes.
-
-   Porté de 18 à 24 mois le 25/08/2026. À 18, le seuil excluait le cœur de la
-   cible, un indépendant à 60 EUR de l'heure avec trois tâches hebdomadaires
-   sortait à 20,7 mois. Vingt-quatre mois écarte toujours l'absurde sans écarter
-   le profil visé. */
-export const SEUIL_RETOUR_MOIS = 24;
 
 export type LigneResultat = {
   id: string;

@@ -198,8 +198,9 @@ export function Pricing() {
 
         <p className="mt-8 max-w-3xl text-[13.5px] leading-[1.7] text-ink-soft">
           <span className="font-medium text-ink">Plus de 10 personnes ?</span>{" "}
-          Le diagnostic s&apos;élargit à un entretien par fonction concernée, dès
-          1&nbsp;500&nbsp;€. Le reste se chiffre de la même façon, tâche par tâche.
+          Le diagnostic s&apos;élargit à un entretien par fonction concernée. Il
+          vaut alors 1&nbsp;500&nbsp;€ ou plus, et il reste offert contre votre
+          témoignage. Le reste se chiffre de la même façon, tâche par tâche.
         </p>
 
         {/* Trois budgets concrets, ajoutes le 01/10/2026. Un total parle plus

@@ -19,7 +19,8 @@
    nommées au devis. Ce qui est écarté est le forfait à périmètre indéfini, pas
    la remise sur un périmètre connu.
 
-   Le diagnostic vaut 500 EUR pour un fondateur et dès 1 500 EUR pour une PME.
+   Le diagnostic vaut 500 EUR pour un fondateur et dès 1 500 EUR pour une PME,
+   et il est offert dans les deux cas, précision d'Adib du 02/10/2026.
    Depuis le 02/10/2026 il est offert contre un témoignage publiable, décision
    d'Adib, c'était le dernier paiement d'avance du parcours. Le prix reste
    affiché, il dit ce que vaut le travail, et il reste dû sans témoignage. Ne
@@ -267,7 +268,7 @@ export const STEPS = [
   {
     numeral: "iii",
     title: "Construction",
-    body: "On construit brique par brique, sur vos outils existants. Les abonnements restent à votre nom, et nous n'accédons jamais à vos moyens de paiement.",
+    body: "On construit brique par brique, sur vos outils existants. Vos abonnements d'outils restent à votre nom, et nous n'accédons jamais à vos moyens de paiement.",
   },
   {
     numeral: "iv",
@@ -492,7 +493,7 @@ export const TRACKS: Track[] = [
             strong: true,
           },
           { text: "Règles et limites écrites avant construction", strong: false },
-          { text: "Vos abonnements restent à votre nom", strong: false },
+          { text: "Vos abonnements d'outils restent à votre nom", strong: false },
         ],
         price: "60 à 190 € HT",
         priceSuffix: "/ mois par tâche",
@@ -553,6 +554,13 @@ export const FAQ: FaqItem[] = [
     a: "Une brique est une tâche. Elle a sa mensualité et ce qu'elle vous rend chaque mois, ce qui vous laisse en lancer une, la voir tourner, puis décider de la suite. Vous pouvez aussi en prendre trois d'un coup, la remise de parc retire alors 20 % de la mensualité, à condition que les trois soient nommées dans le devis. Ce qui compte est de savoir ce que couvre le périmètre avant de le payer, la remise vient après. C'est aussi pourquoi un « automatisez-moi tout » se transforme d'abord en liste de briques, plus facile à tenir des deux côtés.",
   },
   {
+    /* Ajoutee le 02/10/2026 apres le releve de parcours. Le temoignage est
+       devenu le prix d entree du diagnostic et n etait explique que dans les
+       conditions generales. */
+    q: "Que demandez-vous en échange du diagnostic ?",
+    a: "Un témoignage sur le diagnostic lui-même, quelques lignes sur ce que le rapport vous a appris, dans les trente jours qui suivent sa remise. Nous le publions sous votre nom et celui de votre structure, une fois que vous avez validé le texte. Si vous préférez ne pas témoigner, le diagnostic vous est facturé à son prix, 500 EUR pour une petite structure.",
+  },
+  {
     q: "Que se passe-t-il si j'arrête ?",
     a: "Chaque tâche engage douze mois. Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis, et la tâche cesse de tourner. Vous pouvez aussi la racheter pour six mensualités. Elle vous reste alors acquise, avec ses règles écrites et sa documentation, et vous la faites tourner sans notre surveillance.",
   },
@@ -578,7 +586,7 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "Faut-il changer nos outils ?",
-    a: "Non. Nous construisons autour de votre existant, facturation, messagerie, agenda, tableurs. Les abonnements restent à votre nom et sont payés par vous. Remplacer vos outils allongerait le projet de plusieurs mois sans rien apporter à votre autonomie.",
+    a: "Non. Nous construisons autour de votre existant, facturation, messagerie, agenda, tableurs. Les abonnements de ces outils restent à votre nom et sont payés par vous. Remplacer vos outils allongerait le projet de plusieurs mois sans rien apporter à votre autonomie.",
   },
   {
     q: "Accédez-vous à nos comptes bancaires ?",

@@ -60,12 +60,10 @@ export default function Page() {
           le devis fait foi. Un devis est valable trente jours.
         </p>
         <p>
-          Le diagnostic est offert au client qui s&apos;engage, à la commande,
-          à remettre un témoignage publiable dans les trente jours suivant la
-          remise du rapport. Le témoignage est publié sous le nom du client et
-          de son organisation, après validation de son texte par le client. À
-          défaut de témoignage dans ce délai, le diagnostic est dû au prix
-          indiqué au devis.
+          Le diagnostic est offert au client dont l&apos;estimation en ligne
+          fait apparaître au moins une tâche dont le gain estimé dépasse la
+          mensualité. Dans les autres cas, il est facturé au prix indiqué au
+          devis, payable à la commande.
         </p>
         <p>
           Chaque brique est facturée par mensualités, par prélèvement, la

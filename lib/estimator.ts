@@ -198,9 +198,9 @@ export const mensualiteDe = (p: Palier) => MENSUALITE[p];
    mensualités, elle lui reste alors acquise, sans surveillance. */
 export const ENGAGEMENT_MOIS = 12;
 export const RACHAT_MENSUALITES = 6;
-/* Ce que vaut le diagnostic. Il est offert contre un témoignage publiable
-   depuis le 02/10/2026. Payé, il vaut les premières mensualités à hauteur de
-   son montant. */
+/* Ce que vaut le diagnostic. Il est offert dès que l'estimation en ligne est
+   positive, depuis le 02/10/2026. Payé, il vaut les premières mensualités à
+   hauteur de son montant. */
 export const DIAGNOSTIC = 500;
 
 /* ── Anciens prix, internes ────────────────────────────────────────────────

@@ -16,7 +16,6 @@ import {
   REPONSES_VIDES,
   ENGAGEMENT_MOIS,
   RACHAT_MENSUALITES,
-  DIAGNOSTIC,
   calculer,
   euros,
   heures,
@@ -649,9 +648,9 @@ function Resultat({
       <section className="mt-10">
         <h3 className="text-[17px] font-semibold">La suite</h3>
         <p className="mt-3 text-[14px] leading-[1.7] text-ink-soft">
-          Le diagnostic confirme ces chiffres sur vos données réelles et vous
-          remet sous 72 heures un rapport et une feuille de route datée. Il vaut{" "}
-          {DIAGNOSTIC} € HT, et il vous est offert contre votre témoignage.
+          Votre estimation est positive, le diagnostic vous est donc offert.
+          Il confirme ces chiffres sur vos données réelles et vous remet sous 72
+          heures un rapport et une feuille de route datée.
         </p>
         <a
           href={SITE.booking}

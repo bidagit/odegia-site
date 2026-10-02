@@ -51,7 +51,7 @@ export function Pricing() {
         {/* La sequence dite en toutes lettres, avant meme les cartes. */}
         <p className="mt-4 max-w-2xl text-[13.5px] leading-[1.7] text-ink">
           Les trois étapes ci-dessous s&apos;enchaînent. Le diagnostic ouvre la
-          marche, et il vous est offert contre votre témoignage.
+          marche, et il vous est offert dès que votre estimation est positive.
         </p>
 
         {/* offres */}
@@ -178,8 +178,9 @@ export function Pricing() {
                     {o.cta && (
                     <a
                       href={o.ctaHref ?? SITE.booking}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      {...((o.ctaHref ?? SITE.booking).startsWith("/")
+                        ? {}
+                        : { target: "_blank", rel: "noopener noreferrer" })}
                       className={`mt-5 block rounded-full px-5 py-3 text-center text-[13.5px] font-medium transition-colors ${
                         entree
                           ? "bouton-relief border-2 border-ink bg-banane text-ink"
@@ -199,8 +200,8 @@ export function Pricing() {
         <p className="mt-8 max-w-3xl text-[13.5px] leading-[1.7] text-ink-soft">
           <span className="font-medium text-ink">Plus de 10 personnes ?</span>{" "}
           Le diagnostic s&apos;élargit à un entretien par fonction concernée. Il
-          vaut alors 1&nbsp;500&nbsp;€ ou plus, et il reste offert contre votre
-          témoignage. Le reste se chiffre de la même façon, tâche par tâche.
+          vaut alors 1&nbsp;500&nbsp;€ ou plus, et il reste offert dans les
+          mêmes conditions. Le reste se chiffre de la même façon, tâche par tâche.
         </p>
 
         {/* Trois budgets concrets, ajoutes le 01/10/2026. Un total parle plus
@@ -211,7 +212,8 @@ export function Pricing() {
           </h3>
           <p className="mt-2 text-[13.5px] text-ink-soft">
             Montants hors taxes, par mois, construction et surveillance
-            comprises. Le diagnostic est offert contre un témoignage.
+            comprises. Le diagnostic est offert dès que votre estimation est
+            positive.
           </p>
           <ul className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
             {EXEMPLES_PRIX.map((e) => (

@@ -19,13 +19,15 @@
    nommées au devis. Ce qui est écarté est le forfait à périmètre indéfini, pas
    la remise sur un périmètre connu.
 
-   Le diagnostic vaut 500 EUR pour un fondateur et dès 1 500 EUR pour une PME,
-   et il est offert dans les deux cas, précision d'Adib du 02/10/2026.
-   Depuis le 02/10/2026 il est offert contre un témoignage publiable, décision
-   d'Adib, c'était le dernier paiement d'avance du parcours. Le prix reste
-   affiché, il dit ce que vaut le travail, et il reste dû sans témoignage. Ne
-   jamais écrire « premiers clients » ni borner l'offre à un nombre, le site ne
-   dit pas que l'activité démarre. Chaque brique engage douze mois, puis se
+   Le diagnostic vaut 500 EUR pour un fondateur et dès 1 500 EUR pour une PME.
+   Depuis le 02/10/2026 il est offert dès que l'estimation en ligne est
+   positive, décision d'Adib. La condition a d'abord été un témoignage, le
+   même jour, puis retirée, un témoignage demandé avant tout service ne vaut
+   rien et « 500 EUR sinon » se lisait comme une menace. L'estimateur filtre à
+   notre place, il écarte déjà les volumes qui ne justifient rien. Le prix
+   reste dit une fois, sur la carte des tarifs, pour que « offert » garde un
+   sens. Ne jamais écrire « premiers clients » ni borner l'offre à un nombre,
+   le site ne   dit pas que l'activité démarre. Chaque brique engage douze mois, puis se
    résilie à trente jours ou se rachète pour six mensualités. */
 
 export const SITE = {
@@ -369,7 +371,7 @@ export const BRIQUE_TYPES = [
    Depuis le 02/10/2026 il n y a plus que deux prix, le diagnostic et la
    mensualite. La troisieme case dit la duree, qui se lit comme un prix. */
 export const PRIX_EN_BREF = [
-  { montant: "Offert", quoi: "le diagnostic", note: "contre votre témoignage, 500 € sinon" },
+  { montant: "Offert", quoi: "le diagnostic", note: "dès que votre estimation est positive" },
   { montant: "60 à 190 €", quoi: "par mois et par tâche", note: "construction et surveillance comprises" },
   { montant: "12 mois", quoi: "d'engagement par tâche", note: "ensuite vous arrêtez, ou vous la rachetez" },
 ];
@@ -459,20 +461,21 @@ export const TRACKS: Track[] = [
           { text: "Ce que chacune vous rend par mois, mensualité déduite", strong: true },
           { text: "Un devis ferme, valable trente jours", strong: false },
           {
-            text: "Offert contre votre témoignage sur le diagnostic",
+            text: "Offert dès que votre estimation en ligne est positive",
             strong: true,
           },
         ],
         /* 290 EUR placait le diagnostic sous le plancher du marche, qui demarre
            a 500 dollars. Un audit vendu moins cher que partout ailleurs signale
            un travail sans valeur, ce qui est l'inverse du but. */
-        /* Offert contre temoignage depuis le 02/10/2026. Le prix reste lisible
-           dans la note, il dit ce que vaut le travail. */
+        /* Offert des que l estimation est positive, depuis le 02/10/2026. Le
+           prix reste lisible a cote, il dit ce que vaut le travail. Le bouton
+           mene a l estimateur, c est lui qui ouvre le droit au diagnostic. */
         price: "Offert",
-        priceSuffix: "contre votre témoignage",
-        priceNote: "sans témoignage, 500 € HT",
-        cta: "Réserver 15 minutes",
-        ctaHref: SITE.booking,
+        priceSuffix: "d'une valeur de 500 € HT",
+        priceNote: "dès que votre estimation en ligne est positive",
+        cta: "Faire mon estimation",
+        ctaHref: "/estimation",
       },
       {
         index: "02",
@@ -554,11 +557,10 @@ export const FAQ: FaqItem[] = [
     a: "Une brique est une tâche. Elle a sa mensualité et ce qu'elle vous rend chaque mois, ce qui vous laisse en lancer une, la voir tourner, puis décider de la suite. Vous pouvez aussi en prendre trois d'un coup, la remise de parc retire alors 20 % de la mensualité, à condition que les trois soient nommées dans le devis. Ce qui compte est de savoir ce que couvre le périmètre avant de le payer, la remise vient après. C'est aussi pourquoi un « automatisez-moi tout » se transforme d'abord en liste de briques, plus facile à tenir des deux côtés.",
   },
   {
-    /* Ajoutee le 02/10/2026 apres le releve de parcours. Le temoignage est
-       devenu le prix d entree du diagnostic et n etait explique que dans les
-       conditions generales. */
-    q: "Que demandez-vous en échange du diagnostic ?",
-    a: "Un témoignage sur le diagnostic lui-même, quelques lignes sur ce que le rapport vous a appris, dans les trente jours qui suivent sa remise. Nous le publions sous votre nom et celui de votre structure, une fois que vous avez validé le texte. Si vous préférez ne pas témoigner, le diagnostic vous est facturé à son prix, 500 EUR pour une petite structure.",
+    /* Ajoutee le 02/10/2026 apres le releve de parcours. L estimation est
+       devenue la porte du diagnostic, il faut dire comment on la franchit. */
+    q: "Comment obtenir le diagnostic ?",
+    a: "En faisant d'abord votre estimation en ligne, neuf questions et deux minutes. Si elle montre qu'au moins une tâche vous rendrait plus qu'elle ne coûte, le diagnostic vous est offert, et vous réservez quinze minutes pour le caler. Si elle n'en montre aucune, elle vous le dit, et un diagnostic ne vous apprendrait rien de plus.",
   },
   {
     q: "Que se passe-t-il si j'arrête ?",

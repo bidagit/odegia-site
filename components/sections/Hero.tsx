@@ -123,8 +123,11 @@ export function Hero() {
       {/* Vague de sortie. Volontairement sans objet 3D, le hero porte deja le
           titre geant, les annotations et les chiffres. */}
       <div aria-hidden className="pointer-events-none relative">
-        <Eclat className="absolute -top-[70px] left-[8%] hidden h-7 w-7 text-vert-vif md:block" />
-        <Eclat className="absolute -top-[120px] left-[26%] hidden h-5 w-5 text-banane lg:block" />
+        {/* Les eclats restent dans la marge sous la note, a droite, la ou il
+            n y a jamais de texte. Places plus haut, ils tombaient sur les
+            chiffres et sur la note selon la largeur, defaut vu le 02/10/2026. */}
+        <Eclat className="absolute -top-[26px] right-[14%] hidden h-7 w-7 text-vert-vif md:block" />
+        <Eclat className="absolute -top-[10px] right-[7%] hidden h-5 w-5 text-banane lg:block" />
         <div className="vague -mb-px bg-paper" />
       </div>
     </section>

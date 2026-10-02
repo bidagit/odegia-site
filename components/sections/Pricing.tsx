@@ -212,8 +212,7 @@ export function Pricing() {
           </h3>
           <p className="mt-2 text-[13.5px] text-ink-soft">
             Montants hors taxes, par mois, construction et surveillance
-            comprises. Le diagnostic est offert dès que votre estimation est
-            positive.
+            comprises.
           </p>
           <ul className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
             {EXEMPLES_PRIX.map((e) => (

@@ -102,8 +102,11 @@ export const HEADER_LINKS = NAV_LINKS.filter((l) =>
 
 export const HERO = {
   eyebrow: "Autonomisation administrative",
-  title: ["Votre administratif", "tourne sans vous."],
-  claim: "L'IA exécute, vous récupérez vos soirées.",
+  /* Titre et accroche intervertis le 02/10/2026, decision d Adib. Le benefice
+     passe devant le mecanisme, « vous récupérez vos soirées » est ce que le
+     visiteur achete, « votre administratif tourne sans vous » dit comment. */
+  title: ["Vous récupérez", "vos soirées."],
+  claim: "L'IA exécute, votre administratif tourne sans vous.",
   /* Definit les deux mots du site la ou le premier apparait. Sans cette
      ligne, la page dit qu on automatise et la FAQ dit que l automatisation
      n est pas le sujet, ce qui se lit comme une contradiction. */

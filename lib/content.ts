@@ -44,7 +44,7 @@ export const SITE = {
      telephonique exige un consentement explicite, un creneau choisi par le
      prospect vaut accord expres sur une date et une heure. Un bouton
      « rappelez-moi » ne le vaut pas. */
-  booking: "https://calendar.app.google/ygEDt2Z5FZUkbmZP8",
+  booking: "https://calendar.app.google/znA8TAyk56TiRcGA6",
 };
 
 /* ── Mentions légales ──────────────────────────────────────────────────────

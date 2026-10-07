@@ -581,7 +581,7 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "Que se passe-t-il si j'arrête ?",
-    a: "Chaque tâche engage douze mois. Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis, et la tâche cesse de tourner. Vos outils et vos abonnements restent à votre nom, rien ne vous est retiré.",
+    a: "Chaque tâche engage douze mois. Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis, et la tâche cesse de tourner.",
   },
   {
     q: "Faut-il viser le niveau 4 partout ?",

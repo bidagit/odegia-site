@@ -216,16 +216,18 @@ export const NOM_PALIER: Record<Palier, string> = {
 };
 
 /* Remise de parc, en pourcentage et non en montant fixe, pour que tout mélange
-   de paliers se calcule seul. Depuis le 02/10/2026 elle porte sur la
-   mensualité, trois intermédiaires donnent 240 EUR par mois au lieu de 300.
-   La remise s'affiche, un rabais que le client ignore ne sert personne. */
+   de paliers se calcule seul. Depuis le 07/10/2026 elle ne s'affiche plus sur
+   le site ni dans l'estimation, elle est un levier du devis de diagnostic.
+   Adib a simplifié l'offre à trois mensualités, douze mois puis trente jours,
+   pour qu'une prospectrice la dise en une phrase. */
 export const REMISE_PACK = 0.2;
 export const SEUIL_PACK = 3;
 
-/* La mensualité d'un parc, pleine puis remisée, arrondie aux cinq euros. */
-export const mensualitePour = (paliers: Palier[]) => {
+/* La mensualité d'un parc, pleine, et remisée seulement si on le demande, ce
+   que seul le devis de diagnostic fait. Arrondie aux cinq euros. */
+export const mensualitePour = (paliers: Palier[], avecRemise = false) => {
   const pleine = paliers.reduce((s, p) => s + mensualiteDe(p), 0);
-  const remise = paliers.length >= SEUIL_PACK;
+  const remise = avecRemise && paliers.length >= SEUIL_PACK;
   const nette = remise ? Math.round((pleine * (1 - REMISE_PACK)) / 5) * 5 : pleine;
   return { pleine, nette, remise };
 };

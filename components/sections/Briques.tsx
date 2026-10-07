@@ -94,8 +94,7 @@ export function Briques() {
             obligeaient le visiteur a classer sa tache avant de lire un prix,
             alors que chaque carte porte desormais le sien. */}
         <p className="mt-6 max-w-3xl text-[13px] leading-[1.7] text-ink-soft">
-          À partir de trois tâches, la remise de parc retire 20&nbsp;% de la
-          mensualité. Une tâche absente de cette liste se chiffre au diagnostic.
+          Une tâche absente de cette liste se chiffre au diagnostic.
         </p>
       </div>
     </section>

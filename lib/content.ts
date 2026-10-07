@@ -412,8 +412,8 @@ export const EXEMPLES_PRIX = [
   {
     qui: "Une TPE",
     quoi: "Ses devis, l'accueil de chaque nouveau client et ses mails récurrents",
-    mensualite: "240 €",
-    detail: "3 tâches intermédiaires, remise de 20 % comprise",
+    mensualite: "300 €",
+    detail: "3 tâches intermédiaires, 100 € chacune",
   },
 ];
 
@@ -488,9 +488,11 @@ export const TRACKS: Track[] = [
         /* Offert des que l estimation est positive, depuis le 02/10/2026. Le
            prix reste lisible a cote, il dit ce que vaut le travail. Le bouton
            mene a l estimateur, c est lui qui ouvre le droit au diagnostic. */
+        /* La valeur de 500 EUR a quitte l affichage le 07/10/2026, l offre se
+           dit en une phrase et un prix qu on n encaisse pas la rallonge. */
         price: "Offert",
-        priceSuffix: "d'une valeur de 500 € HT",
-        priceNote: "sous condition d'une estimation préalable positive",
+        priceSuffix: "",
+        priceNote: "après une estimation en ligne positive",
         cta: "Faire mon estimation",
         ctaHref: "/estimation",
       },
@@ -506,7 +508,6 @@ export const TRACKS: Track[] = [
         deliverables: [
           { text: "60 € par mois la tâche simple, 100 € l'intermédiaire, 190 € la complexe", strong: true },
           { text: "Construction comprise, rien à payer d'avance", strong: true },
-          { text: "Remise de 20 % dès la troisième brique, quel que soit le mélange", strong: false },
           { text: "Construite sur vos outils, sans les remplacer", strong: false },
           {
             text: "La tâche part seule, ou vous validez avant envoi",
@@ -537,7 +538,6 @@ export const TRACKS: Track[] = [
           { text: "Support asynchrone sous deux jours ouvrés", strong: false },
           { text: "Revue trimestrielle de votre autonomie", strong: true },
           { text: "Nouveaux domaines montés un à un", strong: false },
-          { text: "Rachat possible après douze mois, pour six mensualités", strong: true },
         ],
         /* Indexé à la brique depuis le 25/08/2026, dégressif le même jour après
            comparaison au marché américain, où le récurrent va de 1 200 à
@@ -571,7 +571,7 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "Pourquoi compter en briques ?",
-    a: "Une brique est une tâche. Elle a sa mensualité et ce qu'elle vous rend chaque mois, ce qui vous laisse en lancer une, la voir tourner, puis décider de la suite. Vous pouvez aussi en prendre trois d'un coup, la remise de parc retire alors 20 % de la mensualité, à condition que les trois soient nommées dans le devis. Ce qui compte est de savoir ce que couvre le périmètre avant de le payer, la remise vient après. C'est aussi pourquoi un « automatisez-moi tout » se transforme d'abord en liste de briques, plus facile à tenir des deux côtés.",
+    a: "Une brique est une tâche. Elle a sa mensualité et ce qu'elle vous rend chaque mois, ce qui vous laisse en lancer une, la voir tourner, puis décider de la suite. Vous pouvez aussi en prendre plusieurs d'un coup, le diagnostic les nomme et les ordonne. Ce qui compte est de savoir ce que couvre le périmètre avant de le payer, la remise vient après. C'est aussi pourquoi un « automatisez-moi tout » se transforme d'abord en liste de briques, plus facile à tenir des deux côtés.",
   },
   {
     /* Ajoutee le 02/10/2026 apres le releve de parcours. L estimation est
@@ -581,7 +581,7 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "Que se passe-t-il si j'arrête ?",
-    a: "Chaque tâche engage douze mois. Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis, et la tâche cesse de tourner. Vous pouvez aussi la racheter pour six mensualités. Elle vous reste alors acquise, avec ses règles écrites et sa documentation, et vous la faites tourner sans notre surveillance.",
+    a: "Chaque tâche engage douze mois. Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis, et la tâche cesse de tourner. Vos outils et vos abonnements restent à votre nom, rien ne vous est retiré.",
   },
   {
     q: "Faut-il viser le niveau 4 partout ?",

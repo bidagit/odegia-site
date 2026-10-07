@@ -15,7 +15,6 @@ import {
   PART_RECUPERABLE,
   REPONSES_VIDES,
   ENGAGEMENT_MOIS,
-  RACHAT_MENSUALITES,
   calculer,
   euros,
   heures,
@@ -616,16 +615,6 @@ function Resultat({
             {euros(res.recommandees[0]?.mensualite ?? 0)} par mois.</>
           )}
         </p>
-        {/* La remise s'affiche avec son prix plein barré. Un rabais que le
-            client ignore ne produit aucun effet. */}
-        {res.remiseAppliquee && (
-          <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
-            À partir de trois tâches la remise de parc s&apos;applique.{" "}
-            <span className="line-through">{euros(res.mensualitePleine)}</span> devient{" "}
-            <strong className="text-white">{euros(res.mensualite)}</strong> par
-            mois, soit {euros(res.remiseEuros)} de moins.
-          </p>
-        )}
         <p className="mt-3 text-[14.5px] leading-[1.7] text-white/75">
           Ces tâches vous rendent environ {euros(res.gainMensuel)} de temps par
           mois.
@@ -640,8 +629,7 @@ function Resultat({
             mensualite sans duree annoncee se retournerait contre nous au devis. */}
         <p className="mt-4 border-t border-white/20 pt-4 text-[13.5px] leading-[1.65] text-white/70">
           Chaque tâche engage {ENGAGEMENT_MOIS} mois. Ensuite vous arrêtez avec
-          trente jours de préavis, ou vous la rachetez pour {RACHAT_MENSUALITES}{" "}
-          mensualités et elle vous reste acquise.
+          trente jours de préavis.
         </p>
       </section>
 

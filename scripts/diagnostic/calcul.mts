@@ -421,7 +421,7 @@ export function diagnostiquer(e: Entree) {
 
   /* La mensualite du perimetre. Remise de parc d abord, sans fin, puis remise
      du groupe pendant les douze mois d engagement seulement. */
-  const parc = mensualitePour(recommandees.map((u) => u.palier));
+  const parc = mensualitePour(recommandees.map((u) => u.palier), true);
   const mensualiteEnsuite = parc.nette;
   const mensualiteEngagement = e.remiseGroupe
     ? arrondi5(mensualiteEnsuite * (1 - REMISE_GROUPE))

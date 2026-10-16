@@ -65,7 +65,7 @@ export function Footer() {
                   href="https://orbisoptima.com"
                   className="text-[13.5px] text-paper/70 transition-colors hover:text-paper"
                 >
-                  Orbis Optima Group
+                  Orbis Optima
                 </a>
               </li>
               <li>

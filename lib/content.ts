@@ -32,7 +32,7 @@
 
 export const SITE = {
   name: "Odegia",
-  parent: "Orbis Optima Group",
+  parent: "Orbis Optima",
   /* odegia.com porte le site, odegia.fr est detenu et doit rediriger vers
      odegia.com en 301 pour eviter le contenu duplique. */
   url: "https://odegia.com",

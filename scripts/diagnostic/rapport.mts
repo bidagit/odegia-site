@@ -13,7 +13,12 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { diagnostiquer, type Entree, type LigneDiag } from "./calcul.mts";
-import { NOM_PALIER, TACHES, euros, heures } from "../../lib/estimator.ts";
+import { NOM_PALIER, TACHES, euros as eurosSite, heures } from "../../lib/estimator.ts";
+
+/* Intl separe les milliers par une espace fine insecable, que la police des
+   grands chiffres n a pas. « 37679 € » s affichait colle, le 17/10/2026. Le
+   rapport la remplace par l espace insecable ordinaire, le site garde la sienne. */
+const euros = (n: number) => eurosSite(n).replace(/ /g, " ");
 import { LEGAL, SITE } from "../../lib/content.ts";
 
 const dossier = process.argv[2];
@@ -222,16 +227,19 @@ const tableCandidats = !tete && candidats.length ? `
 /* Chaque mois, ce que le client recupere et ce qu il paie. C est la
    comparaison qu il fait de tete, autant la lui donner. */
 const b = c.bilanMensuel;
+/* v2.1, une partie du gain vient d argent recupere et non de temps. Les
+   libelles le disent, sinon le client lit des heures qui n existent pas. */
+const enc = b ? b.encaissement > 0.5 : false;
 const bilan = b ? `
   <div class="bilan">
     <span class="etiquette">${b.recommande ? "Chaque mois, une fois en service" : `Si vous lanciez ${esc(uniteId.get(c.candidats[0].id)!.nom.toLowerCase())} quand même, chaque mois`}</span>
     <div class="bilan-grille">
       <div><span class="valeur">${heures(b.heures)} h</span><span class="legende">de temps rendu</span></div>
-      <div><span class="valeur">${euros(b.valeur)}</span><span class="legende">valeur de ce temps</span></div>
+      <div><span class="valeur">${euros(b.valeur)}</span><span class="legende">${enc ? `rendus chaque mois, dont ${euros(b.encaissement)} d'impayés récupérés` : "valeur de ce temps"}</span></div>
       <div><span class="valeur">${euros(b.mensualite)}</span><span class="legende">de mensualité, construction et surveillance comprises${b.ensuite !== b.mensualite ? `, puis ${euros(b.ensuite)} après ${c.parametres.ENGAGEMENT_MOIS} mois` : ""}</span></div>
-      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">de solde, temps rendu moins ce que vous payez</span></div>
+      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">de solde, ${enc ? "temps rendu et impayés récupérés" : "temps rendu"} moins ce que vous payez</span></div>
     </div>
-    <p class="note">Sur trois ans, ${euros(b.valeurHorizon)} de temps rendu pour ${euros(b.coutHorizon)} de mensualités. Vous ne payez rien d'avance pour la construction.</p>
+    <p class="note">Sur trois ans, ${euros(b.valeurHorizon)} ${enc ? "rendus en temps et en impayés récupérés" : "de temps rendu"} pour ${euros(b.coutHorizon)} de mensualités. Vous ne payez rien d'avance pour la construction.</p>
   </div>` : "";
 
 const partie3 = `
@@ -250,7 +258,7 @@ const partie3 = `
         <div>
           <h3>${esc(l.nom)}</h3>
           ${l.parcours ? `<p class="ligne-chiffres">Regroupe ${l.taches.map((t) => { const n = parId.get(t)!.nom; return esc(n.charAt(0).toLowerCase() + n.slice(1)); }).join(", ")}</p>` : ""}
-          <p class="ligne-chiffres">${heures(l.heuresRecuperees)} h rendues par mois · ${euros(l.gainMensuel)} de temps par mois · mensualité ${euros(p.mensualite)} · solde ${solde(p.gainNetMensuel)}</p>
+          <p class="ligne-chiffres">${heures(l.heuresRecuperees)} h rendues par mois · ${l.encaissementMensuel > 0.5 ? `${euros(l.gainMensuel - l.encaissementMensuel)} de temps et ${euros(l.encaissementMensuel)} d'impayés récupérés par mois` : `${euros(l.gainMensuel)} de temps par mois`} · mensualité ${euros(p.mensualite)} · solde ${solde(p.gainNetMensuel)}</p>
         </div>
       </li>`;
       })
@@ -259,7 +267,7 @@ const partie3 = `
   ${para(r.ordre)}
   ${c.suivantes.length ? `<p class="note">Ensuite, ${c.suivantes.map((id) => esc(uniteId.get(id)!.nom)).join(", ")}. Elles se reconsidèrent une fois les trois premières en service.</p>` : ""}
   ${para(r.ensuite)}
-  <p class="note">Temps rendu calculé à ${Math.round(c.parametres.PART_RECUPERABLE * 100)} % du temps relevé, le reste couvre le contrôle et les cas particuliers. Le solde est la valeur de ce temps moins la mensualité.${proj ? ` Il se calcule sur les douze prochains mois tels que vous les estimez, plafonnés à ${c.parametres.PLAFOND_PROJECTION} fois le volume mesuré.` : ""}</p>
+  <p class="note">Temps rendu calculé à ${Math.round(c.parametres.PART_RECUPERABLE * 100)} % du temps relevé, le reste couvre le contrôle et les cas particuliers. Le solde est la valeur de ce temps moins la mensualité.${proj ? ` Il se calcule sur les douze prochains mois tels que vous les estimez, plafonnés à ${c.parametres.PLAFOND_PROJECTION} fois le volume mesuré.` : ""}${c.totaux.perteAnnuelle > 0.5 ? ` Aujourd'hui, environ ${euros(c.totaux.perteAnnuelleMesuree)} par an restent dus sans être encaissés. Nous comptons qu'un suivi systématique des échéances en récupère ${Math.round(c.parametres.PART_RECOUVREE * 100)} %, une hypothèse prudente, une relance rattrape les oublis et les retards, pas un départ décidé.` : ""}</p>
 </section>`;
 
 /* ── 4. Ce que ca coute, le devis ────────────────────────────────────────── */

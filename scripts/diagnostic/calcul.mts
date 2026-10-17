@@ -35,7 +35,21 @@ import {
    change a chaque regle de decision, definition de mesure ou grille modifiee,
    et le protocole du vault dit ce que chaque version contient. Un rapport se
    relit toujours avec les regles de sa version. */
-export const METHODE_VERSION = "2.0";
+export const METHODE_VERSION = "2.1";
+
+/* v2.1, decision d Adib du 17/10/2026, nee du diagnostic Alteria. Une tache
+   qu on ne fait pas ne coute aucun temps, la methode ne voyait donc rien a y
+   gagner, alors que c est la que le client perd le plus. Siham ne suivait ni
+   echeanciers ni relances, et la moitie de ses coaches s arretaient a mi-forfait
+   sans payer le reste. Une tache peut desormais declarer l argent du qu elle
+   laisse filer, champ encaissement, et la brique qui l automatise compte, en
+   plus du temps rendu, la part de cet argent qu une relance systematique
+   recupere.
+
+   Part recuperee, REGLAGE PROVISOIRE, jamais mesure, a confronter au premier
+   client equipe. Prudente a dessein, une relance ne fait pas payer quelqu un
+   qui a decide de partir, elle rattrape les oublis et les retards. */
+export const PART_RECOUVREE = 0.3;
 
 /* v2.0, decision d Adib du 02/10/2026. Une brique n a plus de prix de chantier
    ni de suivi separe, elle a une mensualite constante, construction et
@@ -165,6 +179,10 @@ export type TacheDiag = {
   motif?: string;
   /* Identifiant du parcours auquel la tache appartient, v1.1. */
   parcours?: string;
+  /* Argent du non encaisse, v2.1. Montant moyen d une occurrence, un forfait,
+     une facture, et part de ce montant qui n est jamais payee aujourd hui. Le
+     nombre d occurrences est la frequence de la tache. */
+  encaissement?: { montantOccurrence: number; partNonEncaissee: number; source?: string };
 };
 
 export type Entree = {
@@ -212,6 +230,8 @@ export type Unite = {
   gainMensuel: number;
   /* Ce que l unite rend chaque mois une fois sa mensualite payee. */
   gainNetMensuel: number;
+  /* Part du gain qui vient d encaissements recuperes, v2.1. */
+  encaissementMensuel: number;
   /* La mensualite absorbe le gain, l unite ne se recommande pas. */
   absorbee: boolean;
 };
@@ -239,6 +259,11 @@ export type LigneDiag = TacheDiag & {
   gainMensuel: number;
   mensualite: number;
   gainNetMensuel: number;
+  /* v2.1, argent du laisse filer sur douze mois, mesure puis retenu, et ce que
+     la brique en recupere chaque mois. Compris dans gainMensuel. */
+  perteAnnuelleMesuree: number;
+  perteAnnuelle: number;
+  encaissementMensuel: number;
   absorbee: boolean;
   /* Etalon, jamais montre au client. */
   bande: Frequence | null;
@@ -304,7 +329,12 @@ export function diagnostiquer(e: Entree) {
         : null;
 
     const heuresRecuperees = heuresMois * PART_RECUPERABLE;
-    const gainMensuel = heuresRecuperees * taux;
+    const perte = (n: number) =>
+      t.encaissement ? n * t.encaissement.montantOccurrence * Math.min(Math.max(t.encaissement.partNonEncaissee, 0), 1) : 0;
+    const perteAnnuelleMesuree = perte(t.frequenceAn);
+    const perteAnnuelle = perte(frequenceRetenue);
+    const encaissementMensuel = (perteAnnuelle * PART_RECOUVREE) / 12;
+    const gainMensuel = heuresRecuperees * taux + encaissementMensuel;
     /* Meme lecture que l estimateur depuis la v2.0, ce que la brique rend
        chaque mois contre ce qu elle coute chaque mois. */
     const mensualite = palier ? mensualiteDe(palier) : 0;
@@ -335,6 +365,9 @@ export function diagnostiquer(e: Entree) {
       gainMensuel,
       mensualite,
       gainNetMensuel,
+      perteAnnuelleMesuree,
+      perteAnnuelle,
+      encaissementMensuel,
       absorbee: verdict === "brique" && gainNetMensuel <= 0,
       bande,
       heuresBareme,
@@ -370,7 +403,8 @@ export function diagnostiquer(e: Entree) {
       id: l.id, nom: l.nom, parcours: false, taches: [l.id], palier: l.palier!,
       mensualite: l.mensualite, niveau: l.niveau, heuresMois: l.heuresMois,
       heuresRecuperees: l.heuresRecuperees, gainMensuel: l.gainMensuel,
-      gainNetMensuel: l.gainNetMensuel, absorbee: l.absorbee,
+      gainNetMensuel: l.gainNetMensuel, encaissementMensuel: l.encaissementMensuel,
+      absorbee: l.absorbee,
     });
   }
   for (const id of parcoursRetenus) {
@@ -386,6 +420,7 @@ export function diagnostiquer(e: Entree) {
       heuresMois: ls.reduce((a, l) => a + l.heuresMois, 0),
       heuresRecuperees: ls.reduce((a, l) => a + l.heuresRecuperees, 0),
       gainMensuel, gainNetMensuel,
+      encaissementMensuel: ls.reduce((a, l) => a + l.encaissementMensuel, 0),
       absorbee: gainNetMensuel <= 0,
     });
   }
@@ -489,11 +524,11 @@ export function diagnostiquer(e: Entree) {
   const avecGroupe = (m: number) => (e.remiseGroupe ? arrondi5(m * (1 - REMISE_GROUPE)) : m);
   const bilanMensuel = (() => {
     const base = recommandees.length
-      ? { recommande: true, heures: recommandees.reduce((a, u) => a + u.heuresRecuperees, 0), valeur: gainMensuelPerimetre, mensualite: mensualiteEngagement, ensuite: mensualiteEnsuite }
+      ? { recommande: true, heures: recommandees.reduce((a, u) => a + u.heuresRecuperees, 0), valeur: gainMensuelPerimetre, encaissement: recommandees.reduce((a, u) => a + u.encaissementMensuel, 0), mensualite: mensualiteEngagement, ensuite: mensualiteEnsuite }
       : unites.length
         ? (() => {
             const u = [...unites].sort((a, b) => b.gainMensuel - a.gainMensuel)[0];
-            return { recommande: false, heures: u.heuresRecuperees, valeur: u.gainMensuel, mensualite: avecGroupe(u.mensualite), ensuite: u.mensualite };
+            return { recommande: false, heures: u.heuresRecuperees, valeur: u.gainMensuel, encaissement: u.encaissementMensuel, mensualite: avecGroupe(u.mensualite), ensuite: u.mensualite };
           })()
         : null;
     if (!base) return null;
@@ -552,6 +587,7 @@ export function diagnostiquer(e: Entree) {
       HORIZON_MOIS,
       BASCULE_MAX,
       PLAFOND_PROJECTION,
+      PART_RECOUVREE,
       tauxHypothese: e.taux === null,
       taux: tauxClient,
     },
@@ -560,6 +596,8 @@ export function diagnostiquer(e: Entree) {
       coutAnnuel,
       heuresMoisMesure: lignes.reduce((a, l) => a + l.heuresMoisMesure, 0),
       coutAnnuelMesure: lignes.reduce((a, l) => a + l.coutAnnuelMesure, 0),
+      perteAnnuelleMesuree: lignes.reduce((a, l) => a + l.perteAnnuelleMesuree, 0),
+      perteAnnuelle: lignes.reduce((a, l) => a + l.perteAnnuelle, 0),
     },
     projection: lignes.some((l) => l.frequenceRetenue !== l.frequenceAn),
     coherence,

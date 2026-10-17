@@ -151,7 +151,7 @@ const partie1 = `
   ${para(r.synthese)}
   <div class="chiffres">${cartes}
   </div>
-  <table class="cout ${c.lignes.length > 12 ? "dense" : ""}">
+  <table class="cout ${c.lignes.length > 6 ? "dense" : ""}">
     <thead><tr><th>Tâche</th><th>Rythme</th><th>Durée</th>${proj ? `<th class="n">Auj. h/mois</th><th class="n">À venir h/mois</th><th class="n">À venir €/an</th>` : `<th class="n">h / mois</th><th class="n">€ / an</th>`}</tr></thead>
     <tbody>
       ${parCout.slice(0, reste.length ? MAX_LIGNES_COUT : parCout.length).map(ligneCout).join("")}
@@ -194,7 +194,7 @@ const partie2Dense = `
   <table class="dense orientations"><tbody>${groupes2}</tbody></table>
   ${c.lignes.some((l) => l.cadrage && l.verdict === "brique") ? para(r.cadrage) : ""}
 </section>`;
-const partie2 = c.lignes.length > 8 ? partie2Dense : `
+const partie2 = c.lignes.length > 6 ? partie2Dense : `
 <section class="page">
   <p class="eyebrow">02</p>
   <h1>Ce qui s'automatise, et ce qui reste à votre main</h1>
@@ -228,7 +228,10 @@ const accroche = !b
   : `<div class="accroche"><p>Odegia peut vous faire économiser <strong>${heures(b.heures)} h et ${euros(b.valeur)} par mois</strong>${enc ? `, dont ${euros(b.encaissement)} d'impayés récupérés` : ""}.</p></div>`;
 const designationClient = (u: { parcours: boolean; taches: string[]; niveau: 3 | 4 }) =>
   `${u.parcours ? `Automatisation de ${u.taches.length} tâches enchaînées` : "Automatisation"}, ${autonomie(u.niveau).toLowerCase()}${u.niveau === 3 ? ", vous validez avant envoi" : ""}`;
+/* Une tache qu on ne fait pas aujourd hui n economise rien, elle ajoute un
+   service. Le dire plutot qu afficher zero heure et zero euro. */
 const economie = (u: { heuresRecuperees: number; gainMensuel: number; encaissementMensuel: number }) =>
+  u.gainMensuel < 0.5 ? "Ce que vous ne faites pas aujourd'hui, un service en plus plutôt qu'une économie" :
   `${heures(u.heuresRecuperees)} h économisées par mois · ${u.encaissementMensuel > 0.5 ? `${euros(u.gainMensuel - u.encaissementMensuel)} de temps et ${euros(u.encaissementMensuel)} d'impayés récupérés par mois` : `${euros(u.gainMensuel)} de temps par mois`}`;
 const ordreIds = c.positions.length ? c.positions.map((p) => ({ id: p.id, demande: p.demande })) : candidats.map((k) => ({ id: k.id, demande: false }));
 
@@ -245,7 +248,8 @@ const partie3 = `
         <span class="rang">${i + 1}</span>
         <div>
           <h3>${esc(l.nom)}${p.demande ? ` <span class="delai">à votre demande</span>` : ""}</h3>
-          <p class="ligne-chiffres">${designationClient(l)}${l.parcours ? `, regroupe ${l.taches.map((t) => { const n = parId.get(t)!.nom; return esc(n.charAt(0).toLowerCase() + n.slice(1)); }).join(", ")}` : ""}</p>
+          <p class="ligne-chiffres">${designationClient(l)}</p>
+          ${l.parcours ? `<div class="flux">${l.taches.map((t) => { const x = parId.get(t)!; return `<div class="flux-etape"><span class="flux-nom">${esc(x.etiquette ?? x.nom)}</span><span class="flux-mode">${x.niveau === 4 ? "100 % autonome" : "vous validez"}</span></div>`; }).join(`<span class="flux-fleche">→</span>`)}</div>` : ""}
           <p class="ligne-chiffres">${economie(l)}</p>
         </div>
       </li>`;
@@ -262,13 +266,10 @@ const partie3 = `
 const d = c.devis;
 const designation = (u: { parcours: boolean; taches: string[]; niveau: 3 | 4 }, suite = "") =>
   `${designationClient(u)}${suite}`;
-const lignesDevis = c.recommandees
-  .map((id) => {
-    const l = uniteId.get(id)!;
-    const dem = c.positions.find((p) => p.id === id)?.demande;
-    return `<tr><td>${esc(l.nom)}<span class="sous">${designation(l, dem ? ", à votre demande" : "")}</span></td><td class="n">${euros(l.mensualite)}</td></tr>`;
-  })
-  .join("");
+/* Une seule ligne, decision d Adib du 17/10/2026. Le client achete son
+   administratif automatise, pas une liste de taches a prix separes. */
+const nTaches = c.recommandees.reduce((a, id) => a + uniteId.get(id)!.taches.length, 0);
+const lignesDevis = `<tr><td>Votre administratif automatisé, ${nTaches} tâches<span class="sous">${c.recommandees.map((id) => esc(uniteId.get(id)!.nom)).join(" · ")}</span></td><td class="n">${euros(c.devis.mensualitePleine)}</td></tr>`;
 const numero = entree.devis?.numero ?? "à attribuer";
 const E = c.parametres.ENGAGEMENT_MOIS;
 const R = c.parametres.RACHAT_MENSUALITES;
@@ -277,13 +278,13 @@ const R = c.parametres.RACHAT_MENSUALITES;
    diagnostic, offert, ou rembourse s il avait ete paye. */
 const offert = !!entree.diagnostic.offert;
 const gainNet = b ? `
-  <div class="accroche"><p>${b.solde >= 0 ? `Une fois Odegia payé, vous gagnez <strong>${euros(b.solde)} par mois</strong>.` : `Une fois Odegia payé, il vous manque ${euros(-b.solde)} par mois.`}</p></div>
+  <div class="accroche"><p>${b.solde >= 0 ? `Une fois Odegia payé, vous gagnez <strong>${euros(b.solde)} par mois</strong>${b.ensuite !== b.mensualite ? " la première année" : ""}.` : `Une fois Odegia payé, il vous manque ${euros(-b.solde)} par mois.`}</p></div>
   <div class="bilan">
     <span class="etiquette">${b.recommande ? "Chaque mois, une fois en service" : `Si vous lanciez ${esc(uniteId.get(c.candidats[0].id)!.nom.toLowerCase())} quand même, chaque mois`}</span>
     <div class="bilan-grille">
       <div><span class="valeur">${euros(b.valeur)}</span><span class="legende">économisés, ${heures(b.heures)} h de temps${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}</span></div>
       <div><span class="valeur">${euros(b.mensualite)}</span><span class="legende">payés à Odegia, construction et surveillance comprises${b.ensuite !== b.mensualite ? `, puis ${euros(b.ensuite)} après ${c.parametres.ENGAGEMENT_MOIS} mois` : ""}</span></div>
-      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois</span></div>
+      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois${b.ensuite !== b.mensualite ? `, la première année, puis ${solde(b.valeur - b.ensuite)}` : ""}</span></div>
     </div>
     <p class="note">Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia. Vous ne payez rien d'avance pour la construction.</p>
   </div>` : "";
@@ -305,7 +306,6 @@ const partie5Gain = `
   <p class="eyebrow">05</p>
   <h1>Ce que coûte Odegia, et ce que vous gagnez</h1>
   ${gainNet}
-  ${tableNet}
   ${tableCandidats}
 </section>`;
 
@@ -343,7 +343,7 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
     <tbody>
       ${lignesDevis}
       ${d.remisePack ? `<tr class="remise"><td>Remise de ${Math.round(c.parametres.REMISE_PACK * 100)} % dès la troisième automatisation</td><td class="n">− ${euros(d.remisePackEuros)}</td></tr>` : ""}
-      ${d.remiseGroupe ? `<tr class="remise"><td>Remise client du groupe Orbis Optima, pendant les ${E} premiers mois</td><td class="n">− ${euros(d.remiseGroupeEuros)}</td></tr>` : ""}
+      ${d.remiseGroupe ? `<tr class="remise"><td>${d.remiseGroupeLibelle ? esc(d.remiseGroupeLibelle) : "Remise client du groupe Orbis Optima"}, ${Math.round(d.remiseGroupeTaux * 100)} % pendant les ${E} premiers mois</td><td class="n">− ${euros(d.remiseGroupeEuros)}</td></tr>` : ""}
       ${offert ? `<tr class="remise"><td>Diagnostic d'une valeur de ${euros(entree.diagnostic.prix)}, offert</td><td class="n">inclus</td></tr>` : ""}
     </tbody>
     <tfoot>
@@ -491,6 +491,12 @@ const html = `<!doctype html>
   /* Devis resserre le 17/10/2026, avec trois briques et deux remises la case de
      signature passait sur une page blanche. */
   table.devis td { padding:1.6mm 2mm; }
+  /* Schema flechee des taches enchainees, page 3. */
+  .flux { display:flex; align-items:stretch; gap:1.5mm; margin:2.5mm 0 2mm; }
+  .flux-etape { flex:1; border:1.5px solid var(--ink); border-radius:9px; padding:2mm 2.5mm; background:var(--vert-soft); display:flex; flex-direction:column; justify-content:space-between; gap:1mm; }
+  .flux-nom { font: 600 8.5pt/1.25 "Geist", sans-serif; }
+  .flux-mode { font: 500 6.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--vert); }
+  .flux-fleche { align-self:center; font: 800 13pt "Outfit", sans-serif; color:var(--ink); }
   .accord { margin-top:5mm; border:1.5px dashed var(--soft); border-radius:12px; height:22mm; padding:3mm 4mm; font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); width:80mm; margin-left:auto; }
 </style></head>
 <body>${partie1}${partie2}${partie3}${partie5}${partie5Gain}${partie4}</body></html>`;

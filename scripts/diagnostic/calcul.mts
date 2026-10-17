@@ -193,6 +193,8 @@ export type TacheDiag = {
   /* v2.2, le client veut cette tache dans le perimetre malgre le calcul, raison
      dans ses mots. */
   demandeClient?: string;
+  /* Nom court de l etape, pour le schema flechee du rapport. */
+  etiquette?: string;
 };
 
 export type Entree = {
@@ -209,6 +211,12 @@ export type Entree = {
   agace: string | null;
   pertes: string | null;
   remiseGroupe: boolean;
+  /* Taux propre a ce client pendant l engagement, decision commerciale d Adib,
+     et son libelle au devis. Absent, la remise du groupe s applique. Alteria,
+     50 % la premiere annee le 17/10/2026, elle paie deja 390 EUR HT par mois a
+     Foot on the Moon. */
+  remiseGroupeTaux?: number;
+  remiseGroupeLibelle?: string;
   /* offert, le cas courant depuis le 02/10/2026. deduit, un diagnostic paye
      dont le montant vaut les premieres mensualites. */
   diagnostic: { prix: number; deduit: boolean; offert?: boolean };
@@ -474,8 +482,9 @@ export function diagnostiquer(e: Entree) {
      du groupe pendant les douze mois d engagement seulement. */
   const parc = mensualitePour(recommandees.map((u) => u.palier), true);
   const mensualiteEnsuite = parc.nette;
+  const tauxGroupe = e.remiseGroupeTaux ?? REMISE_GROUPE;
   const mensualiteEngagement = e.remiseGroupe
-    ? arrondi5(mensualiteEnsuite * (1 - REMISE_GROUPE))
+    ? arrondi5(mensualiteEnsuite * (1 - tauxGroupe))
     : mensualiteEnsuite;
   /* Un diagnostic paye vaut les premieres mensualites, a hauteur de son prix. */
   const creditDiagnostic = e.diagnostic.deduit && !e.diagnostic.offert ? e.diagnostic.prix : 0;
@@ -537,7 +546,7 @@ export function diagnostiquer(e: Entree) {
   /* Ce que le client recupere et ce qu il paie, chaque mois. Sur le perimetre
      recommande, ou a defaut sur l automatisation la plus proche, pour qu il
      puisse passer outre en connaissance de cause. */
-  const avecGroupe = (m: number) => (e.remiseGroupe ? arrondi5(m * (1 - REMISE_GROUPE)) : m);
+  const avecGroupe = (m: number) => (e.remiseGroupe ? arrondi5(m * (1 - tauxGroupe)) : m);
   const bilanMensuel = (() => {
     const base = recommandees.length
       ? { recommande: true, heures: recommandees.reduce((a, u) => a + u.heuresRecuperees, 0), valeur: gainMensuelPerimetre, encaissement: recommandees.reduce((a, u) => a + u.encaissementMensuel, 0), mensualite: mensualiteEngagement, ensuite: mensualiteEnsuite }
@@ -641,6 +650,8 @@ export function diagnostiquer(e: Entree) {
       remisePackEuros: parc.pleine - mensualiteEnsuite,
       remiseGroupe: e.remiseGroupe,
       remiseGroupeEuros: mensualiteEnsuite - mensualiteEngagement,
+      remiseGroupeTaux: tauxGroupe,
+      remiseGroupeLibelle: e.remiseGroupeLibelle ?? null,
       /* Ce que le client paie chaque mois pendant l engagement, puis ensuite. */
       mensualiteHT: mensualiteEngagement,
       mensualiteEnsuiteHT: mensualiteEnsuite,

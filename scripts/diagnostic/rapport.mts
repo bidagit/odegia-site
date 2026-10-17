@@ -7,7 +7,14 @@
    calcul.json, rapport.html et etalon.md, puis pdf.py transforme le HTML en
    PDF. Les nombres viennent tous de calcul.mts, la prose de entree.json.
 
-   Quatre parties, dans l ordre de la fiche du vault, partie F. */
+   Ordre arrete par Adib le 17/10/2026. Ce que l administratif coute, ce qui
+   s automatise, ce qu Odegia fait economiser, la feuille de route, et
+   seulement ensuite ce que coute Odegia, le gain net et le devis. Un client
+   qui lit un prix avant d avoir vu ce qu il gagne lit un cout.
+
+   Vocabulaire client du meme jour. Ni brique, ni palier, ni parcours, des
+   niveaux d autonomie que tout le monde comprend, 100 % autonome,
+   semi-autonome, manuel. Le temps est economise, plus rendu. */
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -69,21 +76,20 @@ const duree = (m: number) => (m >= 60 ? `${heures(m / 60)} h` : `${m} min`);
 
 const dansParcours = (l: LigneDiag) =>
   !!l.parcours && c.unites.some((u) => u.parcours && u.id === l.parcours && u.taches.includes(l.id));
+/* Niveau d autonomie, le seul vocabulaire montre au client. Le niveau 4 du
+   livre part seul, le niveau 3 attend sa validation. */
+const autonomie = (niveau: 3 | 4) => (niveau === 4 ? "100 % autonome" : "Semi-autonome");
 const pastille = (l: LigneDiag) => {
-  if (dansParcours(l)) return `<span class="chip chip-vert">Parcours</span>`;
   switch (l.verdict) {
     case "supprimer":
       return `<span class="chip chip-ink">À supprimer</span>`;
     case "jugement":
-      return `<span class="chip chip-rose">Reste à votre main</span>`;
+      return `<span class="chip chip-rose">Manuel</span>`;
     case "sur-devis":
       return `<span class="chip chip-ink">Sur devis</span>`;
     default:
-      return l.absorbee && l.demandeClient
-        ? `<span class="chip chip-gris">À votre demande</span>`
-        : l.absorbee
-        ? `<span class="chip chip-gris">Volume trop faible</span>`
-        : `<span class="chip chip-vert">Brique ${NOM_PALIER[l.palier!]}</span>`;
+      if (l.absorbee && !l.demandeClient && !dansParcours(l)) return `<span class="chip chip-gris">Manuel, à confier</span>`;
+      return `<span class="chip chip-vert">${autonomie(l.niveau)}</span>`;
   }
 };
 const mode = (l: LigneDiag) =>
@@ -91,7 +97,7 @@ const mode = (l: LigneDiag) =>
     ? ""
     : l.niveau === 3
       ? "Vous validez avant envoi"
-      : "Part seule";
+      : "Part seule, sans vous";
 
 /* ── 1. Ce que votre administratif vous coute ───────────────────────────── */
 /* La page 1 part de ce qui attend le client, decision d Adib du 01/10/2026.
@@ -172,7 +178,7 @@ const groupes2 = ROUTES.map(({ route, titre }) => {
     .map((l) => {
       const o = orientationDe(l.id);
       const etiquettes = [
-        route === "automatiser" ? (dansParcours(l) ? "dans le parcours" : `brique ${NOM_PALIER[l.palier!]}`) : "",
+        route === "automatiser" ? autonomie(l.niveau).toLowerCase() : "",
         route === "automatiser" ? mode(l).toLowerCase() : "",
         o.documenter ? "règle à écrire d'abord" : "",
       ].filter(Boolean).join(" · ");
@@ -199,7 +205,7 @@ const partie2 = c.lignes.length > 8 ? partie2Dense : `
         (l) => `<article class="verdict">
       <div class="verdict-tete"><h3>${esc(l.nom)}</h3>${pastille(l)}</div>
       ${(() => { const o = c.orientations.find((x) => x.id === l.id)!; return o.documenter ? `<p class="mode">Règle à écrire d'abord</p>` : o.route === "deleguer" ? `<p class="mode">À confier à quelqu'un</p>` : ""; })()}
-      ${mode(l) && c.orientations.find((x) => x.id === l.id)!.route === "automatiser" ? `<p class="mode">${mode(l)}${l.parcours && c.unites.some((u) => u.id === l.parcours) ? `, dans le parcours ${esc(entree.parcours?.[l.parcours] ?? l.parcours)}` : ""}</p>` : ""}
+      ${mode(l) && c.orientations.find((x) => x.id === l.id)!.route === "automatiser" ? `<p class="mode">${mode(l)}${dansParcours(l) ? `, avec ${esc((entree.parcours?.[l.parcours!] ?? l.parcours!).charAt(0).toLowerCase() + (entree.parcours?.[l.parcours!] ?? l.parcours!).slice(1))}` : ""}${l.demandeClient && l.absorbee && !dansParcours(l) ? ", à votre demande" : ""}</p>` : ""}
       ${l.motif ? `<p>${esc(l.motif)}</p>` : ""}
     </article>`
       )
@@ -208,59 +214,39 @@ const partie2 = c.lignes.length > 8 ? partie2Dense : `
   ${c.lignes.some((l) => l.cadrage && l.verdict === "brique") ? para(r.cadrage) : ""}
 </section>`;
 
-/* ── 3. L ordre dans lequel s y prendre ──────────────────────────────────── */
+/* ── 3. Ce qu Odegia vous fait economiser ────────────────────────────────── */
+/* Aucune mensualite sur cette page, decision d Adib du 17/10/2026. Le client
+   voit d abord ce qu il gagne, brut, le prix vient en page 5. */
 const tete = c.tete ? uniteId.get(c.tete)! : null;
-const accroche = !tete
-  ? `<div class="accroche accroche-neutre"><p>Au seul calcul du temps, aucune automatisation ne se justifie aujourd'hui.</p></div>`
-  : `<div class="accroche"><p>${tete.parcours ? "Votre parcours" : "Votre première brique"} vous laisse <strong>${euros(c.gainNetTete ?? 0)} par mois</strong>, mensualité payée.</p></div>`;
-
-/* Sans automatisation recommandee, les chiffres des plus proches, pour que le
-   client decide lui-meme s il passe outre. */
-const candidats = c.candidats.filter((k) => !k.recommande);
 const solde = (n: number) => `${n >= 0 ? "+" : "−"} ${euros(Math.abs(n))}`;
-const tableCandidats = !tete && candidats.length ? `
-  <table class="dense candidats">
-    <thead><tr><th>Automatisation possible</th><th class="n">H rendues / mois</th><th class="n">Temps rendu / mois</th><th class="n">Mensualité</th><th class="n">Solde</th><th class="n">Seuil</th></tr></thead>
-    <tbody>${candidats.map((k) => `<tr><td>${esc(uniteId.get(k.id)!.nom)}</td><td class="n">${heures(k.heuresRecuperees)} h</td><td class="n">${euros(k.gainMensuel)}</td><td class="n">${euros(k.mensualite)}</td><td class="n">${solde(k.netMensuel)}</td><td class="n">${k.heuresSeuil === null ? "" : `${heures(k.heuresSeuil)} h`}</td></tr>`).join("")}</tbody>
-  </table>
-  <p class="note">Solde, le temps rendu chaque mois moins la mensualité. Seuil, les heures rendues par mois à partir desquelles la mensualité est couverte. Sur deux ans, la première coûte ${euros(candidats[0].cout24)} et rend ${euros(candidats[0].rendu24)} de temps.</p>
-  <p class="prose">Ce calcul ne compte que le temps. Il ignore la charge mentale d'une tâche qui revient, et ce que vous feriez des heures libérées. Si ces deux coûts pèsent plus lourd pour vous, vous pouvez lancer une automatisation quand même, en connaissance de cause. Le devis correspondant est en page 4.</p>` : "";
-
-/* Chaque mois, ce que le client recupere et ce qu il paie. C est la
-   comparaison qu il fait de tete, autant la lui donner. */
+const candidats = c.candidats.filter((k) => !k.recommande);
 const b = c.bilanMensuel;
-/* v2.1, une partie du gain vient d argent recupere et non de temps. Les
-   libelles le disent, sinon le client lit des heures qui n existent pas. */
+/* v2.1, une partie de l economie vient d argent recupere et non de temps. */
 const enc = b ? b.encaissement > 0.5 : false;
-const bilan = b ? `
-  <div class="bilan">
-    <span class="etiquette">${b.recommande ? "Chaque mois, une fois en service" : `Si vous lanciez ${esc(uniteId.get(c.candidats[0].id)!.nom.toLowerCase())} quand même, chaque mois`}</span>
-    <div class="bilan-grille">
-      <div><span class="valeur">${heures(b.heures)} h</span><span class="legende">de temps rendu</span></div>
-      <div><span class="valeur">${euros(b.valeur)}</span><span class="legende">${enc ? `rendus chaque mois, dont ${euros(b.encaissement)} d'impayés récupérés` : "valeur de ce temps"}</span></div>
-      <div><span class="valeur">${euros(b.mensualite)}</span><span class="legende">de mensualité, construction et surveillance comprises${b.ensuite !== b.mensualite ? `, puis ${euros(b.ensuite)} après ${c.parametres.ENGAGEMENT_MOIS} mois` : ""}</span></div>
-      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">de solde, ${enc ? "temps rendu et impayés récupérés" : "temps rendu"} moins ce que vous payez</span></div>
-    </div>
-    <p class="note">Sur trois ans, ${euros(b.valeurHorizon)} ${enc ? "rendus en temps et en impayés récupérés" : "de temps rendu"} pour ${euros(b.coutHorizon)} de mensualités. Vous ne payez rien d'avance pour la construction.</p>
-  </div>` : "";
+const accroche = !b
+  ? `<div class="accroche accroche-neutre"><p>Au seul calcul du temps, aucune automatisation ne se justifie aujourd'hui.</p></div>`
+  : `<div class="accroche"><p>Odegia peut vous faire économiser <strong>${heures(b.heures)} h et ${euros(b.valeur)} par mois</strong>${enc ? `, dont ${euros(b.encaissement)} d'impayés récupérés` : ""}.</p></div>`;
+const designationClient = (u: { parcours: boolean; taches: string[]; niveau: 3 | 4 }) =>
+  `${u.parcours ? `Automatisation de ${u.taches.length} tâches enchaînées` : "Automatisation"}, ${autonomie(u.niveau).toLowerCase()}${u.niveau === 3 ? ", vous validez avant envoi" : ""}`;
+const economie = (u: { heuresRecuperees: number; gainMensuel: number; encaissementMensuel: number }) =>
+  `${heures(u.heuresRecuperees)} h économisées par mois · ${u.encaissementMensuel > 0.5 ? `${euros(u.gainMensuel - u.encaissementMensuel)} de temps et ${euros(u.encaissementMensuel)} d'impayés récupérés par mois` : `${euros(u.gainMensuel)} de temps par mois`}`;
+const ordreIds = c.positions.length ? c.positions.map((p) => ({ id: p.id, demande: p.demande })) : candidats.map((k) => ({ id: k.id, demande: false }));
 
 const partie3 = `
 <section class="page">
   <p class="eyebrow">03</p>
-  <h1>L'ordre dans lequel s'y prendre</h1>
+  <h1>Ce qu'Odegia vous fait économiser</h1>
   ${accroche}
-  ${bilan}
-  ${tableCandidats}
   <ol class="ordre">
-    ${c.positions
+    ${ordreIds
       .map((p, i) => {
         const l = uniteId.get(p.id)!;
         return `<li class="etape">
         <span class="rang">${i + 1}</span>
         <div>
           <h3>${esc(l.nom)}${p.demande ? ` <span class="delai">à votre demande</span>` : ""}</h3>
-          ${l.parcours ? `<p class="ligne-chiffres">Regroupe ${l.taches.map((t) => { const n = parId.get(t)!.nom; return esc(n.charAt(0).toLowerCase() + n.slice(1)); }).join(", ")}</p>` : ""}
-          <p class="ligne-chiffres">${heures(l.heuresRecuperees)} h rendues par mois · ${l.encaissementMensuel > 0.5 ? `${euros(l.gainMensuel - l.encaissementMensuel)} de temps et ${euros(l.encaissementMensuel)} d'impayés récupérés par mois` : `${euros(l.gainMensuel)} de temps par mois`} · mensualité ${euros(p.mensualite)} · solde ${solde(p.gainNetMensuel)}</p>
+          <p class="ligne-chiffres">${designationClient(l)}${l.parcours ? `, regroupe ${l.taches.map((t) => { const n = parId.get(t)!.nom; return esc(n.charAt(0).toLowerCase() + n.slice(1)); }).join(", ")}` : ""}</p>
+          <p class="ligne-chiffres">${economie(l)}</p>
         </div>
       </li>`;
       })
@@ -269,13 +255,13 @@ const partie3 = `
   ${para(r.ordre)}
   ${c.suivantes.length ? `<p class="note">Ensuite, ${c.suivantes.map((id) => esc(uniteId.get(id)!.nom)).join(", ")}. Elles se reconsidèrent une fois les trois premières en service.</p>` : ""}
   ${para(r.ensuite)}
-  <p class="note">Temps rendu calculé à ${Math.round(c.parametres.PART_RECUPERABLE * 100)} % du temps relevé, le reste couvre le contrôle et les cas particuliers. Le solde est la valeur de ce temps moins la mensualité.${proj ? ` Il se calcule sur les douze prochains mois tels que vous les estimez, plafonnés à ${c.parametres.PLAFOND_PROJECTION} fois le volume mesuré.` : ""}${c.totaux.perteAnnuelle > 0.5 ? ` Aujourd'hui, environ ${euros(c.totaux.perteAnnuelleMesuree)} par an restent dus sans être encaissés. Nous comptons qu'un suivi systématique des échéances en récupère ${Math.round(c.parametres.PART_RECOUVREE * 100)} %, une hypothèse prudente, une relance rattrape les oublis et les retards, pas un départ décidé.` : ""}</p>
+  <p class="note">Temps économisé calculé à ${Math.round(c.parametres.PART_RECUPERABLE * 100)} % du temps relevé, le reste couvre le contrôle et les cas particuliers.${proj ? ` Il se calcule sur les douze prochains mois tels que vous les estimez, plafonnés à ${c.parametres.PLAFOND_PROJECTION} fois le volume mesuré.` : ""}${c.totaux.perteAnnuelle > 0.5 ? ` Aujourd'hui, environ ${euros(c.totaux.perteAnnuelleMesuree)} par an restent dus sans être encaissés. Nous comptons qu'un suivi systématique des échéances en récupère ${Math.round(c.parametres.PART_RECOUVREE * 100)} %, une hypothèse prudente, une relance rattrape les oublis et les retards, pas un départ décidé.` : ""}</p>
 </section>`;
 
 /* ── 4. Ce que ca coute, le devis ────────────────────────────────────────── */
 const d = c.devis;
-const designation = (u: { parcours: boolean; palier: keyof typeof NOM_PALIER; niveau: 3 | 4 }, suite = "") =>
-  `${u.parcours ? "Parcours" : "Brique"} ${NOM_PALIER[u.palier]}, ${u.niveau === 3 ? "validation avant envoi" : "exécution autonome"}${suite}`;
+const designation = (u: { parcours: boolean; taches: string[]; niveau: 3 | 4 }, suite = "") =>
+  `${designationClient(u)}${suite}`;
 const lignesDevis = c.recommandees
   .map((id) => {
     const l = uniteId.get(id)!;
@@ -290,10 +276,43 @@ const R = c.parametres.RACHAT_MENSUALITES;
 /* Rien a construire, pas de devis. La page dit ce qui se passe pour le
    diagnostic, offert, ou rembourse s il avait ete paye. */
 const offert = !!entree.diagnostic.offert;
+const gainNet = b ? `
+  <div class="accroche"><p>${b.solde >= 0 ? `Une fois Odegia payé, vous gagnez <strong>${euros(b.solde)} par mois</strong>.` : `Une fois Odegia payé, il vous manque ${euros(-b.solde)} par mois.`}</p></div>
+  <div class="bilan">
+    <span class="etiquette">${b.recommande ? "Chaque mois, une fois en service" : `Si vous lanciez ${esc(uniteId.get(c.candidats[0].id)!.nom.toLowerCase())} quand même, chaque mois`}</span>
+    <div class="bilan-grille">
+      <div><span class="valeur">${euros(b.valeur)}</span><span class="legende">économisés, ${heures(b.heures)} h de temps${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}</span></div>
+      <div><span class="valeur">${euros(b.mensualite)}</span><span class="legende">payés à Odegia, construction et surveillance comprises${b.ensuite !== b.mensualite ? `, puis ${euros(b.ensuite)} après ${c.parametres.ENGAGEMENT_MOIS} mois` : ""}</span></div>
+      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois</span></div>
+    </div>
+    <p class="note">Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia. Vous ne payez rien d'avance pour la construction.</p>
+  </div>` : "";
+const tableNet = c.positions.length ? `
+  <table class="dense">
+    <thead><tr><th>Automatisation</th><th class="n">Économisé / mois</th><th class="n">Odegia / mois</th><th class="n">Net / mois</th></tr></thead>
+    <tbody>${c.positions.map((p) => { const u = uniteId.get(p.id)!; return `<tr><td>${esc(u.nom)}${p.demande ? `<span class="sous">à votre demande</span>` : ""}</td><td class="n">${euros(u.gainMensuel)}</td><td class="n">${euros(p.mensualite)}</td><td class="n">${solde(p.gainNetMensuel)}</td></tr>`; }).join("")}</tbody>
+  </table>
+  <p class="note">Montants avant remises, chaque automatisation lue seule. Les remises du devis s'appliquent au total.</p>` : "";
+const tableCandidats = !c.positions.length && candidats.length ? `
+  <table class="dense candidats">
+    <thead><tr><th>Automatisation possible</th><th class="n">H économisées / mois</th><th class="n">Économisé / mois</th><th class="n">Odegia / mois</th><th class="n">Net</th><th class="n">Seuil</th></tr></thead>
+    <tbody>${candidats.map((k) => `<tr><td>${esc(uniteId.get(k.id)!.nom)}</td><td class="n">${heures(k.heuresRecuperees)} h</td><td class="n">${euros(k.gainMensuel)}</td><td class="n">${euros(k.mensualite)}</td><td class="n">${solde(k.netMensuel)}</td><td class="n">${k.heuresSeuil === null ? "" : `${heures(k.heuresSeuil)} h`}</td></tr>`).join("")}</tbody>
+  </table>
+  <p class="note">Seuil, les heures économisées par mois à partir desquelles la mensualité est couverte. Sur deux ans, la première coûte ${euros(candidats[0].cout24)} et fait économiser ${euros(candidats[0].rendu24)}.</p>
+  <p class="prose">Ce calcul ne compte que le temps. Il ignore la charge mentale d'une tâche qui revient, et ce que vous feriez des heures libérées. Si ces deux coûts pèsent plus lourd pour vous, vous pouvez lancer une automatisation quand même, en connaissance de cause.</p>` : "";
+const partie5Gain = `
+<section class="page">
+  <p class="eyebrow">05</p>
+  <h1>Ce que coûte Odegia, et ce que vous gagnez</h1>
+  ${gainNet}
+  ${tableNet}
+  ${tableCandidats}
+</section>`;
+
 const partie4Vide = `
 <section class="page">
-  <p class="eyebrow">04</p>
-  <h1>Ce que ça coûte</h1>
+  <p class="eyebrow">06</p>
+  <h1>Le devis</h1>
   <div class="accroche accroche-neutre"><p>Le calcul ne recommande aucune automatisation aujourd'hui.</p></div>
   <p class="prose">${offert ? "Ce diagnostic vous a été offert." : `Conformément à notre engagement, le diagnostic de ${euros(entree.diagnostic.prix)} vous est remboursé, l'automatisation n'étant pas la réponse à votre volume actuel.`} La feuille de route qui suit reste valable, et le calcul se refait sans frais le jour où votre volume change.</p>
   ${candidats.length ? (() => {
@@ -312,8 +331,8 @@ const partie4Vide = `
 </section>`;
 const partie4 = c.recommandees.length === 0 ? partie4Vide : `
 <section class="page">
-  <p class="eyebrow">04</p>
-  <h1>Ce que ça coûte</h1>
+  <p class="eyebrow">06</p>
+  <h1>Le devis</h1>
   <div class="parties">
     <div><span class="etiquette">Émetteur</span><p>${LEGAL.editeur}, marque Odegia<br/>${LEGAL.siege}<br/>SIREN ${LEGAL.siren} · TVA ${LEGAL.tva}<br/>${SITE.email}</p></div>
     <div><span class="etiquette">Client</span><p>${esc(entree.client.entite)}<br/>${esc(entree.client.representant)}${entree.client.adresse ? `<br/>${esc(entree.client.adresse)}` : ""}</p></div>
@@ -323,7 +342,7 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
     <thead><tr><th>Désignation</th><th class="n">Par mois, HT</th></tr></thead>
     <tbody>
       ${lignesDevis}
-      ${d.remisePack ? `<tr class="remise"><td>Remise de parc, ${Math.round(c.parametres.REMISE_PACK * 100)} % dès la troisième brique</td><td class="n">− ${euros(d.remisePackEuros)}</td></tr>` : ""}
+      ${d.remisePack ? `<tr class="remise"><td>Remise de ${Math.round(c.parametres.REMISE_PACK * 100)} % dès la troisième automatisation</td><td class="n">− ${euros(d.remisePackEuros)}</td></tr>` : ""}
       ${d.remiseGroupe ? `<tr class="remise"><td>Remise client du groupe Orbis Optima, pendant les ${E} premiers mois</td><td class="n">− ${euros(d.remiseGroupeEuros)}</td></tr>` : ""}
       ${offert ? `<tr class="remise"><td>Diagnostic d'une valeur de ${euros(entree.diagnostic.prix)}, offert</td><td class="n">inclus</td></tr>` : ""}
     </tbody>
@@ -336,12 +355,12 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
   <div class="suivi">
     <span class="etiquette">Ce que la mensualité comprend, et sa durée</span>
     <p><strong>La construction, la surveillance, la correction des dérives et les ajustements.</strong> Vous ne payez rien d'avance, la première mensualité est prélevée à la commande.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
-    <p>Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteEnsuiteHT)} HT.` : ""} Ensuite vous arrêtez avec trente jours de préavis, ou vous rachetez ${c.recommandees.length > 1 ? "ces briques" : "cette brique"} pour ${R} mensualités, ${euros(d.rachatHT)} HT, et ${c.recommandees.length > 1 ? "elles vous restent acquises" : "elle vous reste acquise"}.</p>
+    <p>Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteEnsuiteHT)} HT.` : ""} Ensuite vous arrêtez avec trente jours de préavis, ou vous rachetez ${c.recommandees.length > 1 ? "ces automatisations" : "cette automatisation"} pour ${R} mensualités, ${euros(d.rachatHT)} HT, et ${c.recommandees.length > 1 ? "elles vous restent acquises" : "elle vous reste acquise"}.</p>
   </div>
   <ul class="conditions">
     <li>Vos abonnements aux outils restent à votre nom et sont réglés par vous.</li>
     <li>Aucun accès à un compte bancaire ni à un moyen de paiement, y compris en lecture.</li>
-    <li>Règles et limites de chaque brique écrites et validées avec vous avant construction.</li>
+    <li>Règles et limites de chaque automatisation écrites et validées avec vous avant construction.</li>
   </ul>
   <div class="accord"><span>Bon pour accord, date et signature</span></div>
 </section>`;
@@ -356,7 +375,7 @@ const liste = (ids: string[]) =>
 const fmtCadence = (m: number) => (m >= 60 ? `${heures(m / 60)} h` : `${m} min`);
 const semaines = (p: { debut: number; fin: number }) =>
   p.debut === p.fin ? `semaine ${p.debut}` : `semaines ${p.debut} à ${p.fin}`;
-const socle = [
+const fondations = [
   f.eliminer.length ? `<p><strong>Supprimer d'abord.</strong> Ces tâches disparaissent avant toute construction.</p>${liste(f.eliminer)}` : "",
   f.rassembler.length ? `<p><strong>Rassembler les informations</strong> aujourd'hui dispersées, dans une seule base.</p>${liste(f.rassembler)}` : "",
   f.documenter.length ? `<p><strong>Écrire les règles</strong> qui ne le sont nulle part, avant de les confier à un système ou à une personne.</p>${liste(f.documenter)}` : "",
@@ -364,16 +383,16 @@ const socle = [
 ].join("");
 const partie5 = `
 <section class="page">
-  <p class="eyebrow">05</p>
+  <p class="eyebrow">04</p>
   <h1>Votre feuille de route</h1>
   ${c.definition ? `<div class="definition"><div><span class="etiquette">Ce que vous produisez</span><p>${esc(c.definition.produit)}</p></div><div><span class="etiquette">Pour qui</span><p>${esc(c.definition.pourQui)}</p></div><div><span class="etiquette">Par quel flux</span><p>${esc(c.definition.fluxDeValeur)}</p></div></div>` : ""}
   ${para(r.feuilleDeRoute)}
   <p class="note">Délais indicatifs, comptés en semaines à partir de la signature.</p>
   <ol class="temps">
-    <li><span class="rang">1</span><div><h3>Le socle <span class="delai">${semaines(f.calendrier.socle)}</span></h3>${socle}</div></li>
-    <li><span class="rang">2</span><div><h3>La construction ${f.calendrier.briques.length ? `<span class="delai">${semaines({ debut: f.calendrier.briques[0].debut, fin: f.calendrier.briques[f.calendrier.briques.length - 1].fin })}</span>` : ""}</h3>${f.construire.length ? `<p>Dans l'ordre de la page 3.</p><ul class="puces">${f.construire.map((u) => { const cal = f.calendrier.briques.find((x) => x.id === u.id)!; return `<li>${esc(uniteId.get(u.id)!.nom)}, ${u.niveau === 3 ? "vous validez avant envoi" : "part seule"}, ${semaines(cal)}</li>`; }).join("")}</ul>` : "<p>Au seul calcul du temps, aucune construction ne se justifie.</p>"}${f.deleguer.length ? `<p><strong>À confier à quelqu'un</strong>, avec des instructions écrites. ${f.construire.length ? "Ces tâches restent hors de la construction, trop légères pour couvrir leur mensualité." : "À ce volume, leur automatisation coûterait plus qu'elle ne rend."}</p>${liste(f.deleguer)}` : ""}</div></li>
-    <li><span class="rang">3</span><div><h3>La supervision ${f.calendrier.supervision ? `<span class="delai">${semaines(f.calendrier.supervision)}</span>` : ""}</h3>${f.calendrier.supervision ? `<p>Une semaine de mise en place après la première livraison, puis quatre semaines de rodage où tout passe par votre validation.</p>` : ""}<p>${f.fileExceptions.length ? "Tout ce qui attend votre validation arrive dans une seule file, au lieu d'être éparpillé dans vos mails. " : ""}Un tableau montre ce qui tourne. Vous le regardez ${[[f.cadence.jour, "par jour"], [f.cadence.semaine, "par semaine"], [f.cadence.mois, "par mois"]].filter(([m]) => (m as number) > 0).map(([m, u]) => `${fmtCadence(m as number)} ${u}`).join(", ")}, et vous ne touchez plus à l'exécution.</p></div></li>
-    <li><span class="rang">4</span><div><h3>Le calibrage ${f.calendrier.calibrage ? `<span class="delai">dès la semaine ${f.calendrier.calibrage}, en continu</span>` : ""}</h3><p>Chaque semaine, la part de ce que le système produit et que vous acceptez sans retouche. Quand elle baisse, on corrige les règles. C'est ce qui rend le système plus juste de mois en mois au lieu de le laisser dériver.</p></div></li>
+    <li><span class="rang">1</span><div><h3>Les fondations <span class="delai">${semaines(f.calendrier.socle)}</span></h3>${fondations}</div></li>
+    <li><span class="rang">2</span><div><h3>La construction ${f.calendrier.briques.length ? `<span class="delai">${semaines({ debut: f.calendrier.briques[0].debut, fin: f.calendrier.briques[f.calendrier.briques.length - 1].fin })}</span>` : ""}</h3>${f.construire.length ? `<p>Dans l'ordre de la page 3.</p><ul class="puces">${f.construire.map((u) => { const cal = f.calendrier.briques.find((x) => x.id === u.id)!; return `<li>${esc(uniteId.get(u.id)!.nom)}, ${autonomie(u.niveau).toLowerCase()}, ${semaines(cal)}</li>`; }).join("")}</ul>` : "<p>Au seul calcul du temps, aucune construction ne se justifie.</p>"}${f.deleguer.length ? `<p><strong>À confier à quelqu'un</strong>, avec des instructions écrites. ${f.construire.length ? "Ces tâches restent hors de la construction, trop légères pour couvrir ce qu'elles coûteraient." : "À ce volume, leur automatisation coûterait plus qu'elle ne fait économiser."}</p>${liste(f.deleguer)}` : ""}</div></li>
+    <li><span class="rang">3</span><div><h3>Le calibrage ${f.calendrier.supervision ? `<span class="delai">${semaines(f.calendrier.supervision)}</span>` : ""}</h3><p>${f.calendrier.supervision ? "Une semaine de mise en place après la première livraison, puis quatre semaines de rodage. " : ""}Tout passe par votre validation, et chaque retouche que vous faites sert à modifier et améliorer les règles, jusqu'à ce que le système produise ce que vous auriez fait.</p></div></li>
+    <li><span class="rang">4</span><div><h3>La supervision allégée ${f.calendrier.calibrage ? `<span class="delai">dès la semaine ${f.calendrier.calibrage}, en continu</span>` : ""}</h3><p>${f.fileExceptions.length ? "Ce qui attend encore votre accord arrive dans une seule file, au lieu d'être éparpillé dans vos mails. " : ""}Un tableau montre ce qui tourne. Vous le regardez ${[[f.cadence.jour, "par jour"], [f.cadence.semaine, "par semaine"], [f.cadence.mois, "par mois"]].filter(([m]) => (m as number) > 0).map(([m, u]) => `${fmtCadence(m as number)} ${u}`).join(", ")}, et nous corrigeons les écarts mineurs au fil de l'eau.</p></div></li>
   </ol>
   ${f.aVotreMain.length ? `<p class="note"><strong>Reste à votre main, par choix.</strong> ${noms(f.aVotreMain).join(" · ")}</p>` : ""}
 </section>`;
@@ -474,7 +493,7 @@ const html = `<!doctype html>
   table.devis td { padding:1.6mm 2mm; }
   .accord { margin-top:5mm; border:1.5px dashed var(--soft); border-radius:12px; height:22mm; padding:3mm 4mm; font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); width:80mm; margin-left:auto; }
 </style></head>
-<body>${partie1}${partie2}${partie3}${partie4}${partie5}</body></html>`;
+<body>${partie1}${partie2}${partie3}${partie5}${partie5Gain}${partie4}</body></html>`;
 
 writeFileSync(join(dossier, "rapport.html"), html, "utf-8");
 

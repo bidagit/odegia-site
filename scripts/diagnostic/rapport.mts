@@ -79,7 +79,9 @@ const pastille = (l: LigneDiag) => {
     case "sur-devis":
       return `<span class="chip chip-ink">Sur devis</span>`;
     default:
-      return l.absorbee
+      return l.absorbee && l.demandeClient
+        ? `<span class="chip chip-gris">À votre demande</span>`
+        : l.absorbee
         ? `<span class="chip chip-gris">Volume trop faible</span>`
         : `<span class="chip chip-vert">Brique ${NOM_PALIER[l.palier!]}</span>`;
   }
@@ -256,7 +258,7 @@ const partie3 = `
         return `<li class="etape">
         <span class="rang">${i + 1}</span>
         <div>
-          <h3>${esc(l.nom)}</h3>
+          <h3>${esc(l.nom)}${p.demande ? ` <span class="delai">à votre demande</span>` : ""}</h3>
           ${l.parcours ? `<p class="ligne-chiffres">Regroupe ${l.taches.map((t) => { const n = parId.get(t)!.nom; return esc(n.charAt(0).toLowerCase() + n.slice(1)); }).join(", ")}</p>` : ""}
           <p class="ligne-chiffres">${heures(l.heuresRecuperees)} h rendues par mois · ${l.encaissementMensuel > 0.5 ? `${euros(l.gainMensuel - l.encaissementMensuel)} de temps et ${euros(l.encaissementMensuel)} d'impayés récupérés par mois` : `${euros(l.gainMensuel)} de temps par mois`} · mensualité ${euros(p.mensualite)} · solde ${solde(p.gainNetMensuel)}</p>
         </div>
@@ -277,7 +279,8 @@ const designation = (u: { parcours: boolean; palier: keyof typeof NOM_PALIER; ni
 const lignesDevis = c.recommandees
   .map((id) => {
     const l = uniteId.get(id)!;
-    return `<tr><td>${esc(l.nom)}<span class="sous">${designation(l)}</span></td><td class="n">${euros(l.mensualite)}</td></tr>`;
+    const dem = c.positions.find((p) => p.id === id)?.demande;
+    return `<tr><td>${esc(l.nom)}<span class="sous">${designation(l, dem ? ", à votre demande" : "")}</span></td><td class="n">${euros(l.mensualite)}</td></tr>`;
   })
   .join("");
 const numero = entree.devis?.numero ?? "à attribuer";
@@ -466,7 +469,10 @@ const html = `<!doctype html>
   .temps > li { display:flex; gap:4mm; align-items:flex-start; border-bottom:1px solid #dfe5e2; padding-bottom:3mm; break-inside:avoid; }
   .temps p { margin:1.2mm 0 0; font-size:9.2pt; }
   .puces { margin:1mm 0 0; padding-left:4.5mm; font-size:9pt; color:var(--soft); }
-  .accord { margin-top:9mm; border:1.5px dashed var(--soft); border-radius:12px; height:26mm; padding:3mm 4mm; font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); width:80mm; margin-left:auto; }
+  /* Devis resserre le 17/10/2026, avec trois briques et deux remises la case de
+     signature passait sur une page blanche. */
+  table.devis td { padding:1.6mm 2mm; }
+  .accord { margin-top:5mm; border:1.5px dashed var(--soft); border-radius:12px; height:22mm; padding:3mm 4mm; font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); width:80mm; margin-left:auto; }
 </style></head>
 <body>${partie1}${partie2}${partie3}${partie4}${partie5}</body></html>`;
 

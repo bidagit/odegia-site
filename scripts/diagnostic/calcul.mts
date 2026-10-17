@@ -35,7 +35,14 @@ import {
    change a chaque regle de decision, definition de mesure ou grille modifiee,
    et le protocole du vault dit ce que chaque version contient. Un rapport se
    relit toujours avec les regles de sa version. */
-export const METHODE_VERSION = "2.1";
+export const METHODE_VERSION = "2.2";
+
+/* v2.2, decision d Adib du 17/10/2026, diagnostic Alteria. Deleguer suppose
+   quelqu un a qui confier la tache. Un fondateur seul n a personne, et une
+   tache qu il ne veut plus faire reste alors chez lui. Une tache peut porter
+   demandeClient, la raison dite par le client, et son unite entre au devis
+   meme quand sa mensualite absorbe son gain, apres les unites recommandees,
+   jamais en tete, son solde negatif affiche tel quel. */
 
 /* v2.1, decision d Adib du 17/10/2026, nee du diagnostic Alteria. Une tache
    qu on ne fait pas ne coute aucun temps, la methode ne voyait donc rien a y
@@ -183,6 +190,9 @@ export type TacheDiag = {
      une facture, et part de ce montant qui n est jamais payee aujourd hui. Le
      nombre d occurrences est la frequence de la tache. */
   encaissement?: { montantOccurrence: number; partNonEncaissee: number; source?: string };
+  /* v2.2, le client veut cette tache dans le perimetre malgre le calcul, raison
+     dans ses mots. */
+  demandeClient?: string;
 };
 
 export type Entree = {
@@ -441,9 +451,14 @@ export function diagnostiquer(e: Entree) {
       agaceEcartee = true;
     }
   }
-  const recommandees = tri.slice(0, 3);
+  /* v2.2, les unites demandees par le client viennent apres les recommandees,
+     sans compter dans la limite de trois, jamais en tete. */
+  const demandees = unites.filter(
+    (u) => u.absorbee && u.taches.some((id) => lignes.find((l) => l.id === id)?.demandeClient)
+  );
+  const recommandees = [...tri.slice(0, 3), ...demandees];
   const suivantes = tri.slice(3);
-  const tete = recommandees[0] ?? null;
+  const tete = tri[0] ?? null;
 
   /* Le chiffre de tete, ce que la premiere brique laisse chaque mois une fois
      sa mensualite payee. C est le seul chiffre en gras du rapport. */
@@ -452,6 +467,7 @@ export function diagnostiquer(e: Entree) {
   /* Chaque brique a sa place dans l ordre, avec sa mensualite et son solde. */
   const positions = recommandees.map((l) => ({
     id: l.id, mensualite: l.mensualite, gainNetMensuel: l.gainNetMensuel,
+    demande: demandees.includes(l),
   }));
 
   /* La mensualite du perimetre. Remise de parc d abord, sans fin, puis remise

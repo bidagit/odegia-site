@@ -1,0 +1,205 @@
+{
+  "name": "Odegia — Exceptions",
+  "nodes": [
+    {
+      "id": "e1",
+      "name": "Erreur",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "e2",
+      "name": "Mise en forme",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Ce que n8n transmet d'un workflow client en echec, mis a plat pour NocoDB.\n// Nom attendu du workflow client, « Odegia | <client> | <brique> | <libelle> ».\nconst crypto = require('crypto');\nconst e = $input.first().json;\nconst wf = e.workflow || {};\nconst ex = e.execution || {};\nconst err = ex.error || {};\nconst nom = String(wf.name || '');\nconst parts = nom.split(' | ').map(s => s.trim());\nconst client = parts[0] === 'Odegia' && parts[1] ? parts[1] : 'inconnu';\nconst BRIQUES = [\"fondations\", \"devis\", \"onboarding\", \"facturation\", \"comptes-rendus\", \"reporting\", \"rendez-vous\", \"mails\", \"pieces\", \"appels-offres\"];\nconst brique = BRIQUES.includes(parts[2]) ? parts[2] : 'inconnue';\nconst etape = String(ex.lastNodeExecuted || (err.node && err.node.name) || '');\n// n8n coupe le texte d'une erreur de code au premier deux-points, entre message\n// et description. Les deux se recollent pour garder la phrase entiere.\nconst message = [err.message, err.description].filter(Boolean).join(' | ').slice(0, 2000)\n  || 'erreur sans message';\n// La signature ignore les nombres, un identifiant ou une heure dans le message\n// ne doit pas faire passer la meme panne pour une nouvelle.\nconst signature = crypto.createHash('sha256')\n  .update([wf.id || '', etape, message.replace(/\\d+/g, '#').slice(0, 300)].join('|'))\n  .digest('hex').slice(0, 32);\nreturn [{ json: {\n  Titre: `${client}, ${brique}, ${etape || 'étape inconnue'}`.slice(0, 250),\n  Client: client, Brique: brique, Workflow: nom, 'Workflow id': String(wf.id || ''),\n  'Exécution': ex.url || '', 'Étape en échec': etape, Message: message,\n  Signature: signature, Statut: 'ouverte', Survenue: new Date().toISOString(),\n  _fictif: client === 'Client fictif Odegia',\n} }];"
+      }
+    },
+    {
+      "id": "e3",
+      "name": "Deja ouverte",
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        440,
+        0
+      ],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true,
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "iipCm2r1fUmLt79K",
+          "name": "NocoDB Orbis"
+        }
+      },
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "getAll",
+        "projectId": "pz1q8vemmvpi4jg",
+        "table": "mf6mqbnkrlcpixt",
+        "returnAll": false,
+        "limit": 1,
+        "options": {
+          "where": "=(Signature,eq,{{ $json.Signature }})~and(Statut,neq,close)"
+        }
+      }
+    },
+    {
+      "id": "e4",
+      "name": "Nouvelle",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Alerte a l'apparition seulement. Une exception de meme signature encore\n// ouverte veut dire qu'Adib est deja prevenu. Si NocoDB ne repond pas, la\n// reponse n'a pas de liste et l'exception passe pour nouvelle, mieux vaut\n// une alerte de trop qu'une panne muette.\n// Le noeud NocoDB rend une ligne par exception trouvee, et un objet vide quand\n// il n'y en a aucune, grace a alwaysOutputData.\nif ($input.all().some(i => i.json && i.json.Id)) return [];\n// Seules les colonnes de la table partent, les champs en _ restent ici.\nconst d = $('Mise en forme').first().json;\nreturn [{ json: Object.fromEntries(Object.entries(d).filter(([k]) => !k.startsWith('_'))) }];"
+      }
+    },
+    {
+      "id": "e5",
+      "name": "Enregistrer",
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [
+        880,
+        0
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "iipCm2r1fUmLt79K",
+          "name": "NocoDB Orbis"
+        }
+      },
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "create",
+        "projectId": "pz1q8vemmvpi4jg",
+        "table": "mf6mqbnkrlcpixt",
+        "dataToSend": "autoMapInputData"
+      }
+    },
+    {
+      "id": "e6",
+      "name": "Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Apres un noeud HTTP, on relit Mise en forme. Le client de recette n'alerte jamais.\nconst d = $('Mise en forme').first().json;\nif (d._fictif) return [];\nconst CHAT_ID = '';\nif (!CHAT_ID) throw new Error('CHAT_ID non renseigne dans le noeud Message');\nconst h = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst texte = `<b>Odegia, exception</b>\\n${h(d.Client)}, brique ${h(d.Brique)}\\n` +\n  `Étape ${h(d['Étape en échec'] || 'inconnue')}\\n${h(d.Message).slice(0, 600)}\\n\\n` +\n  `Workflow ${h(d.Workflow)}\\nFile d'exceptions dans NocoDB Orbis.`;\nreturn [{ json: { chatId: CHAT_ID, texte } }];"
+      }
+    },
+    {
+      "id": "e7",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1320,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "RBOIIPMFDZbPIqH4",
+          "name": "Telegram Assistant"
+        }
+      },
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.texte }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Erreur": {
+      "main": [
+        [
+          {
+            "node": "Mise en forme",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mise en forme": {
+      "main": [
+        [
+          {
+            "node": "Deja ouverte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deja ouverte": {
+      "main": [
+        [
+          {
+            "node": "Nouvelle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nouvelle": {
+      "main": [
+        [
+          {
+            "node": "Enregistrer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enregistrer": {
+      "main": [
+        [
+          {
+            "node": "Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Paris"
+  }
+}

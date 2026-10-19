@@ -36,6 +36,11 @@ try:
     open(pdf, "ab").close()
 except PermissionError:
     from datetime import datetime
+    # Une seule version de secours a la fois, les precedentes partent dans
+    # archives avant d en ecrire une nouvelle.
+    for ancien in dossier.glob("rapport-*.pdf"):
+        (dossier / "archives").mkdir(exist_ok=True)
+        ancien.replace(dossier / "archives" / f"rapport-{datetime.now():%Y-%m-%d}-{ancien.stem.split('-')[-1]}.pdf")
     pdf = dossier / f"rapport-{datetime.now():%H%M}.pdf"
     print(f"rapport.pdf est ouvert ailleurs, nouvelle version dans {pdf.name}")
 

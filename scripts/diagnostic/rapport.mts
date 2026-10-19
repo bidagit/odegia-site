@@ -137,15 +137,6 @@ const ligneCout = (l: LigneDiag) =>
   `<tr><td>${esc(l.nom)}</td><td>${frequence(l.frequenceRetenue)}${l.plafonnee ? "*" : ""}</td><td>${duree(l.dureeMinutes)}</td>${proj ? `<td class="n passe">${heures(l.heuresMoisMesure)}</td>` : ""}<td class="n">${heures(l.heuresMois)}</td><td class="n">${euros(l.coutAnnuel)}</td></tr>`;
 const partie1 = `
 <section class="page">
-  <header class="entete">
-    <img src="data:image/png;base64,${logo}" alt="Odegia" class="logo" />
-    <div class="meta">
-      <span>Diagnostic administratif</span>
-      <span>${esc(entree.client.entite)}</span>
-      <span>${dateFr(dateRapport)}</span>
-      <span>Méthode v${c.methode}</span>
-    </div>
-  </header>
   <p class="eyebrow">01</p>
   <h1>Ce que votre administratif vous coûte${proj ? ", et ce qu'il vous coûtera" : ""}</h1>
   ${para(r.synthese)}
@@ -272,7 +263,6 @@ const nTaches = c.recommandees.reduce((a, id) => a + uniteId.get(id)!.taches.len
 const lignesDevis = `<tr><td>Votre administratif automatisé, ${nTaches} tâches<span class="sous">${c.recommandees.map((id) => esc(uniteId.get(id)!.nom)).join(" · ")}</span></td><td class="n">${euros(c.devis.mensualitePleine)}</td></tr>`;
 const numero = entree.devis?.numero ?? "à attribuer";
 const E = c.parametres.ENGAGEMENT_MOIS;
-const R = c.parametres.RACHAT_MENSUALITES;
 
 /* Rien a construire, pas de devis. La page dit ce qui se passe pour le
    diagnostic, offert, ou rembourse s il avait ete paye. */
@@ -355,7 +345,7 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
   <div class="suivi">
     <span class="etiquette">Ce que la mensualité comprend, et sa durée</span>
     <p><strong>La construction, la surveillance, la correction des dérives et les ajustements.</strong> Vous ne payez rien d'avance, la première mensualité est prélevée à la commande.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
-    <p>Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteEnsuiteHT)} HT.` : ""} Ensuite vous arrêtez avec trente jours de préavis, ou vous rachetez ${c.recommandees.length > 1 ? "ces automatisations" : "cette automatisation"} pour ${R} mensualités, ${euros(d.rachatHT)} HT, et ${c.recommandees.length > 1 ? "elles vous restent acquises" : "elle vous reste acquise"}.</p>
+    <p>Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteEnsuiteHT)} HT.` : ""} Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis.</p>
   </div>
   <ul class="conditions">
     <li>Vos abonnements aux outils restent à votre nom et sont réglés par vous.</li>
@@ -395,6 +385,48 @@ const partie5 = `
     <li><span class="rang">4</span><div><h3>La supervision allégée ${f.calendrier.calibrage ? `<span class="delai">dès la semaine ${f.calendrier.calibrage}, en continu</span>` : ""}</h3><p>${f.fileExceptions.length ? "Ce qui attend encore votre accord arrive dans une seule file, au lieu d'être éparpillé dans vos mails. " : ""}Un tableau montre ce qui tourne. Vous le regardez ${[[f.cadence.jour, "par jour"], [f.cadence.semaine, "par semaine"], [f.cadence.mois, "par mois"]].filter(([m]) => (m as number) > 0).map(([m, u]) => `${fmtCadence(m as number)} ${u}`).join(", ")}, et nous corrigeons les écarts mineurs au fil de l'eau.</p></div></li>
   </ol>
   ${f.aVotreMain.length ? `<p class="note"><strong>Reste à votre main, par choix.</strong> ${noms(f.aVotreMain).join(" · ")}</p>` : ""}
+</section>`;
+
+/* ── 0. En bref ────────────────────────────────────────────────────────────── */
+/* Demande d Adib du 19/10/2026. Une page qui dit tout le rapport en trois
+   etapes flechees et peu de mots, ce que l administratif coute, ce qu Odegia
+   apporte, ce qu Odegia coute, puis le gain net. Tout se lit par mois, une
+   seule unite pour comparer. Les chiffres sont ceux des pages suivantes. */
+const coutMois = c.totaux.coutAnnuel / 12;
+const impayesMois = c.totaux.perteAnnuelleMesuree / 12;
+const etapeResume = (n: string, titre: string, valeur: string, legende: string, ton = "") =>
+  `<div class="resume-etape ${ton}"><span class="resume-n">${n}</span><span class="etiquette">${titre}</span><span class="resume-valeur">${valeur}</span><span class="legende">${legende}</span></div>`;
+const fleche = `<span class="resume-fleche">→</span>`;
+const fdr = c.feuilleDeRoute.calendrier;
+const resume0 = `
+<section class="page">
+  <header class="entete">
+    <img src="data:image/png;base64,${logo}" alt="Odegia" class="logo" />
+    <div class="meta">
+      <span>Diagnostic administratif</span>
+      <span>${esc(entree.client.entite)}</span>
+      <span>${dateFr(dateRapport)}</span>
+      <span>Méthode v${c.methode}</span>
+    </div>
+  </header>
+  <p class="eyebrow">En bref</p>
+  <h1>Votre diagnostic sur une page</h1>
+  <div class="resume">
+    ${etapeResume("1", "Ce que vous coûte l'administratif", `${euros(coutMois)}`, `par mois, ${heures(c.totaux.heuresMois)} h de votre temps${impayesMois > 0.5 ? `, et environ ${euros(impayesMois)} d'impayés chaque mois aujourd'hui` : ""}`)}
+    ${fleche}
+    ${b ? etapeResume("2", "Ce qu'Odegia vous apporte", `${euros(b.valeur)}`, `par mois, ${heures(b.heures)} h économisées${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}`, "resume-vert") : etapeResume("2", "Ce qu'Odegia vous apporte", "—", "aucune automatisation ne se justifie à ce volume")}
+    ${fleche}
+    ${b ? etapeResume("3", "Ce qu'Odegia vous coûte", `${euros(b.mensualite)}`, `par mois${b.ensuite !== b.mensualite ? `, la première année, puis ${euros(b.ensuite)}` : ""}, rien à payer d'avance`) : etapeResume("3", "Ce qu'Odegia vous coûte", "0 €", "le diagnostic est offert")}
+  </div>
+  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span>Ce que vous gagnez</span><strong>${solde(b.solde)} net par mois</strong>${b.ensuite !== b.mensualite ? `<span>la première année, puis ${solde(b.valeur - b.ensuite)}</span>` : ""}</div>` : ""}
+  ${c.positions.length ? `<div class="resume-bloc"><span class="etiquette">Ce qui s'automatise</span><ul class="resume-chips">${c.positions.map((p) => `<li>${esc(uniteId.get(p.id)!.nom)}</li>`).join("")}</ul></div>` : ""}
+  ${fdr.briques.length ? `<div class="resume-bloc"><span class="etiquette">Comment ça se passe</span><div class="resume-temps">
+    <div><strong>Fondations</strong><span>${semaines(fdr.socle)}</span></div>${fleche}
+    <div><strong>Construction</strong><span>${semaines({ debut: fdr.briques[0].debut, fin: fdr.briques[fdr.briques.length - 1].fin })}</span></div>${fleche}
+    ${fdr.supervision ? `<div><strong>Calibrage</strong><span>${semaines(fdr.supervision)}</span></div>${fleche}` : ""}
+    ${fdr.calibrage ? `<div><strong>Supervision allégée</strong><span>dès la semaine ${fdr.calibrage}</span></div>` : ""}
+  </div></div>` : ""}
+  <p class="note">Le détail de chaque chiffre suit, page par page. Montants hors taxes.</p>
 </section>`;
 
 const html = `<!doctype html>
@@ -491,6 +523,24 @@ const html = `<!doctype html>
   /* Devis resserre le 17/10/2026, avec trois briques et deux remises la case de
      signature passait sur une page blanche. */
   table.devis td { padding:1.6mm 2mm; }
+  /* Page de resume. */
+  .resume { display:flex; align-items:stretch; gap:2mm; margin:4mm 0 5mm; }
+  .resume-etape { flex:1; border:2px solid var(--ink); border-radius:14px; padding:4.5mm; box-shadow:4px 4px 0 var(--ink); display:flex; flex-direction:column; gap:1.5mm; background:#fff; }
+  .resume-vert { background:var(--vert-soft); }
+  .resume-n { font: 800 11pt "Outfit", sans-serif; width:7mm; height:7mm; border-radius:50%; border:2px solid var(--ink); display:flex; align-items:center; justify-content:center; background:var(--banane); }
+  .resume-valeur { font: 800 22pt/1 "Outfit", sans-serif; letter-spacing:-.02em; font-variant-numeric: tabular-nums; }
+  .resume-fleche { align-self:center; font: 800 18pt "Outfit", sans-serif; }
+  .resume-net { border:2px solid var(--ink); border-radius:14px; background:var(--banane); box-shadow:4px 4px 0 var(--ink); padding:5mm 6mm; display:flex; align-items:baseline; gap:4mm; flex-wrap:wrap; margin-bottom:7mm; }
+  .resume-net strong { font: 800 22pt/1 "Outfit", sans-serif; }
+  .resume-net span { font-size:9pt; }
+  .resume-negatif { background:var(--rose-soft); }
+  .resume-bloc { margin-bottom:6mm; }
+  .resume-chips { list-style:none; padding:0; margin:2mm 0 0; display:flex; flex-wrap:wrap; gap:2mm; }
+  .resume-chips li { border:1.5px solid var(--ink); border-radius:999px; padding:1.2mm 3.5mm; font-size:8.5pt; background:var(--vert-soft); }
+  .resume-temps { display:flex; align-items:stretch; gap:2mm; margin-top:2mm; }
+  .resume-temps > div { flex:1; border:1.5px solid var(--ink); border-radius:10px; padding:2.5mm 3mm; display:flex; flex-direction:column; gap:.5mm; }
+  .resume-temps strong { font-size:9pt; }
+  .resume-temps > div span { font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--vert); }
   /* Schema flechee des taches enchainees, page 3. */
   .flux { display:flex; align-items:stretch; gap:1.5mm; margin:2.5mm 0 2mm; }
   .flux-etape { flex:1; border:1.5px solid var(--ink); border-radius:9px; padding:2mm 2.5mm; background:var(--vert-soft); display:flex; flex-direction:column; justify-content:space-between; gap:1mm; }
@@ -499,7 +549,7 @@ const html = `<!doctype html>
   .flux-fleche { align-self:center; font: 800 13pt "Outfit", sans-serif; color:var(--ink); }
   .accord { margin-top:5mm; border:1.5px dashed var(--soft); border-radius:12px; height:22mm; padding:3mm 4mm; font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); width:80mm; margin-left:auto; }
 </style></head>
-<body>${partie1}${partie2}${partie3}${partie5}${partie5Gain}${partie4}</body></html>`;
+<body>${resume0}${partie1}${partie2}${partie3}${partie5}${partie5Gain}${partie4}</body></html>`;
 
 writeFileSync(join(dossier, "rapport.html"), html, "utf-8");
 

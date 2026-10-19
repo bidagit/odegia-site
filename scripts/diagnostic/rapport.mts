@@ -269,7 +269,7 @@ const partie3 = `
           <h3>${esc(l.nom)}${p.demande ? ` <span class="delai">à votre demande</span>` : ""}</h3>
           <p class="ligne-chiffres">${designationClient(l)}</p>
           ${l.parcours
-            ? `<div class="flux">${l.taches.map((t) => { const x = parId.get(t)! as LigneDiag & { icone?: string }; return `<div class="flux-etape"><span class="flux-icone">${icone(x.icone)}</span><span class="flux-nom">${esc(x.etiquette ?? x.nom)}</span><span class="flux-mode">${x.niveau === 4 ? "100 % autonome" : "vous validez"}</span></div>`; }).join(`<span class="flux-fleche">→</span>`)}</div>`
+            ? `<div class="flux">${l.taches.map((t) => { const x = parId.get(t)! as LigneDiag & { icone?: string }; return `<div class="flux-etape"><span class="flux-icone">${icone(x.icone)}</span><span class="flux-nom">${esc(x.etiquette ?? x.nom)}</span><span class="flux-mode">${x.niveau === 4 ? "100 % autonome" : "vous validez"}</span></div>`; }).join(`<span class="flux-fleche">→</span>`)}</div>${l.taches.map((t) => { const x = parId.get(t)! as LigneDiag & { illustration?: Etape[] }; return x.illustration?.length ? `<p class="flux-zoom">Zoom, ${esc((x.etiquette ?? x.nom).toLowerCase())}</p><div class="flux flux-petit">${x.illustration.map((e) => `<div class="flux-etape ${e.vous ? "flux-vous" : ""}"><span class="flux-icone">${icone(e.icone)}</span><span class="flux-nom">${esc(e.texte)}</span></div>`).join(`<span class="flux-fleche">→</span>`)}</div>` : ""; }).join("")}`
             : (() => { const x = parId.get(l.taches[0]) as (LigneDiag & { illustration?: Etape[] }) | undefined; return x?.illustration?.length ? `<div class="flux">${x.illustration.map((e) => `<div class="flux-etape ${e.vous ? "flux-vous" : ""}"><span class="flux-icone">${icone(e.icone)}</span><span class="flux-nom">${esc(e.texte)}</span></div>`).join(`<span class="flux-fleche">→</span>`)}</div>` : ""; })()}
           <p class="ligne-chiffres">${economie(vue(l))}${proj && l.gainMensuel - l.gainMensuelMesure > 0.5 ? `, jusqu'à ${euros(l.gainMensuel)} selon votre estimation` : ""}</p>
         </div>
@@ -525,8 +525,8 @@ const html = `<!doctype html>
   .accroche strong { font-weight:800; }
   .accroche-neutre { background:var(--alt); box-shadow:4px 4px 0 var(--ink); }
   .accroche-neutre p { font-size:13pt; }
-  .ordre { list-style:none; padding:0; margin:0 0 6mm; display:flex; flex-direction:column; gap:4mm; }
-  .etape { display:flex; gap:4mm; align-items:flex-start; border-bottom:1px solid #dfe5e2; padding-bottom:4mm; }
+  .ordre { list-style:none; padding:0; margin:0 0 6mm; display:flex; flex-direction:column; gap:2.5mm; }
+  .etape { display:flex; gap:4mm; align-items:flex-start; border-bottom:1px solid #dfe5e2; padding-bottom:2.5mm; }
   .rang { flex-shrink:0; width:9mm; height:9mm; border-radius:99px; border:2px solid var(--ink); display:flex; align-items:center; justify-content:center; font: 600 9pt "Geist Mono", monospace; background:var(--vert-soft); }
   .etape:first-child .rang { background:var(--banane); }
   .ligne-chiffres { margin:1mm 0 0; font-size:8.5pt; color:var(--soft); font-variant-numeric: tabular-nums; }
@@ -610,11 +610,16 @@ const html = `<!doctype html>
   .frise-barre { position:absolute; top:0; height:100%; border:1.5px solid var(--ink); border-radius:3px; background:var(--menthe); font: 500 6.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.06em; display:flex; align-items:center; padding-left:1.5mm; white-space:nowrap; overflow:hidden; }
   .frise-continu { background:var(--banane); }
   .flux-icone { color:var(--vert); display:flex; }
+  /* Zoom sur une etape d une chaine, le devis d Alteria, demande d Adib du
+     19/10/2026, c est la douleur que le client cite le plus. */
+  .flux-zoom { font: 500 6.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); margin:1.5mm 0 0; }
+  .flux-petit { margin-top:1mm; }
+  .flux-petit .flux-etape { padding:1.5mm 2mm; }
   .flux-vous { background:var(--banane) !important; }
   /* Schema flechee des taches enchainees, page 3. */
-  .flux { display:flex; align-items:stretch; gap:1.5mm; margin:2.5mm 0 2mm; }
-  .flux-etape { flex:1; border:1.5px solid var(--ink); border-radius:9px; padding:2mm 2.5mm; background:var(--vert-soft); display:flex; flex-direction:column; justify-content:space-between; gap:1mm; }
-  .flux-nom { font: 600 8.5pt/1.25 "Geist", sans-serif; }
+  .flux { display:flex; align-items:stretch; gap:1.5mm; margin:1.5mm 0 1.5mm; }
+  .flux-etape { flex:1; border:1.5px solid var(--ink); border-radius:9px; padding:1.5mm 2.2mm; background:var(--vert-soft); display:flex; flex-direction:column; justify-content:space-between; gap:.6mm; }
+  .flux-nom { font: 600 8pt/1.2 "Geist", sans-serif; }
   .flux-mode { font: 500 6.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--vert); }
   .flux-fleche { align-self:center; font: 800 13pt "Outfit", sans-serif; color:var(--ink); }
   .accord { margin-top:5mm; border:1.5px dashed var(--soft); border-radius:12px; height:22mm; padding:3mm 4mm; font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); width:80mm; margin-left:auto; }

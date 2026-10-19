@@ -359,6 +359,7 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
     <li>Vos abonnements aux outils restent à votre nom et sont réglés par vous.</li>
     <li>Aucun accès à un compte bancaire ni à un moyen de paiement, y compris en lecture.</li>
     <li>Règles et limites de chaque automatisation écrites et validées avec vous avant construction.</li>
+    <li>À tout moment, vous pouvez reprendre vos automatisations à votre compte. Nous vous les transférons contre des frais de mise en place égaux à ${c.parametres.RACHAT_MENSUALITES} mensualités au prix en vigueur, soit ${euros(d.mensualiteHT * c.parametres.RACHAT_MENSUALITES)} HT${d.mensualiteEnsuiteHT !== d.mensualiteHT ? ` la première année, puis ${euros(d.mensualiteEnsuiteHT * c.parametres.RACHAT_MENSUALITES)} HT` : ""}. Vous assurez ensuite vous-même les corrections, mises à jour et améliorations, et la mensualité s'arrête au transfert.</li>
   </ul>
   <div class="accord"><span>Bon pour accord, date et signature</span></div>
 </section>`;

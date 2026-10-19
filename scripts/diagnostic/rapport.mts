@@ -134,7 +134,7 @@ const encadrePlafond = plafonnees.length || engagees.length
   ? `<div class="plafond"><span class="etiquette">Un plafond de prudence</span><p>Le calcul retient votre estimation des douze prochains mois, plafonnée à ${c.parametres.PLAFOND_PROJECTION} fois ce qui a été mesuré sur les douze derniers. ${plafonnees.length ? `Le plafond s'applique à ${nb(plafonnees.length, "tâche")}, marquées d'une étoile` : "Il ne s'applique à aucune tâche"}${engagees.length ? `, et pas aux ${nb(engagees.length, "tâche")} dont le volume est engagé, ${preuves}` : ""}. ${plafonnees.length ? `Votre estimation donnait ${heures(heuresEstimees)} h par mois, le calcul en retient ${heures(c.totaux.heuresMois)}. Les chiffres qui suivent sont donc prudents, et se recalculent sans frais dès que le volume se confirme.` : ""}${c.lignes.some((l) => (l.bascule ?? 0) > 0) ? " Les durées comprennent le temps pour s'y remettre et s'en défaire." : ""}</p></div>`
   : "";
 const ligneCout = (l: LigneDiag) =>
-  `<tr><td>${esc(l.nom)}</td><td>${frequence(l.frequenceRetenue)}${l.plafonnee ? "*" : ""}</td><td>${duree(l.dureeMinutes)}</td>${proj ? `<td class="n passe">${heures(l.heuresMoisMesure)}</td>` : ""}<td class="n">${heures(l.heuresMois)}</td><td class="n">${euros(l.coutAnnuel)}</td></tr>`;
+  `<tr><td>${esc(l.nom)}</td><td>${frequence(l.frequenceAn)}${l.plafonnee ? "*" : ""}</td><td>${duree(l.dureeMinutes)}</td>${proj ? `<td class="n passe">${heures(l.heuresMoisMesure)}</td>` : ""}<td class="n">${heures(l.heuresMois)}</td><td class="n">${euros(l.coutAnnuel)}</td></tr>`;
 const partie1 = `
 <section class="page">
   <p class="eyebrow">01</p>
@@ -152,7 +152,7 @@ const partie1 = `
   </table>
   ${c.totaux.perteAnnuelleMesuree > 0.5 ? `<div class="plafond"><span class="etiquette">Ce que ces heures ne montrent pas</span><p>Environ <strong>${euros(c.totaux.perteAnnuelleMesuree)} par an</strong> restent dus sans être encaissés aujourd'hui, des forfaits commencés et jamais soldés. Les lignes à 0 min sont des tâches que vous ne faites pas encore, c'est là que cet argent se perd.</p></div>` : ""}
   ${encadrePlafond}
-  ${encadrePlafond ? "" : `<p class="note">Durées relevées avec vous${c.lignes.some((l) => (l.bascule ?? 0) > 0) ? ", temps pour s'y remettre et s'en défaire compris" : ""}. ${proj ? "Les pages suivantes se calculent sur les douze prochains mois." : "Le coût est celui du temps passé, avant toute automatisation."}</p>`}
+  ${encadrePlafond ? "" : `<p class="note">Durées relevées avec vous${c.lignes.some((l) => (l.bascule ?? 0) > 0) ? ", temps pour s'y remettre et s'en défaire compris" : ""}. ${proj ? "Les pages suivantes partent de votre volume d'aujourd'hui, votre estimation y figure en hausse possible." : "Le coût est celui du temps passé, avant toute automatisation."}</p>`}
 </section>`;
 
 /* ── 2. Ce qui s automatise, et ce qui reste a votre main ────────────────── */
@@ -212,12 +212,23 @@ const partie2 = c.lignes.length > 6 ? partie2Dense : `
 const tete = c.tete ? uniteId.get(c.tete)! : null;
 const solde = (n: number) => `${n >= 0 ? "+" : "−"} ${euros(Math.abs(n))}`;
 const candidats = c.candidats.filter((k) => !k.recommande);
-const b = c.bilanMensuel;
+const bProj = c.bilanMensuel;
+/* Decision d Adib du 19/10/2026. Le rapport part du volume d aujourd hui, la
+   projection du client se lit en hausse possible. Sans projection les deux
+   vues sont identiques. */
+const b = bProj && proj
+  ? { ...bProj, heures: bProj.mesure.heures, valeur: bProj.mesure.valeur, encaissement: bProj.mesure.encaissement,
+      solde: bProj.mesure.solde, gainAn1: bProj.mesure.gainAn1, valeurHorizon: bProj.mesure.valeurHorizon }
+  : bProj;
+const ensuiteNet = (x: NonNullable<typeof bProj>) => x === bProj && proj ? bProj.mesure.soldeEnsuite : x.valeur - x.ensuite - x.outils;
+const hausse = bProj && proj && bProj.valeur - bProj.mesure.valeur > 0.5;
+type UV = { heuresRecuperees: number; gainMensuel: number; encaissementMensuel: number; heuresRecupereesMesure: number; gainMensuelMesure: number; encaissementMensuelMesure: number };
+const vue = (u: UV) => (proj ? { heuresRecuperees: u.heuresRecupereesMesure, gainMensuel: u.gainMensuelMesure, encaissementMensuel: u.encaissementMensuelMesure } : u);
 /* v2.1, une partie de l economie vient d argent recupere et non de temps. */
 const enc = b ? b.encaissement > 0.5 : false;
 const accroche = !b
   ? `<div class="accroche accroche-neutre"><p>Au seul calcul du temps, aucune automatisation ne se justifie aujourd'hui.</p></div>`
-  : `<div class="accroche"><p>Odegia peut vous faire économiser <strong>${heures(b.heures)} h et ${euros(b.valeur)} par mois</strong>${enc ? `, dont ${euros(b.encaissement)} d'impayés récupérés` : ""}.</p></div>`;
+  : `<div class="accroche"><p>Odegia peut vous faire économiser <strong>${heures(b.heures)} h et ${euros(b.valeur)} par mois</strong>${enc ? `, dont ${euros(b.encaissement)} d'impayés récupérés` : ""}${hausse ? `, à votre volume d'aujourd'hui. Jusqu'à ${euros(bProj!.valeur)} si votre activité suit votre estimation` : ""}.</p></div>`;
 const designationClient = (u: { parcours: boolean; taches: string[]; niveau: 3 | 4 }) =>
   `${u.parcours ? `Automatisation de ${u.taches.length} tâches enchaînées` : "Automatisation"}, ${autonomie(u.niveau).toLowerCase()}${u.niveau === 3 ? ", vous validez avant envoi" : ""}`;
 /* Une tache qu on ne fait pas aujourd hui n economise rien, elle ajoute un
@@ -242,7 +253,7 @@ const partie3 = `
           <h3>${esc(l.nom)}${p.demande ? ` <span class="delai">à votre demande</span>` : ""}</h3>
           <p class="ligne-chiffres">${designationClient(l)}</p>
           ${l.parcours ? `<div class="flux">${l.taches.map((t) => { const x = parId.get(t)!; return `<div class="flux-etape"><span class="flux-nom">${esc(x.etiquette ?? x.nom)}</span><span class="flux-mode">${x.niveau === 4 ? "100 % autonome" : "vous validez"}</span></div>`; }).join(`<span class="flux-fleche">→</span>`)}</div>` : ""}
-          <p class="ligne-chiffres">${economie(l)}</p>
+          <p class="ligne-chiffres">${economie(vue(l))}${proj && l.gainMensuel - l.gainMensuelMesure > 0.5 ? `, jusqu'à ${euros(l.gainMensuel)} selon votre estimation` : ""}</p>
         </div>
       </li>`;
       })
@@ -251,7 +262,7 @@ const partie3 = `
   ${para(r.ordre)}
   ${c.suivantes.length ? `<p class="note">Ensuite, ${c.suivantes.map((id) => esc(uniteId.get(id)!.nom)).join(", ")}. Elles se reconsidèrent une fois les trois premières en service.</p>` : ""}
   ${para(r.ensuite)}
-  <p class="note">Temps économisé calculé à ${Math.round(c.parametres.PART_RECUPERABLE * 100)} % du temps relevé, le reste couvre le contrôle et les cas particuliers.${proj ? ` Il se calcule sur les douze prochains mois tels que vous les estimez${plafonnees.length ? `, plafonnés à ${c.parametres.PLAFOND_PROJECTION} fois le volume mesuré` : ""}.` : ""}${c.totaux.perteAnnuelle > 0.5 ? ` Aujourd'hui, environ ${euros(c.totaux.perteAnnuelleMesuree)} par an restent dus sans être encaissés. Nous comptons qu'un suivi systématique des échéances en récupère ${Math.round(c.parametres.PART_RECOUVREE * 100)} %, une hypothèse prudente, une relance rattrape les oublis et les retards, pas un départ décidé.` : ""}</p>
+  <p class="note">Temps économisé calculé à ${Math.round(c.parametres.PART_RECUPERABLE * 100)} % du temps relevé, le reste couvre le contrôle et les cas particuliers.${proj ? ` Il part de votre volume d'aujourd'hui, et le « jusqu'à » de votre estimation des douze prochains mois${plafonnees.length ? `, plafonnés à ${c.parametres.PLAFOND_PROJECTION} fois le volume mesuré` : ""}.` : ""}${c.totaux.perteAnnuelle > 0.5 ? ` Aujourd'hui, environ ${euros(c.totaux.perteAnnuelleMesuree)} par an restent dus sans être encaissés. Nous comptons qu'un suivi systématique des échéances en récupère ${Math.round(c.parametres.PART_RECOUVREE * 100)} %, soit environ ${euros(c.totaux.perteAnnuelleMesuree * c.parametres.PART_RECOUVREE / 12)} par mois, une hypothèse prudente, une relance rattrape les oublis et les retards, pas un départ décidé.` : ""}</p>
 </section>`;
 
 /* ── 4. Ce que ca coute, le devis ────────────────────────────────────────── */
@@ -276,9 +287,9 @@ const gainNet = b ? `
       <div><span class="valeur">${euros(b.valeur)}</span><span class="legende">économisés, ${heures(b.heures)} h de temps${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}</span></div>
       <div><span class="valeur">${euros(b.mensualite)}</span><span class="legende">payés à Odegia, construction et supervision comprises${b.ensuite !== b.mensualite ? `, puis ${euros(b.ensuite)} après ${c.parametres.ENGAGEMENT_MOIS} mois` : ""}</span></div>
       ${c.outils.liste.length ? `<div><span class="valeur">${euros(b.outils)}</span><span class="legende">${b.outils > 0.5 ? "d'outils à votre nom" : "d'outils en plus, ceux qu'il faut sont gratuits, compris ou déjà payés"}</span></div>` : ""}
-      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois${b.ensuite !== b.mensualite ? `, la première année, puis ${solde(b.valeur - b.ensuite - b.outils)}` : ""}</span></div>
+      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois${b.ensuite !== b.mensualite ? `, la première année, puis ${solde(ensuiteNet(bProj!))}` : ""}</span></div>
     </div>
-    <p class="note">Sur la première année, chaque automatisation ne vous fait économiser qu'à partir de sa livraison, alors que la mensualité court dès la signature. Construction comprise, vous gagnez ${solde(b.gainAn1)} sur cette première année. Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia${b.outils > 0.5 ? " et pour vos outils" : ""}. Vous ne payez rien d'avance pour la construction.</p>
+    <p class="note">${proj ? "Ces montants partent de votre volume d'aujourd'hui. " : ""}Sur la première année, chaque automatisation ne vous fait économiser qu'à partir de sa livraison${b.debutFacturation === "livraison" ? `, et la mensualité ne court qu'à partir de la première, en semaine ${b.premiereLivraison}` : ", alors que la mensualité court dès la signature"}. Construction comprise, vous gagnez ${solde(b.gainAn1)} sur cette première année.${hausse ? ` Si votre activité suit votre estimation, l'économie monte à ${euros(bProj!.valeur)} par mois et le gain net à ${solde(bProj!.solde)}.` : ""} Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia${b.outils > 0.5 ? " et pour vos outils" : ""}. Vous ne payez rien d'avance pour la construction.</p>
   </div>` : "";
 const tableNet = c.positions.length ? `
   <table class="dense">
@@ -353,7 +364,7 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
   </table>
   <div class="suivi">
     <span class="etiquette">Ce que la mensualité comprend, et sa durée</span>
-    <p><strong>La construction, la supervision, la correction des dérives et les ajustements.</strong> Vous ne payez rien d'avance, la première mensualité est prélevée à la commande.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
+    <p><strong>La construction, la supervision, la correction des dérives et les ajustements.</strong> Vous ne payez rien d'avance${c.bilanMensuel?.debutFacturation === "livraison" ? ", la première mensualité est prélevée à la première livraison, et les ${E} mois d'engagement courent à partir de là" : ", la première mensualité est prélevée à la commande"}.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
     <p>Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteEnsuiteHT)} HT.` : ""} Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis.</p>
   </div>
   <ul class="conditions">
@@ -402,7 +413,7 @@ const partie5 = `
    etapes flechees et peu de mots, ce que l administratif coute, ce qu Odegia
    apporte, ce qu Odegia coute, puis le gain net. Tout se lit par mois, une
    seule unite pour comparer. Les chiffres sont ceux des pages suivantes. */
-const coutMois = c.totaux.coutAnnuel / 12;
+const coutMois = (proj ? c.totaux.coutAnnuelMesure : c.totaux.coutAnnuel) / 12;
 const impayesMois = c.totaux.perteAnnuelleMesuree / 12;
 const etapeResume = (n: string, titre: string, valeur: string, legende: string, ton = "") =>
   `<div class="resume-etape ${ton}"><span class="resume-n">${n}</span><span class="etiquette">${titre}</span><span class="resume-valeur">${valeur}</span><span class="legende">${legende}</span></div>`;
@@ -421,13 +432,13 @@ const resume0 = `
   <p class="eyebrow">En bref</p>
   <h1>Votre diagnostic sur une page</h1>
   <div class="resume">
-    ${etapeResume("1", "Ce que vous coûte l'administratif", `${euros(coutMois)}`, `par mois${proj ? " sur les douze prochains mois" : ""}, ${heures(c.totaux.heuresMois)} h de votre temps${proj ? `, contre ${euros(c.totaux.coutAnnuelMesure / 12)} aujourd'hui` : ""}${impayesMois > 0.5 ? `. S'y ajoutent environ ${euros(impayesMois)} d'impayés par mois` : ""}`)}
+    ${etapeResume("1", "Ce que vous coûte l'administratif", `${euros(coutMois)}`, `par mois aujourd'hui, ${heures(proj ? c.totaux.heuresMoisMesure : c.totaux.heuresMois)} h de votre temps${impayesMois > 0.5 ? `, et environ ${euros(impayesMois)} d'impayés par mois` : ""}${proj ? `. ${euros(c.totaux.coutAnnuel / 12)} selon votre estimation des douze prochains mois` : ""}`)}
     ${fleche}
-    ${b ? etapeResume("2", "Ce qu'Odegia vous apporte", `${euros(b.valeur)}`, `par mois, ${heures(b.heures)} h économisées${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}`, "resume-vert") : etapeResume("2", "Ce qu'Odegia vous apporte", "—", "aucune automatisation ne se justifie à ce volume")}
+    ${b ? etapeResume("2", "Ce qu'Odegia vous apporte", `${euros(b.valeur)}`, `par mois, ${heures(b.heures)} h économisées${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}${hausse ? `. Jusqu'à ${euros(bProj!.valeur)} selon votre estimation` : ""}`, "resume-vert") : etapeResume("2", "Ce qu'Odegia vous apporte", "—", "aucune automatisation ne se justifie à ce volume")}
     ${fleche}
     ${b ? etapeResume("3", "Ce qu'Odegia vous coûte", `${euros(b.mensualite + b.outils)}`, `par mois${b.ensuite !== b.mensualite ? `, la première année, puis ${euros(b.ensuite + b.outils)}` : ""}, rien à payer d'avance${c.outils.liste.length ? (b.outils > 0.5 ? `, dont ${euros(b.outils)} d'outils à votre nom` : ", vos outils ne vous coûtent rien de plus") : ""}`) : etapeResume("3", "Ce qu'Odegia vous coûte", "0 €", "le diagnostic est offert")}
   </div>
-  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span>Ce que vous gagnez, une fois en service</span><strong>${solde(b.solde)} net par mois</strong>${b.ensuite !== b.mensualite ? `<span>puis ${solde(b.valeur - b.ensuite - b.outils)} après ${c.parametres.ENGAGEMENT_MOIS} mois</span>` : ""}<span class="resume-an1">Sur la première année, construction comprise, ${solde(b.gainAn1)} au total.</span></div>` : ""}
+  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span>Ce que vous gagnez, une fois en service</span><strong>${solde(b.solde)} net par mois</strong>${b.ensuite !== b.mensualite ? `<span>puis ${solde(ensuiteNet(bProj!))} après ${c.parametres.ENGAGEMENT_MOIS} mois</span>` : ""}<span class="resume-an1">Sur la première année, construction comprise, ${solde(b.gainAn1)} au total.${hausse ? ` Selon votre estimation des douze prochains mois, ${solde(bProj!.solde)} par mois.` : ""}</span></div>` : ""}
   ${c.positions.length ? `<div class="resume-bloc"><span class="etiquette">Ce qui s'automatise</span><ul class="resume-chips">${c.positions.map((p) => `<li>${esc(uniteId.get(p.id)!.nom)}</li>`).join("")}</ul></div>` : ""}
   ${fdr.briques.length ? `<div class="resume-bloc"><span class="etiquette">Comment ça se passe</span><div class="resume-temps">
     <div><strong>Fondations</strong><span>${semaines(fdr.socle)}</span></div>${fleche}

@@ -224,6 +224,9 @@ export type Entree = {
      Foot on the Moon. */
   remiseGroupeTaux?: number;
   /* v2.3, outils a la charge du client. */
+  /* Debut de la facturation, decision d Adib du 19/10/2026 pour Alteria. A la
+     premiere livraison, les douze mois d engagement courent a partir de la. */
+  debutFacturation?: "signature" | "livraison";
   outils?: { nom: string; usage: string; prixMois: number; dejaPaye?: boolean; compris?: boolean; source?: string }[];
   remiseGroupeLibelle?: string;
   /* offert, le cas courant depuis le 02/10/2026. deduit, un diagnostic paye
@@ -259,6 +262,11 @@ export type Unite = {
   gainNetMensuel: number;
   /* Part du gain qui vient d encaissements recuperes, v2.1. */
   encaissementMensuel: number;
+  /* Les memes au volume mesure, decision d Adib du 19/10/2026, le rapport part
+     d aujourd hui et montre la projection en hausse possible. */
+  heuresRecupereesMesure: number;
+  gainMensuelMesure: number;
+  encaissementMensuelMesure: number;
   /* La mensualite absorbe le gain, l unite ne se recommande pas. */
   absorbee: boolean;
 };
@@ -291,6 +299,9 @@ export type LigneDiag = TacheDiag & {
   perteAnnuelleMesuree: number;
   perteAnnuelle: number;
   encaissementMensuel: number;
+  heuresRecupereesMesure: number;
+  gainMensuelMesure: number;
+  encaissementMensuelMesure: number;
   absorbee: boolean;
   /* Etalon, jamais montre au client. */
   bande: Frequence | null;
@@ -362,6 +373,9 @@ export function diagnostiquer(e: Entree) {
     const perteAnnuelle = perte(frequenceRetenue);
     const encaissementMensuel = (perteAnnuelle * PART_RECOUVREE) / 12;
     const gainMensuel = heuresRecuperees * taux + encaissementMensuel;
+    const heuresRecupereesMesure = heuresMoisMesure * PART_RECUPERABLE;
+    const encaissementMensuelMesure = (perteAnnuelleMesuree * PART_RECOUVREE) / 12;
+    const gainMensuelMesure = heuresRecupereesMesure * taux + encaissementMensuelMesure;
     /* Meme lecture que l estimateur depuis la v2.0, ce que la brique rend
        chaque mois contre ce qu elle coute chaque mois. */
     const mensualite = palier ? mensualiteDe(palier) : 0;
@@ -395,6 +409,9 @@ export function diagnostiquer(e: Entree) {
       perteAnnuelleMesuree,
       perteAnnuelle,
       encaissementMensuel,
+      heuresRecupereesMesure,
+      gainMensuelMesure,
+      encaissementMensuelMesure,
       absorbee: verdict === "brique" && gainNetMensuel <= 0,
       bande,
       heuresBareme,
@@ -431,6 +448,8 @@ export function diagnostiquer(e: Entree) {
       mensualite: l.mensualite, niveau: l.niveau, heuresMois: l.heuresMois,
       heuresRecuperees: l.heuresRecuperees, gainMensuel: l.gainMensuel,
       gainNetMensuel: l.gainNetMensuel, encaissementMensuel: l.encaissementMensuel,
+      heuresRecupereesMesure: l.heuresRecupereesMesure, gainMensuelMesure: l.gainMensuelMesure,
+      encaissementMensuelMesure: l.encaissementMensuelMesure,
       absorbee: l.absorbee,
     });
   }
@@ -448,6 +467,9 @@ export function diagnostiquer(e: Entree) {
       heuresRecuperees: ls.reduce((a, l) => a + l.heuresRecuperees, 0),
       gainMensuel, gainNetMensuel,
       encaissementMensuel: ls.reduce((a, l) => a + l.encaissementMensuel, 0),
+      heuresRecupereesMesure: ls.reduce((a, l) => a + l.heuresRecupereesMesure, 0),
+      gainMensuelMesure: ls.reduce((a, l) => a + l.gainMensuelMesure, 0),
+      encaissementMensuelMesure: ls.reduce((a, l) => a + l.encaissementMensuelMesure, 0),
       absorbee: gainNetMensuel <= 0,
     });
   }
@@ -574,13 +596,37 @@ export function diagnostiquer(e: Entree) {
        ne rend qu a partir de la semaine qui suit sa livraison. Sans cela le
        gain affiche pour l annee un supposait tout en service au premier jour. */
     const finDe = (id: string) => feuilleDeRoute.calendrier.briques.find((x) => x.id === id)?.fin ?? 0;
+    /* Facturation a la premiere livraison, la premiere annee ne paie que les
+       semaines qui suivent cette livraison. */
+    const premiereLivraison = feuilleDeRoute.calendrier.briques.length ? feuilleDeRoute.calendrier.briques[0].fin : 0;
+    const semainesPayees = e.debutFacturation === "livraison" ? 52 - premiereLivraison : 52;
+    const coutAn1 = 12 * (base.mensualite + outilsMois) * semainesPayees / 52;
+    const an1 = (gain: (u: Unite) => number, plat: number) =>
+      (base.recommande
+        ? recommandees.reduce((a, u) => a + gain(u) * 12 * Math.max(0, 52 - finDe(u.id)) / 52, 0)
+        : plat * 12) - coutAn1;
     const renduAn1 = base.recommande
       ? recommandees.reduce((a, u) => a + u.gainMensuel * 12 * Math.max(0, 52 - finDe(u.id)) / 52, 0)
       : base.valeur * 12;
-    const gainAn1 = renduAn1 - 12 * (base.mensualite + outilsMois);
-    return { ...base, outils: outilsMois, gainAn1, renduAn1, solde: base.valeur - base.mensualite - outilsMois,
+    const gainAn1 = renduAn1 - coutAn1;
+    const pool = base.recommande ? recommandees : [[...unites].sort((a, b) => b.gainMensuel - a.gainMensuel)[0]];
+    const valeurMesure = pool.reduce((a, u) => a + u.gainMensuelMesure, 0);
+    const mesure = {
+      heures: pool.reduce((a, u) => a + u.heuresRecupereesMesure, 0),
+      valeur: valeurMesure,
+      encaissement: pool.reduce((a, u) => a + u.encaissementMensuelMesure, 0),
+      solde: valeurMesure - base.mensualite - outilsMois,
+      soldeEnsuite: valeurMesure - base.ensuite - outilsMois,
+      gainAn1: an1((u) => u.gainMensuelMesure, valeurMesure),
+      valeurHorizon: valeurMesure * HORIZON_MOIS,
+    };
+    return { ...base, outils: outilsMois, gainAn1, renduAn1, mesure, premiereLivraison,
+      debutFacturation: e.debutFacturation ?? "signature",
+      solde: base.valeur - base.mensualite - outilsMois,
       valeurHorizon: base.valeur * HORIZON_MOIS,
-      coutHorizon: base.mensualite * ENGAGEMENT_MOIS + base.ensuite * (HORIZON_MOIS - ENGAGEMENT_MOIS) + outilsMois * HORIZON_MOIS };
+      /* Facturation a la livraison, l engagement commence plus tard, l horizon
+         de trois ans compte d autant moins de mensualites au prix public. */
+      coutHorizon: base.mensualite * ENGAGEMENT_MOIS + base.ensuite * (HORIZON_MOIS - ENGAGEMENT_MOIS - (12 - 12 * semainesPayees / 52)) + outilsMois * HORIZON_MOIS };
   })();
 
   /* Les automatisations les plus proches du seuil, recommandees ou non,

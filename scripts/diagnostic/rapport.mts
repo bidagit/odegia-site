@@ -274,9 +274,10 @@ const gainNet = b ? `
     <div class="bilan-grille">
       <div><span class="valeur">${euros(b.valeur)}</span><span class="legende">économisés, ${heures(b.heures)} h de temps${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}</span></div>
       <div><span class="valeur">${euros(b.mensualite)}</span><span class="legende">payés à Odegia, construction et surveillance comprises${b.ensuite !== b.mensualite ? `, puis ${euros(b.ensuite)} après ${c.parametres.ENGAGEMENT_MOIS} mois` : ""}</span></div>
-      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois${b.ensuite !== b.mensualite ? `, la première année, puis ${solde(b.valeur - b.ensuite)}` : ""}</span></div>
+      ${c.outils.liste.length ? `<div><span class="valeur">${euros(b.outils)}</span><span class="legende">${b.outils > 0.5 ? "d'outils à votre nom" : "d'outils en plus, ceux qu'il faut sont gratuits ou déjà payés"}</span></div>` : ""}
+      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois${b.ensuite !== b.mensualite ? `, la première année, puis ${solde(b.valeur - b.ensuite - b.outils)}` : ""}</span></div>
     </div>
-    <p class="note">Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia. Vous ne payez rien d'avance pour la construction.</p>
+    <p class="note">Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia${b.outils > 0.5 ? " et pour vos outils" : ""}. Vous ne payez rien d'avance pour la construction.</p>
   </div>` : "";
 const tableNet = c.positions.length ? `
   <table class="dense">
@@ -291,11 +292,18 @@ const tableCandidats = !c.positions.length && candidats.length ? `
   </table>
   <p class="note">Seuil, les heures économisées par mois à partir desquelles la mensualité est couverte. Sur deux ans, la première coûte ${euros(candidats[0].cout24)} et fait économiser ${euros(candidats[0].rendu24)}.</p>
   <p class="prose">Ce calcul ne compte que le temps. Il ignore la charge mentale d'une tâche qui revient, et ce que vous feriez des heures libérées. Si ces deux coûts pèsent plus lourd pour vous, vous pouvez lancer une automatisation quand même, en connaissance de cause.</p>` : "";
+/* v2.3, les outils a son nom, un par ligne, avec ce qu ils coutent en plus. */
+const tableOutils = c.outils.liste.length ? `
+  <table class="dense">
+    <thead><tr><th>Outil à votre nom</th><th>Pour quoi</th><th class="n">En plus / mois</th></tr></thead>
+    <tbody>${c.outils.liste.map((o) => `<tr><td>${esc(o.nom)}</td><td>${esc(o.usage)}</td><td class="n">${o.dejaPaye ? "déjà payé" : o.prixMois > 0 ? euros(o.prixMois) : "gratuit"}</td></tr>`).join("")}</tbody>
+  </table>` : "";
 const partie5Gain = `
 <section class="page">
   <p class="eyebrow">05</p>
   <h1>Ce que coûte Odegia, et ce que vous gagnez</h1>
   ${gainNet}
+  ${tableOutils}
   ${tableCandidats}
 </section>`;
 
@@ -416,9 +424,9 @@ const resume0 = `
     ${fleche}
     ${b ? etapeResume("2", "Ce qu'Odegia vous apporte", `${euros(b.valeur)}`, `par mois, ${heures(b.heures)} h économisées${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}`, "resume-vert") : etapeResume("2", "Ce qu'Odegia vous apporte", "—", "aucune automatisation ne se justifie à ce volume")}
     ${fleche}
-    ${b ? etapeResume("3", "Ce qu'Odegia vous coûte", `${euros(b.mensualite)}`, `par mois${b.ensuite !== b.mensualite ? `, la première année, puis ${euros(b.ensuite)}` : ""}, rien à payer d'avance`) : etapeResume("3", "Ce qu'Odegia vous coûte", "0 €", "le diagnostic est offert")}
+    ${b ? etapeResume("3", "Ce qu'Odegia vous coûte", `${euros(b.mensualite + b.outils)}`, `par mois${b.ensuite !== b.mensualite ? `, la première année, puis ${euros(b.ensuite + b.outils)}` : ""}, rien à payer d'avance${c.outils.liste.length ? (b.outils > 0.5 ? `, dont ${euros(b.outils)} d'outils à votre nom` : ", vos outils ne vous coûtent rien de plus") : ""}`) : etapeResume("3", "Ce qu'Odegia vous coûte", "0 €", "le diagnostic est offert")}
   </div>
-  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span>Ce que vous gagnez</span><strong>${solde(b.solde)} net par mois</strong>${b.ensuite !== b.mensualite ? `<span>la première année, puis ${solde(b.valeur - b.ensuite)}</span>` : ""}</div>` : ""}
+  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span>Ce que vous gagnez</span><strong>${solde(b.solde)} net par mois</strong>${b.ensuite !== b.mensualite ? `<span>la première année, puis ${solde(b.valeur - b.ensuite - b.outils)}</span>` : ""}</div>` : ""}
   ${c.positions.length ? `<div class="resume-bloc"><span class="etiquette">Ce qui s'automatise</span><ul class="resume-chips">${c.positions.map((p) => `<li>${esc(uniteId.get(p.id)!.nom)}</li>`).join("")}</ul></div>` : ""}
   ${fdr.briques.length ? `<div class="resume-bloc"><span class="etiquette">Comment ça se passe</span><div class="resume-temps">
     <div><strong>Fondations</strong><span>${semaines(fdr.socle)}</span></div>${fleche}

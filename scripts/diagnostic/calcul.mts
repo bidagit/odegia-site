@@ -35,7 +35,14 @@ import {
    change a chaque regle de decision, definition de mesure ou grille modifiee,
    et le protocole du vault dit ce que chaque version contient. Un rapport se
    relit toujours avec les regles de sa version. */
-export const METHODE_VERSION = "2.2";
+export const METHODE_VERSION = "2.3";
+
+/* v2.3, decision d Adib du 19/10/2026, diagnostic Alteria. Les abonnements
+   restent au nom du client et a sa charge, le devis le dit. Le gain net les
+   retranche donc, sinon le client decouvre un cout apres avoir signe. Champ
+   outils, un par outil, avec son prix mensuel HT verifie sur la page tarifs de
+   l editeur, et dejaPaye pour un abonnement qu il a deja et qui ne coute rien
+   de plus. */
 
 /* v2.2, decision d Adib du 17/10/2026, diagnostic Alteria. Deleguer suppose
    quelqu un a qui confier la tache. Un fondateur seul n a personne, et une
@@ -216,6 +223,8 @@ export type Entree = {
      50 % la premiere annee le 17/10/2026, elle paie deja 390 EUR HT par mois a
      Foot on the Moon. */
   remiseGroupeTaux?: number;
+  /* v2.3, outils a la charge du client. */
+  outils?: { nom: string; usage: string; prixMois: number; dejaPaye?: boolean; source?: string }[];
   remiseGroupeLibelle?: string;
   /* offert, le cas courant depuis le 02/10/2026. deduit, un diagnostic paye
      dont le montant vaut les premieres mensualites. */
@@ -547,6 +556,9 @@ export function diagnostiquer(e: Entree) {
      recommande, ou a defaut sur l automatisation la plus proche, pour qu il
      puisse passer outre en connaissance de cause. */
   const avecGroupe = (m: number) => (e.remiseGroupe ? arrondi5(m * (1 - tauxGroupe)) : m);
+  /* v2.3, ce que les outils coutent en plus chaque mois, hors abonnements
+     deja payes. */
+  const outilsMois = (e.outils ?? []).filter((o) => !o.dejaPaye).reduce((a, o) => a + o.prixMois, 0);
   const bilanMensuel = (() => {
     const base = recommandees.length
       ? { recommande: true, heures: recommandees.reduce((a, u) => a + u.heuresRecuperees, 0), valeur: gainMensuelPerimetre, encaissement: recommandees.reduce((a, u) => a + u.encaissementMensuel, 0), mensualite: mensualiteEngagement, ensuite: mensualiteEnsuite }
@@ -557,9 +569,9 @@ export function diagnostiquer(e: Entree) {
           })()
         : null;
     if (!base) return null;
-    return { ...base, solde: base.valeur - base.mensualite,
+    return { ...base, outils: outilsMois, solde: base.valeur - base.mensualite - outilsMois,
       valeurHorizon: base.valeur * HORIZON_MOIS,
-      coutHorizon: base.mensualite * ENGAGEMENT_MOIS + base.ensuite * (HORIZON_MOIS - ENGAGEMENT_MOIS) };
+      coutHorizon: base.mensualite * ENGAGEMENT_MOIS + base.ensuite * (HORIZON_MOIS - ENGAGEMENT_MOIS) + outilsMois * HORIZON_MOIS };
   })();
 
   /* Les automatisations les plus proches du seuil, recommandees ou non,
@@ -644,6 +656,7 @@ export function diagnostiquer(e: Entree) {
     /* Rien ne rend plus que sa mensualite. Le rapport le dit et ne propose
        aucun devis, sauf a la demande du client. */
     aucuneRecommandation: recommandees.length === 0,
+    outils: { liste: e.outils ?? [], mois: outilsMois },
     devis: {
       mensualitePleine: parc.pleine,
       remisePack: parc.remise,

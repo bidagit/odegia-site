@@ -369,7 +369,8 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
     <tbody>
       ${lignesDevis}
       ${d.remisePack ? `<tr class="remise"><td>Remise de ${Math.round(c.parametres.REMISE_PACK * 100)} % dès la troisième automatisation</td><td class="n">− ${euros(d.remisePackEuros)}</td></tr>` : ""}
-      ${d.remiseGroupe ? `<tr class="remise"><td>${d.remiseGroupeLibelle ? esc(d.remiseGroupeLibelle) : "Remise client du groupe Orbis Optima"}, ${Math.round(d.remiseGroupeTaux * 100)} % pendant les ${E} premiers mois</td><td class="n">− ${euros(d.remiseGroupeEuros)}</td></tr>` : ""}
+      ${d.remiseGroupe && d.remisesClient.length ? d.remisesClient.map((r) => `<tr class="remise"><td>${esc(r.libelle)}, ${Math.round(r.taux * 100)} % pendant les ${E} premiers mois</td><td class="n">− ${euros(r.euros)}</td></tr>`).join("") : ""}
+      ${d.remiseGroupe && !d.remisesClient.length ? `<tr class="remise"><td>${d.remiseGroupeLibelle ? esc(d.remiseGroupeLibelle) : "Remise client du groupe Orbis Optima"}, ${Math.round(d.remiseGroupeTaux * 100)} % pendant les ${E} premiers mois</td><td class="n">− ${euros(d.remiseGroupeEuros)}</td></tr>` : ""}
       ${offert ? `<tr class="remise"><td>Diagnostic d'une valeur de ${euros(entree.diagnostic.prix)}, offert</td><td class="n">inclus</td></tr>` : ""}
     </tbody>
     <tfoot>
@@ -530,7 +531,7 @@ const html = `<!doctype html>
   .rang { flex-shrink:0; width:9mm; height:9mm; border-radius:99px; border:2px solid var(--ink); display:flex; align-items:center; justify-content:center; font: 600 9pt "Geist Mono", monospace; background:var(--vert-soft); }
   .etape:first-child .rang { background:var(--banane); }
   .ligne-chiffres { margin:1mm 0 0; font-size:8.5pt; color:var(--soft); font-variant-numeric: tabular-nums; }
-  .parties { display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:5mm; margin-bottom:7mm; font-size:8.5pt; }
+  .parties { display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:5mm; margin-bottom:5mm; font-size:8.5pt; }
   .parties p { margin:1mm 0 0; }
   .etiquette { font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); }
   .sous { display:block; font-size:8pt; color:var(--soft); }
@@ -572,7 +573,7 @@ const html = `<!doctype html>
   .puces { margin:1mm 0 0; padding-left:4.5mm; font-size:9pt; color:var(--soft); }
   /* Devis resserre le 17/10/2026, avec trois briques et deux remises la case de
      signature passait sur une page blanche. */
-  table.devis td { padding:1.6mm 2mm; }
+  table.devis td { padding:1.3mm 2mm; }
   /* Page de resume. */
   .resume { display:flex; align-items:stretch; gap:2mm; margin:4mm 0 5mm; }
   .resume-etape { flex:1; border:2px solid var(--ink); border-radius:14px; padding:4.5mm; box-shadow:4px 4px 0 var(--ink); display:flex; flex-direction:column; gap:1.5mm; background:#fff; }

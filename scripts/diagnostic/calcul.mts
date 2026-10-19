@@ -243,6 +243,11 @@ export type Entree = {
   debutFacturation?: "signature" | "livraison";
   outils?: { nom: string; usage: string; prixMois: number; dejaPaye?: boolean; compris?: boolean; source?: string }[];
   remiseGroupeLibelle?: string;
+  /* Plusieurs remises client cumulees pendant l engagement, chacune avec son
+     motif, decision d Adib du 19/10/2026 pour Alteria, 25 % cliente Foot on
+     the Moon et 25 % pour son temoignage. Elles s additionnent sur le prix
+     apres remise de parc. Presentes, elles remplacent la remise du groupe. */
+  remisesClient?: { libelle: string; taux: number }[];
   /* offert, le cas courant depuis le 02/10/2026. deduit, un diagnostic paye
      dont le montant vaut les premieres mensualites. */
   diagnostic: { prix: number; deduit: boolean; offert?: boolean };
@@ -529,7 +534,9 @@ export function diagnostiquer(e: Entree) {
      du groupe pendant les douze mois d engagement seulement. */
   const parc = mensualitePour(recommandees.map((u) => u.palier), true);
   const mensualiteEnsuite = parc.nette;
-  const tauxGroupe = e.remiseGroupeTaux ?? REMISE_GROUPE;
+  const tauxGroupe = e.remisesClient?.length
+    ? Math.min(e.remisesClient.reduce((a, r) => a + r.taux, 0), 1)
+    : e.remiseGroupeTaux ?? REMISE_GROUPE;
   const mensualiteEngagement = e.remiseGroupe
     ? arrondi5(mensualiteEnsuite * (1 - tauxGroupe))
     : mensualiteEnsuite;
@@ -746,6 +753,7 @@ export function diagnostiquer(e: Entree) {
       remiseGroupeEuros: mensualiteEnsuite - mensualiteEngagement,
       remiseGroupeTaux: tauxGroupe,
       remiseGroupeLibelle: e.remiseGroupeLibelle ?? null,
+      remisesClient: (e.remisesClient ?? []).map((r) => ({ ...r, euros: mensualiteEnsuite * r.taux })),
       /* Ce que le client paie chaque mois pendant l engagement, puis ensuite. */
       mensualiteHT: mensualiteEngagement,
       mensualiteEnsuiteHT: mensualiteEnsuite,

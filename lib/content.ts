@@ -235,11 +235,11 @@ export const FONDATEUR = {
   titleAccent: "appliquée à l'administratif.",
   intro:
     "Odegia a été fondée par Adib Bensalem, docteur en sciences de gestion et professeur en école de commerce, après quinze ans passés à mesurer et à réduire des processus industriels.",
-  /* Ajoute le 01/10/2026 a la demande d Adib. Il tient la methode et la
-     strategie. Formulation retenue pour rester vraie des aujourd hui, plutot
-     que « Odegia reunit des specialistes », l equipe n existant pas encore. */
+  /* Reecrit le 19/10/2026 apres la revue a cinq regards, decision d Adib. La
+     phrase precedente annoncait des specialistes de l IA, l equipe n existe pas
+     encore. Celle-ci est vraie aujourd hui. */
   equipe:
-    "Les chantiers sont menés par des spécialistes de l'IA formés à sa méthode propriétaire.",
+    "Il conduit lui-même chaque diagnostic et supervise chaque chantier.",
   lead: "Trois choses de ce parcours décident de ce que vous voyez sur cette page.",
   points: [
     {
@@ -613,6 +613,6 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "Nos données sortent-elles de la structure ?",
-    a: "Cela dépend du domaine traité et de votre niveau de sensibilité. Lorsque la confidentialité l'impose, nous déployons des modèles exécutés localement. Ce choix se décide au diagnostic, avant toute construction.",
+    a: "Cela dépend du domaine traité et de votre niveau de sensibilité. Lorsque la confidentialité l'impose, les traitements par modèle de langage passent par un fournisseur hébergé dans l'Union européenne, ou s'exécutent sur votre propre ordinateur quand il le permet. Ce choix se décide au diagnostic, avant toute construction.",
   },
 ];

@@ -259,6 +259,15 @@ export default function Page() {
             éducateur pour chaque participant. 3 bénévoles au bureau, et 3
             séjours à 9 participants sur les 12 prochains mois.
           </p>
+          {/* Lien du fondateur avec l association de nouveau affiche le
+              19/10/2026, decision d Adib apres la revue a cinq regards. Un
+              prospect qui le decouvrirait seul le lirait comme un conflit
+              cache. */}
+          <p className="mt-3 max-w-2xl text-[13px] leading-[1.6] text-ink-soft">
+            En toute transparence, Adib Bensalem, fondateur d&apos;Odegia, est
+            le trésorier bénévole de l&apos;association. Le diagnostic a suivi
+            le même protocole que pour tout client.
+          </p>
           <p className="mt-5 flex w-fit items-center gap-2 rounded-full border-2 border-ink bg-banane px-4 py-1.5 text-[13px] font-medium text-ink lg:hidden">
             <span className="display text-[18px] leading-none">×2</span>
             ce que coûte Odegia, rendu en temps, chaque année

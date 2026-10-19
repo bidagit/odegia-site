@@ -103,9 +103,10 @@ export default function Page() {
         </p>
         <p>
           Lorsque la sensibilité du domaine l&apos;impose, les traitements par
-          modèle de langage sont exécutés localement plutôt que chez un
-          fournisseur tiers. Ce choix est arbitré au diagnostic et écrit dans la
-          proposition.
+          modèle de langage passent par un fournisseur hébergé dans l&apos;Union
+          européenne, Mistral AI à ce jour, ou s&apos;exécutent sur le poste du
+          client quand il le permet. Ce choix est arbitré au diagnostic et écrit
+          dans la proposition.
         </p>
       </Block>
 

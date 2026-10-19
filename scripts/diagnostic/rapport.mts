@@ -274,7 +274,7 @@ const gainNet = b ? `
     <div class="bilan-grille">
       <div><span class="valeur">${euros(b.valeur)}</span><span class="legende">économisés, ${heures(b.heures)} h de temps${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}</span></div>
       <div><span class="valeur">${euros(b.mensualite)}</span><span class="legende">payés à Odegia, construction et surveillance comprises${b.ensuite !== b.mensualite ? `, puis ${euros(b.ensuite)} après ${c.parametres.ENGAGEMENT_MOIS} mois` : ""}</span></div>
-      ${c.outils.liste.length ? `<div><span class="valeur">${euros(b.outils)}</span><span class="legende">${b.outils > 0.5 ? "d'outils à votre nom" : "d'outils en plus, ceux qu'il faut sont gratuits ou déjà payés"}</span></div>` : ""}
+      ${c.outils.liste.length ? `<div><span class="valeur">${euros(b.outils)}</span><span class="legende">${b.outils > 0.5 ? "d'outils à votre nom" : "d'outils en plus, ceux qu'il faut sont gratuits, compris ou déjà payés"}</span></div>` : ""}
       <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois${b.ensuite !== b.mensualite ? `, la première année, puis ${solde(b.valeur - b.ensuite - b.outils)}` : ""}</span></div>
     </div>
     <p class="note">Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia${b.outils > 0.5 ? " et pour vos outils" : ""}. Vous ne payez rien d'avance pour la construction.</p>
@@ -296,7 +296,7 @@ const tableCandidats = !c.positions.length && candidats.length ? `
 const tableOutils = c.outils.liste.length ? `
   <table class="dense">
     <thead><tr><th>Outil à votre nom</th><th>Pour quoi</th><th class="n">En plus / mois</th></tr></thead>
-    <tbody>${c.outils.liste.map((o) => `<tr><td>${esc(o.nom)}</td><td>${esc(o.usage)}</td><td class="n">${o.dejaPaye ? "déjà payé" : o.prixMois > 0 ? euros(o.prixMois) : "gratuit"}</td></tr>`).join("")}</tbody>
+    <tbody>${c.outils.liste.map((o) => `<tr><td>${esc(o.nom)}</td><td>${esc(o.usage)}</td><td class="n">${o.dejaPaye ? "déjà payé" : o.compris ? "compris" : o.prixMois > 0 ? euros(o.prixMois) : "gratuit"}</td></tr>`).join("")}</tbody>
   </table>` : "";
 const partie5Gain = `
 <section class="page">

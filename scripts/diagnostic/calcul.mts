@@ -224,7 +224,7 @@ export type Entree = {
      Foot on the Moon. */
   remiseGroupeTaux?: number;
   /* v2.3, outils a la charge du client. */
-  outils?: { nom: string; usage: string; prixMois: number; dejaPaye?: boolean; source?: string }[];
+  outils?: { nom: string; usage: string; prixMois: number; dejaPaye?: boolean; compris?: boolean; source?: string }[];
   remiseGroupeLibelle?: string;
   /* offert, le cas courant depuis le 02/10/2026. deduit, un diagnostic paye
      dont le montant vaut les premieres mensualites. */

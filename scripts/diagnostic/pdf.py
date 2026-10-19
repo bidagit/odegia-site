@@ -59,3 +59,14 @@ with sync_playwright() as p:
 
 (dossier / "dernier-rapport.txt").write_text(pdf.name, encoding="utf-8")
 print(f"ecrit {pdf}")
+
+# Un seul rapport a la racine du dossier client, demande d Adib du 19/10/2026.
+# Des que rapport.pdf s ecrit de nouveau, les versions de secours nees d un
+# verrou partent dans archives, datees, au lieu de s empiler a cote.
+if pdf.name == "rapport.pdf":
+    from datetime import date
+    for ancien in dossier.glob("rapport-*.pdf"):
+        (dossier / "archives").mkdir(exist_ok=True)
+        cible = dossier / "archives" / f"rapport-{date.today():%Y-%m-%d}-{ancien.stem.split('-')[-1]}.pdf"
+        ancien.replace(cible)
+        print(f"archive {ancien.name} -> archives/{cible.name}")

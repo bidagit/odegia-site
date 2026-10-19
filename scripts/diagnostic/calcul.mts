@@ -569,7 +569,16 @@ export function diagnostiquer(e: Entree) {
           })()
         : null;
     if (!base) return null;
-    return { ...base, outils: outilsMois, solde: base.valeur - base.mensualite - outilsMois,
+    /* Premiere annee, montee en charge comprise, relecture d Adib du
+       19/10/2026. La mensualite court des la signature, chaque automatisation
+       ne rend qu a partir de la semaine qui suit sa livraison. Sans cela le
+       gain affiche pour l annee un supposait tout en service au premier jour. */
+    const finDe = (id: string) => feuilleDeRoute.calendrier.briques.find((x) => x.id === id)?.fin ?? 0;
+    const renduAn1 = base.recommande
+      ? recommandees.reduce((a, u) => a + u.gainMensuel * 12 * Math.max(0, 52 - finDe(u.id)) / 52, 0)
+      : base.valeur * 12;
+    const gainAn1 = renduAn1 - 12 * (base.mensualite + outilsMois);
+    return { ...base, outils: outilsMois, gainAn1, renduAn1, solde: base.valeur - base.mensualite - outilsMois,
       valeurHorizon: base.valeur * HORIZON_MOIS,
       coutHorizon: base.mensualite * ENGAGEMENT_MOIS + base.ensuite * (HORIZON_MOIS - ENGAGEMENT_MOIS) + outilsMois * HORIZON_MOIS };
   })();

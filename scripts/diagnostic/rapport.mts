@@ -150,6 +150,7 @@ const partie1 = `
     </tbody>
     <tfoot><tr><td colspan="3">Total</td>${proj ? `<td class="n passe">${heures(c.totaux.heuresMoisMesure)}</td>` : ""}<td class="n">${heures(c.totaux.heuresMois)}</td><td class="n">${euros(c.totaux.coutAnnuel)}</td></tr></tfoot>
   </table>
+  ${c.totaux.perteAnnuelleMesuree > 0.5 ? `<div class="plafond"><span class="etiquette">Ce que ces heures ne montrent pas</span><p>Environ <strong>${euros(c.totaux.perteAnnuelleMesuree)} par an</strong> restent dus sans être encaissés aujourd'hui, des forfaits commencés et jamais soldés. Les lignes à 0 min sont des tâches que vous ne faites pas encore, c'est là que cet argent se perd.</p></div>` : ""}
   ${encadrePlafond}
   ${encadrePlafond ? "" : `<p class="note">Durées relevées avec vous${c.lignes.some((l) => (l.bascule ?? 0) > 0) ? ", temps pour s'y remettre et s'en défaire compris" : ""}. ${proj ? "Les pages suivantes se calculent sur les douze prochains mois." : "Le coût est celui du temps passé, avant toute automatisation."}</p>`}
 </section>`;
@@ -250,7 +251,7 @@ const partie3 = `
   ${para(r.ordre)}
   ${c.suivantes.length ? `<p class="note">Ensuite, ${c.suivantes.map((id) => esc(uniteId.get(id)!.nom)).join(", ")}. Elles se reconsidèrent une fois les trois premières en service.</p>` : ""}
   ${para(r.ensuite)}
-  <p class="note">Temps économisé calculé à ${Math.round(c.parametres.PART_RECUPERABLE * 100)} % du temps relevé, le reste couvre le contrôle et les cas particuliers.${proj ? ` Il se calcule sur les douze prochains mois tels que vous les estimez, plafonnés à ${c.parametres.PLAFOND_PROJECTION} fois le volume mesuré.` : ""}${c.totaux.perteAnnuelle > 0.5 ? ` Aujourd'hui, environ ${euros(c.totaux.perteAnnuelleMesuree)} par an restent dus sans être encaissés. Nous comptons qu'un suivi systématique des échéances en récupère ${Math.round(c.parametres.PART_RECOUVREE * 100)} %, une hypothèse prudente, une relance rattrape les oublis et les retards, pas un départ décidé.` : ""}</p>
+  <p class="note">Temps économisé calculé à ${Math.round(c.parametres.PART_RECUPERABLE * 100)} % du temps relevé, le reste couvre le contrôle et les cas particuliers.${proj ? ` Il se calcule sur les douze prochains mois tels que vous les estimez${plafonnees.length ? `, plafonnés à ${c.parametres.PLAFOND_PROJECTION} fois le volume mesuré` : ""}.` : ""}${c.totaux.perteAnnuelle > 0.5 ? ` Aujourd'hui, environ ${euros(c.totaux.perteAnnuelleMesuree)} par an restent dus sans être encaissés. Nous comptons qu'un suivi systématique des échéances en récupère ${Math.round(c.parametres.PART_RECOUVREE * 100)} %, une hypothèse prudente, une relance rattrape les oublis et les retards, pas un départ décidé.` : ""}</p>
 </section>`;
 
 /* ── 4. Ce que ca coute, le devis ────────────────────────────────────────── */
@@ -268,16 +269,16 @@ const E = c.parametres.ENGAGEMENT_MOIS;
    diagnostic, offert, ou rembourse s il avait ete paye. */
 const offert = !!entree.diagnostic.offert;
 const gainNet = b ? `
-  <div class="accroche"><p>${b.solde >= 0 ? `Une fois Odegia payé, vous gagnez <strong>${euros(b.solde)} par mois</strong>${b.ensuite !== b.mensualite ? " la première année" : ""}.` : `Une fois Odegia payé, il vous manque ${euros(-b.solde)} par mois.`}</p></div>
+  <div class="accroche"><p>${b.solde >= 0 ? `Une fois tout en service et Odegia payé, vous gagnez <strong>${euros(b.solde)} par mois</strong>${b.ensuite !== b.mensualite ? " la première année" : ""}.` : `Une fois Odegia payé, il vous manque ${euros(-b.solde)} par mois.`}</p></div>
   <div class="bilan">
     <span class="etiquette">${b.recommande ? "Chaque mois, une fois en service" : `Si vous lanciez ${esc(uniteId.get(c.candidats[0].id)!.nom.toLowerCase())} quand même, chaque mois`}</span>
     <div class="bilan-grille">
       <div><span class="valeur">${euros(b.valeur)}</span><span class="legende">économisés, ${heures(b.heures)} h de temps${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}</span></div>
-      <div><span class="valeur">${euros(b.mensualite)}</span><span class="legende">payés à Odegia, construction et surveillance comprises${b.ensuite !== b.mensualite ? `, puis ${euros(b.ensuite)} après ${c.parametres.ENGAGEMENT_MOIS} mois` : ""}</span></div>
+      <div><span class="valeur">${euros(b.mensualite)}</span><span class="legende">payés à Odegia, construction et supervision comprises${b.ensuite !== b.mensualite ? `, puis ${euros(b.ensuite)} après ${c.parametres.ENGAGEMENT_MOIS} mois` : ""}</span></div>
       ${c.outils.liste.length ? `<div><span class="valeur">${euros(b.outils)}</span><span class="legende">${b.outils > 0.5 ? "d'outils à votre nom" : "d'outils en plus, ceux qu'il faut sont gratuits, compris ou déjà payés"}</span></div>` : ""}
       <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois${b.ensuite !== b.mensualite ? `, la première année, puis ${solde(b.valeur - b.ensuite - b.outils)}` : ""}</span></div>
     </div>
-    <p class="note">Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia${b.outils > 0.5 ? " et pour vos outils" : ""}. Vous ne payez rien d'avance pour la construction.</p>
+    <p class="note">Sur la première année, chaque automatisation ne vous fait économiser qu'à partir de sa livraison, alors que la mensualité court dès la signature. Construction comprise, vous gagnez ${solde(b.gainAn1)} sur cette première année. Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia${b.outils > 0.5 ? " et pour vos outils" : ""}. Vous ne payez rien d'avance pour la construction.</p>
   </div>` : "";
 const tableNet = c.positions.length ? `
   <table class="dense">
@@ -352,14 +353,14 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
   </table>
   <div class="suivi">
     <span class="etiquette">Ce que la mensualité comprend, et sa durée</span>
-    <p><strong>La construction, la surveillance, la correction des dérives et les ajustements.</strong> Vous ne payez rien d'avance, la première mensualité est prélevée à la commande.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
+    <p><strong>La construction, la supervision, la correction des dérives et les ajustements.</strong> Vous ne payez rien d'avance, la première mensualité est prélevée à la commande.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
     <p>Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteEnsuiteHT)} HT.` : ""} Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis.</p>
   </div>
   <ul class="conditions">
     <li>Vos abonnements aux outils restent à votre nom et sont réglés par vous.</li>
     <li>Aucun accès à un compte bancaire ni à un moyen de paiement, y compris en lecture.</li>
     <li>Règles et limites de chaque automatisation écrites et validées avec vous avant construction.</li>
-    <li>À tout moment, vous pouvez reprendre vos automatisations à votre compte. Nous vous les transférons contre des frais de mise en place égaux à ${c.parametres.RACHAT_MENSUALITES} mensualités au prix en vigueur, soit ${euros(d.mensualiteHT * c.parametres.RACHAT_MENSUALITES)} HT${d.mensualiteEnsuiteHT !== d.mensualiteHT ? ` la première année, puis ${euros(d.mensualiteEnsuiteHT * c.parametres.RACHAT_MENSUALITES)} HT` : ""}. Vous assurez ensuite vous-même les corrections, mises à jour et améliorations, et la mensualité s'arrête au transfert.</li>
+    <li>Au terme des ${E} mois d'engagement, vous pouvez reprendre vos automatisations à votre compte. Nous vous les transférons contre des frais de mise en place égaux à ${c.parametres.RACHAT_MENSUALITES} mensualités, soit ${euros(d.mensualiteEnsuiteHT * c.parametres.RACHAT_MENSUALITES)} HT. Vous assurez ensuite vous-même les corrections, mises à jour et améliorations, et la mensualité s'arrête au transfert.</li>
   </ul>
   <div class="accord"><span>Bon pour accord, date et signature</span></div>
 </section>`;
@@ -390,7 +391,7 @@ const partie5 = `
   <ol class="temps">
     <li><span class="rang">1</span><div><h3>Les fondations <span class="delai">${semaines(f.calendrier.socle)}</span></h3>${fondations}</div></li>
     <li><span class="rang">2</span><div><h3>La construction ${f.calendrier.briques.length ? `<span class="delai">${semaines({ debut: f.calendrier.briques[0].debut, fin: f.calendrier.briques[f.calendrier.briques.length - 1].fin })}</span>` : ""}</h3>${f.construire.length ? `<p>Dans l'ordre de la page 3.</p><ul class="puces">${f.construire.map((u) => { const cal = f.calendrier.briques.find((x) => x.id === u.id)!; return `<li>${esc(uniteId.get(u.id)!.nom)}, ${autonomie(u.niveau).toLowerCase()}, ${semaines(cal)}</li>`; }).join("")}</ul>` : "<p>Au seul calcul du temps, aucune construction ne se justifie.</p>"}${f.deleguer.length ? `<p><strong>À confier à quelqu'un</strong>, avec des instructions écrites. ${f.construire.length ? "Ces tâches restent hors de la construction, trop légères pour couvrir ce qu'elles coûteraient." : "À ce volume, leur automatisation coûterait plus qu'elle ne fait économiser."}</p>${liste(f.deleguer)}` : ""}</div></li>
-    <li><span class="rang">3</span><div><h3>Le calibrage ${f.calendrier.supervision ? `<span class="delai">${semaines(f.calendrier.supervision)}</span>` : ""}</h3><p>${f.calendrier.supervision ? "Une semaine de mise en place après la première livraison, puis quatre semaines de rodage. " : ""}Tout passe par votre validation, et chaque retouche que vous faites sert à modifier et améliorer les règles, jusqu'à ce que le système produise ce que vous auriez fait.</p></div></li>
+    <li><span class="rang">3</span><div><h3>Le calibrage ${f.calendrier.supervision ? `<span class="delai">${semaines(f.calendrier.supervision)}</span>` : ""}</h3><p>${f.calendrier.supervision ? "Il commence dès la première livraison, pendant que la suite se construit, une semaine de mise en place puis quatre de rodage. " : ""}Tout passe par votre validation, et chaque retouche que vous faites sert à modifier et améliorer les règles, jusqu'à ce que le système produise ce que vous auriez fait.</p></div></li>
     <li><span class="rang">4</span><div><h3>La supervision allégée ${f.calendrier.calibrage ? `<span class="delai">dès la semaine ${f.calendrier.calibrage}, en continu</span>` : ""}</h3><p>${f.fileExceptions.length ? "Ce qui attend encore votre accord arrive dans une seule file, au lieu d'être éparpillé dans vos mails. " : ""}Un tableau montre ce qui tourne. Vous le regardez ${[[f.cadence.jour, "par jour"], [f.cadence.semaine, "par semaine"], [f.cadence.mois, "par mois"]].filter(([m]) => (m as number) > 0).map(([m, u]) => `${fmtCadence(m as number)} ${u}`).join(", ")}, et nous corrigeons les écarts mineurs au fil de l'eau.</p></div></li>
   </ol>
   ${f.aVotreMain.length ? `<p class="note"><strong>Reste à votre main, par choix.</strong> ${noms(f.aVotreMain).join(" · ")}</p>` : ""}
@@ -415,19 +416,18 @@ const resume0 = `
       <span>Diagnostic administratif</span>
       <span>${esc(entree.client.entite)}</span>
       <span>${dateFr(dateRapport)}</span>
-      <span>Méthode v${c.methode}</span>
     </div>
   </header>
   <p class="eyebrow">En bref</p>
   <h1>Votre diagnostic sur une page</h1>
   <div class="resume">
-    ${etapeResume("1", "Ce que vous coûte l'administratif", `${euros(coutMois)}`, `par mois, ${heures(c.totaux.heuresMois)} h de votre temps${impayesMois > 0.5 ? `, et environ ${euros(impayesMois)} d'impayés chaque mois aujourd'hui` : ""}`)}
+    ${etapeResume("1", "Ce que vous coûte l'administratif", `${euros(coutMois)}`, `par mois${proj ? " sur les douze prochains mois" : ""}, ${heures(c.totaux.heuresMois)} h de votre temps${proj ? `, contre ${euros(c.totaux.coutAnnuelMesure / 12)} aujourd'hui` : ""}${impayesMois > 0.5 ? `. S'y ajoutent environ ${euros(impayesMois)} d'impayés par mois` : ""}`)}
     ${fleche}
     ${b ? etapeResume("2", "Ce qu'Odegia vous apporte", `${euros(b.valeur)}`, `par mois, ${heures(b.heures)} h économisées${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}`, "resume-vert") : etapeResume("2", "Ce qu'Odegia vous apporte", "—", "aucune automatisation ne se justifie à ce volume")}
     ${fleche}
     ${b ? etapeResume("3", "Ce qu'Odegia vous coûte", `${euros(b.mensualite + b.outils)}`, `par mois${b.ensuite !== b.mensualite ? `, la première année, puis ${euros(b.ensuite + b.outils)}` : ""}, rien à payer d'avance${c.outils.liste.length ? (b.outils > 0.5 ? `, dont ${euros(b.outils)} d'outils à votre nom` : ", vos outils ne vous coûtent rien de plus") : ""}`) : etapeResume("3", "Ce qu'Odegia vous coûte", "0 €", "le diagnostic est offert")}
   </div>
-  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span>Ce que vous gagnez</span><strong>${solde(b.solde)} net par mois</strong>${b.ensuite !== b.mensualite ? `<span>la première année, puis ${solde(b.valeur - b.ensuite - b.outils)}</span>` : ""}</div>` : ""}
+  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span>Ce que vous gagnez, une fois en service</span><strong>${solde(b.solde)} net par mois</strong>${b.ensuite !== b.mensualite ? `<span>puis ${solde(b.valeur - b.ensuite - b.outils)} après ${c.parametres.ENGAGEMENT_MOIS} mois</span>` : ""}<span class="resume-an1">Sur la première année, construction comprise, ${solde(b.gainAn1)} au total.</span></div>` : ""}
   ${c.positions.length ? `<div class="resume-bloc"><span class="etiquette">Ce qui s'automatise</span><ul class="resume-chips">${c.positions.map((p) => `<li>${esc(uniteId.get(p.id)!.nom)}</li>`).join("")}</ul></div>` : ""}
   ${fdr.briques.length ? `<div class="resume-bloc"><span class="etiquette">Comment ça se passe</span><div class="resume-temps">
     <div><strong>Fondations</strong><span>${semaines(fdr.socle)}</span></div>${fleche}
@@ -435,7 +435,7 @@ const resume0 = `
     ${fdr.supervision ? `<div><strong>Calibrage</strong><span>${semaines(fdr.supervision)}</span></div>${fleche}` : ""}
     ${fdr.calibrage ? `<div><strong>Supervision allégée</strong><span>dès la semaine ${fdr.calibrage}</span></div>` : ""}
   </div></div>` : ""}
-  <p class="note">Le détail de chaque chiffre suit, page par page. Montants hors taxes.</p>
+  <p class="note">Le détail de chaque chiffre suit, page par page. Montants hors taxes. Méthode Odegia v${c.methode}.</p>
 </section>`;
 
 const html = `<!doctype html>
@@ -543,6 +543,7 @@ const html = `<!doctype html>
   .resume-net strong { font: 800 22pt/1 "Outfit", sans-serif; }
   .resume-net span { font-size:9pt; }
   .resume-negatif { background:var(--rose-soft); }
+  .resume-an1 { flex-basis:100%; font-size:8.5pt; }
   .resume-bloc { margin-bottom:6mm; }
   .resume-chips { list-style:none; padding:0; margin:2mm 0 0; display:flex; flex-wrap:wrap; gap:2mm; }
   .resume-chips li { border:1.5px solid var(--ink); border-radius:999px; padding:1.2mm 3.5mm; font-size:8.5pt; background:var(--vert-soft); }

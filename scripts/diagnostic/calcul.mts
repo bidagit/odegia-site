@@ -35,7 +35,15 @@ import {
    change a chaque regle de decision, definition de mesure ou grille modifiee,
    et le protocole du vault dit ce que chaque version contient. Un rapport se
    relit toujours avec les regles de sa version. */
-export const METHODE_VERSION = "2.3";
+export const METHODE_VERSION = "2.4";
+
+/* v2.4, decision d Adib du 19/10/2026, diagnostic Alteria. Un client en
+   franchise de TVA, micro-entrepreneur ou association, ne recupere pas la TVA,
+   Odegia lui coute donc la mensualite TTC. Le gain net, le classement et le
+   bilan se calculent sur ce cout reel, le devis reste en HT avec sa TVA. Champ
+   tvaRecuperable a false. Le rapport donne aussi le nombre de nouveaux clients
+   qui paient une annee d Odegia, champ valeurNouveauClient. */
+export const TAUX_TVA = 0.2;
 
 /* v2.3, decision d Adib du 19/10/2026, diagnostic Alteria. Les abonnements
    restent au nom du client et a sa charge, le devis le dit. Le gain net les
@@ -223,6 +231,12 @@ export type Entree = {
      50 % la premiere annee le 17/10/2026, elle paie deja 390 EUR HT par mois a
      Foot on the Moon. */
   remiseGroupeTaux?: number;
+  /* v2.4, false pour un client qui ne recupere pas la TVA. */
+  tvaRecuperable?: boolean;
+  /* v2.4, ce que rapporte en moyenne un nouveau client du client, et le mot
+     qui le designe dans le rapport, coaches, adherents, clients. */
+  valeurNouveauClient?: number;
+  motNouveauClient?: string;
   /* v2.3, outils a la charge du client. */
   /* Debut de la facturation, decision d Adib du 19/10/2026 pour Alteria. A la
      premiere livraison, les douze mois d engagement courent a partir de la. */
@@ -323,6 +337,8 @@ export function diagnostiquer(e: Entree) {
     );
   }
   const tauxClient = e.taux ?? TAUX_PAR_DEFAUT;
+  /* v2.4, cout reel de la mensualite pour le client. */
+  const fTVA = e.tvaRecuperable === false ? 1 + TAUX_TVA : 1;
 
   const lignes: LigneDiag[] = e.taches.map((t) => {
     const def = t.catalogue ? TACHES.find((x) => x.id === t.catalogue) : null;
@@ -379,7 +395,7 @@ export function diagnostiquer(e: Entree) {
     /* Meme lecture que l estimateur depuis la v2.0, ce que la brique rend
        chaque mois contre ce qu elle coute chaque mois. */
     const mensualite = palier ? mensualiteDe(palier) : 0;
-    const gainNetMensuel = gainMensuel - mensualite;
+    const gainNetMensuel = gainMensuel - mensualite * fTVA;
 
     const bande = def ? bandeDe(t.frequenceAn) : null;
     const heuresBareme = def && bande
@@ -457,7 +473,7 @@ export function diagnostiquer(e: Entree) {
     const ls = groupes.get(id)!;
     const mensualite = mensualiteDe(PALIER_PARCOURS);
     const gainMensuel = ls.reduce((a, l) => a + l.gainMensuel, 0);
-    const gainNetMensuel = gainMensuel - mensualite;
+    const gainNetMensuel = gainMensuel - mensualite * fTVA;
     unites.push({
       id, nom: e.parcours?.[id] ?? id, parcours: true, taches: ls.map((l) => l.id),
       palier: PALIER_PARCOURS, mensualite,
@@ -580,17 +596,18 @@ export function diagnostiquer(e: Entree) {
   const avecGroupe = (m: number) => (e.remiseGroupe ? arrondi5(m * (1 - tauxGroupe)) : m);
   /* v2.3, ce que les outils coutent en plus chaque mois, hors abonnements
      deja payes. */
-  const outilsMois = (e.outils ?? []).filter((o) => !o.dejaPaye).reduce((a, o) => a + o.prixMois, 0);
+  const outilsMoisHT = (e.outils ?? []).filter((o) => !o.dejaPaye).reduce((a, o) => a + o.prixMois, 0);
   const bilanMensuel = (() => {
     const base = recommandees.length
-      ? { recommande: true, heures: recommandees.reduce((a, u) => a + u.heuresRecuperees, 0), valeur: gainMensuelPerimetre, encaissement: recommandees.reduce((a, u) => a + u.encaissementMensuel, 0), mensualite: mensualiteEngagement, ensuite: mensualiteEnsuite }
+      ? { recommande: true, heures: recommandees.reduce((a, u) => a + u.heuresRecuperees, 0), valeur: gainMensuelPerimetre, encaissement: recommandees.reduce((a, u) => a + u.encaissementMensuel, 0), mensualite: mensualiteEngagement * fTVA, ensuite: mensualiteEnsuite * fTVA }
       : unites.length
         ? (() => {
             const u = [...unites].sort((a, b) => b.gainMensuel - a.gainMensuel)[0];
-            return { recommande: false, heures: u.heuresRecuperees, valeur: u.gainMensuel, encaissement: u.encaissementMensuel, mensualite: avecGroupe(u.mensualite), ensuite: u.mensualite };
+            return { recommande: false, heures: u.heuresRecuperees, valeur: u.gainMensuel, encaissement: u.encaissementMensuel, mensualite: avecGroupe(u.mensualite) * fTVA, ensuite: u.mensualite * fTVA };
           })()
         : null;
     if (!base) return null;
+    const outilsMois = outilsMoisHT * fTVA;
     /* Premiere annee, montee en charge comprise, relecture d Adib du
        19/10/2026. La mensualite court des la signature, chaque automatisation
        ne rend qu a partir de la semaine qui suit sa livraison. Sans cela le
@@ -620,7 +637,15 @@ export function diagnostiquer(e: Entree) {
       gainAn1: an1((u) => u.gainMensuelMesure, valeurMesure),
       valeurHorizon: valeurMesure * HORIZON_MOIS,
     };
-    return { ...base, outils: outilsMois, gainAn1, renduAn1, mesure, premiereLivraison,
+    /* v2.4, combien de nouveaux clients du client paient Odegia, la premiere
+       annee puis chaque annee suivante. */
+    const nouveauxClients = e.valeurNouveauClient
+      ? { valeur: e.valeurNouveauClient, mot: e.motNouveauClient ?? "clients",
+          an1: coutAn1 / e.valeurNouveauClient,
+          anSuivant: (12 * (base.ensuite + outilsMois)) / e.valeurNouveauClient }
+      : null;
+    return { ...base, outils: outilsMois, gainAn1, renduAn1, mesure, premiereLivraison, coutAn1, nouveauxClients,
+      ttc: fTVA > 1,
       debutFacturation: e.debutFacturation ?? "signature",
       solde: base.valeur - base.mensualite - outilsMois,
       valeurHorizon: base.valeur * HORIZON_MOIS,
@@ -680,6 +705,7 @@ export function diagnostiquer(e: Entree) {
       BASCULE_MAX,
       PLAFOND_PROJECTION,
       PART_RECOUVREE,
+      TAUX_TVA,
       tauxHypothese: e.taux === null,
       taux: tauxClient,
     },
@@ -711,7 +737,7 @@ export function diagnostiquer(e: Entree) {
     /* Rien ne rend plus que sa mensualite. Le rapport le dit et ne propose
        aucun devis, sauf a la demande du client. */
     aucuneRecommandation: recommandees.length === 0,
-    outils: { liste: e.outils ?? [], mois: outilsMois },
+    outils: { liste: e.outils ?? [], mois: outilsMoisHT * fTVA },
     devis: {
       mensualitePleine: parc.pleine,
       remisePack: parc.remise,

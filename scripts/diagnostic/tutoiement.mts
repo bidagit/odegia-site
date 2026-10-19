@@ -9,6 +9,11 @@
    le controle de produire.sh la signale. */
 
 const TABLE: [string, string][] = [
+  ["la TVA comprise puisque vous ne la récupérez pas", "la TVA comprise puisque tu ne la récupères pas"],
+  ["Vous ne récupérez pas la TVA", "Tu ne récupères pas la TVA"],
+  ["et votre première année Odegia est payée", "et ta première année Odegia est payée"],
+  ["vous rapporte en moyenne", "te rapporte en moyenne"],
+  ["Votre première année Odegia", "Ta première année Odegia"],
   ["Ce que votre administratif vous coûte, et ce qu'il vous coûtera", "Ce que ton administratif te coûte, et ce qu'il te coûtera"],
   ["Votre administratif vous prend", "Ton administratif te prend"],
   ["si vous doublez le nombre de vos coachés", "si tu doubles le nombre de tes coachés"],

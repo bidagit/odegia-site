@@ -20,6 +20,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { diagnostiquer, type Entree, type LigneDiag } from "./calcul.mts";
+import { tutoyer, restesVouvoiement } from "./tutoiement.mts";
 import { NOM_PALIER, TACHES, euros as eurosSite, heures } from "../../lib/estimator.ts";
 
 /* Intl separe les milliers par une espace fine insecable, que la police des
@@ -27,6 +28,19 @@ import { NOM_PALIER, TACHES, euros as eurosSite, heures } from "../../lib/estima
    rapport la remplace par l espace insecable ordinaire, le site garde la sienne. */
 const euros = (n: number) => eurosSite(n).replace(/ /g, " ");
 import { LEGAL, SITE } from "../../lib/content.ts";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import * as Lucide from "lucide-react";
+
+/* Illustrations des automatisations, demande d Adib du 19/10/2026, pour que le
+   client voie ce que fait chaque automatisation. Icones Lucide rendues en SVG
+   au moment du rapport, un nom inconnu tombe sur un cercle plutot que de casser
+   le rendu. */
+const icone = (nom: string | undefined, taille = 16) => {
+  const I = (Lucide as unknown as Record<string, Parameters<typeof createElement>[0]>)[nom ?? ""] ?? Lucide.Circle;
+  return renderToStaticMarkup(createElement(I as never, { size: taille, strokeWidth: 2 } as never));
+};
+type Etape = { icone?: string; texte: string; vous?: boolean };
 
 const dossier = process.argv[2];
 if (!dossier) {
@@ -185,6 +199,7 @@ const partie2Dense = `
   ${para(r.automatisable)}
   <table class="dense orientations"><tbody>${groupes2}</tbody></table>
   ${c.lignes.some((l) => l.cadrage && l.verdict === "brique") ? para(r.cadrage) : ""}
+  ${para(r.ensuite)}
 </section>`;
 const partie2 = c.lignes.length > 6 ? partie2Dense : `
 <section class="page">
@@ -204,6 +219,7 @@ const partie2 = c.lignes.length > 6 ? partie2Dense : `
       .join("")}
   </div>
   ${c.lignes.some((l) => l.cadrage && l.verdict === "brique") ? para(r.cadrage) : ""}
+  ${para(r.ensuite)}
 </section>`;
 
 /* ── 3. Ce qu Odegia vous fait economiser ────────────────────────────────── */
@@ -252,17 +268,16 @@ const partie3 = `
         <div>
           <h3>${esc(l.nom)}${p.demande ? ` <span class="delai">à votre demande</span>` : ""}</h3>
           <p class="ligne-chiffres">${designationClient(l)}</p>
-          ${l.parcours ? `<div class="flux">${l.taches.map((t) => { const x = parId.get(t)!; return `<div class="flux-etape"><span class="flux-nom">${esc(x.etiquette ?? x.nom)}</span><span class="flux-mode">${x.niveau === 4 ? "100 % autonome" : "vous validez"}</span></div>`; }).join(`<span class="flux-fleche">→</span>`)}</div>` : ""}
+          ${l.parcours
+            ? `<div class="flux">${l.taches.map((t) => { const x = parId.get(t)! as LigneDiag & { icone?: string }; return `<div class="flux-etape"><span class="flux-icone">${icone(x.icone)}</span><span class="flux-nom">${esc(x.etiquette ?? x.nom)}</span><span class="flux-mode">${x.niveau === 4 ? "100 % autonome" : "vous validez"}</span></div>`; }).join(`<span class="flux-fleche">→</span>`)}</div>`
+            : (() => { const x = parId.get(l.taches[0]) as (LigneDiag & { illustration?: Etape[] }) | undefined; return x?.illustration?.length ? `<div class="flux">${x.illustration.map((e) => `<div class="flux-etape ${e.vous ? "flux-vous" : ""}"><span class="flux-icone">${icone(e.icone)}</span><span class="flux-nom">${esc(e.texte)}</span></div>`).join(`<span class="flux-fleche">→</span>`)}</div>` : ""; })()}
           <p class="ligne-chiffres">${economie(vue(l))}${proj && l.gainMensuel - l.gainMensuelMesure > 0.5 ? `, jusqu'à ${euros(l.gainMensuel)} selon votre estimation` : ""}</p>
         </div>
       </li>`;
       })
       .join("")}
   </ol>
-  ${para(r.ordre)}
   ${c.suivantes.length ? `<p class="note">Ensuite, ${c.suivantes.map((id) => esc(uniteId.get(id)!.nom)).join(", ")}. Elles se reconsidèrent une fois les trois premières en service.</p>` : ""}
-  ${para(r.ensuite)}
-  <p class="note">Temps économisé calculé à ${Math.round(c.parametres.PART_RECUPERABLE * 100)} % du temps relevé, le reste couvre le contrôle et les cas particuliers.${proj ? ` Il part de votre volume d'aujourd'hui, et le « jusqu'à » de votre estimation des douze prochains mois${plafonnees.length ? `, plafonnés à ${c.parametres.PLAFOND_PROJECTION} fois le volume mesuré` : ""}.` : ""}${c.totaux.perteAnnuelle > 0.5 ? ` Aujourd'hui, environ ${euros(c.totaux.perteAnnuelleMesuree)} par an restent dus sans être encaissés. Nous comptons qu'un suivi systématique des échéances en récupère ${Math.round(c.parametres.PART_RECOUVREE * 100)} %, soit environ ${euros(c.totaux.perteAnnuelleMesuree * c.parametres.PART_RECOUVREE / 12)} par mois, une hypothèse prudente, une relance rattrape les oublis et les retards, pas un départ décidé.` : ""}</p>
 </section>`;
 
 /* ── 4. Ce que ca coute, le devis ────────────────────────────────────────── */
@@ -287,7 +302,7 @@ const gainNet = b ? `
       <div><span class="valeur">${euros(b.valeur)}</span><span class="legende">économisés, ${heures(b.heures)} h de temps${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}</span></div>
       <div><span class="valeur">${euros(b.mensualite)}</span><span class="legende">payés à Odegia, construction et supervision comprises${b.ensuite !== b.mensualite ? `, puis ${euros(b.ensuite)} après ${c.parametres.ENGAGEMENT_MOIS} mois` : ""}</span></div>
       ${c.outils.liste.length ? `<div><span class="valeur">${euros(b.outils)}</span><span class="legende">${b.outils > 0.5 ? "d'outils à votre nom" : "d'outils en plus, ceux qu'il faut sont gratuits, compris ou déjà payés"}</span></div>` : ""}
-      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois${b.ensuite !== b.mensualite ? `, la première année, puis ${solde(ensuiteNet(bProj!))}` : ""}</span></div>
+      <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois${b.ensuite !== b.mensualite ? `, la première année, puis ${solde(ensuiteNet(bProj!))}${hausse ? `, ou ${solde(bProj!.valeur - bProj!.ensuite - bProj!.outils)} selon votre estimation` : ""}` : ""}</span></div>
     </div>
     <p class="note">${proj ? "Ces montants partent de votre volume d'aujourd'hui. " : ""}Sur la première année, chaque automatisation ne vous fait économiser qu'à partir de sa livraison${b.debutFacturation === "livraison" ? `, et la mensualité ne court qu'à partir de la première, en semaine ${b.premiereLivraison}` : ", alors que la mensualité court dès la signature"}. Construction comprise, vous gagnez ${solde(b.gainAn1)} sur cette première année.${hausse ? ` Si votre activité suit votre estimation, l'économie monte à ${euros(bProj!.valeur)} par mois et le gain net à ${solde(bProj!.solde)}.` : ""} Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia${b.outils > 0.5 ? " et pour vos outils" : ""}. Vous ne payez rien d'avance pour la construction.</p>
   </div>` : "";
@@ -315,6 +330,7 @@ const partie5Gain = `
   <p class="eyebrow">05</p>
   <h1>Ce que coûte Odegia, et ce que vous gagnez</h1>
   ${gainNet}
+  <p class="note">Temps économisé calculé à ${Math.round(c.parametres.PART_RECUPERABLE * 100)} % du temps relevé, le reste couvre le contrôle et les cas particuliers.${proj ? ` Il part de votre volume d'aujourd'hui, et le « jusqu'à » de votre estimation des douze prochains mois${plafonnees.length ? `, plafonnés à ${c.parametres.PLAFOND_PROJECTION} fois le volume mesuré` : ""}.` : ""}${c.totaux.perteAnnuelle > 0.5 ? ` Aujourd'hui, environ ${euros(c.totaux.perteAnnuelleMesuree)} par an restent dus sans être encaissés. Nous comptons qu'un suivi systématique des échéances en récupère ${Math.round(c.parametres.PART_RECOUVREE * 100)} %, soit environ ${euros(c.totaux.perteAnnuelleMesuree * c.parametres.PART_RECOUVREE / 12)} par mois, une hypothèse prudente, une relance rattrape les oublis et les retards, pas un départ décidé.` : ""}</p>
   ${tableOutils}
   ${tableCandidats}
 </section>`;
@@ -364,7 +380,7 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
   </table>
   <div class="suivi">
     <span class="etiquette">Ce que la mensualité comprend, et sa durée</span>
-    <p><strong>La construction, la supervision, la correction des dérives et les ajustements.</strong> Vous ne payez rien d'avance${c.bilanMensuel?.debutFacturation === "livraison" ? ", la première mensualité est prélevée à la première livraison, et les ${E} mois d'engagement courent à partir de là" : ", la première mensualité est prélevée à la commande"}.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
+    <p><strong>La construction, la supervision, la correction des dérives et les ajustements.</strong> Vous ne payez rien d'avance${c.bilanMensuel?.debutFacturation === "livraison" ? `, la première mensualité est prélevée à la première livraison, et les ${E} mois d'engagement courent à partir de là` : ", la première mensualité est prélevée à la commande"}.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
     <p>Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteEnsuiteHT)} HT.` : ""} Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis.</p>
   </div>
   <ul class="conditions">
@@ -398,6 +414,7 @@ const partie5 = `
   <h1>Votre feuille de route</h1>
   ${c.definition ? `<div class="definition"><div><span class="etiquette">Ce que vous produisez</span><p>${esc(c.definition.produit)}</p></div><div><span class="etiquette">Pour qui</span><p>${esc(c.definition.pourQui)}</p></div><div><span class="etiquette">Par quel flux</span><p>${esc(c.definition.fluxDeValeur)}</p></div></div>` : ""}
   ${para(r.feuilleDeRoute)}
+  ${para(r.ordre)}
   <p class="note">Délais indicatifs, comptés en semaines à partir de la signature.</p>
   <ol class="temps">
     <li><span class="rang">1</span><div><h3>Les fondations <span class="delai">${semaines(f.calendrier.socle)}</span></h3>${fondations}</div></li>
@@ -419,6 +436,18 @@ const etapeResume = (n: string, titre: string, valeur: string, legende: string, 
   `<div class="resume-etape ${ton}"><span class="resume-n">${n}</span><span class="etiquette">${titre}</span><span class="resume-valeur">${valeur}</span><span class="legende">${legende}</span></div>`;
 const fleche = `<span class="resume-fleche">→</span>`;
 const fdr = c.feuilleDeRoute.calendrier;
+/* Barres des cartes, meme echelle pour les trois, demande d Adib du
+   19/10/2026. Le temps et l argent ont chacun leur couleur, pour que la carte 2
+   montre a la fois le temps economise et les revenus recuperes. */
+const tempsAujourdhui = coutMois;
+const echelle = Math.max(tempsAujourdhui + impayesMois, b ? b.valeur : 0, b ? b.mensualite + b.outils : 0, 1);
+const barre = (segments: { v: number; cls: string }[]) =>
+  `<div class="barre">${segments.filter((x) => x.v > 0.5).map((x) => `<span class="${x.cls}" style="width:${(100 * x.v / echelle).toFixed(1)}%"></span>`).join("")}</div>`;
+const legende = `<div class="legende-barres"><span><i class="seg-temps"></i>Temps administratif</span><span><i class="seg-argent"></i>Revenus, impayés</span><span><i class="seg-odegia"></i>Odegia</span></div>`;
+/* Frise de trois mois, une ligne par temps, semaines en abscisse. */
+const SEMAINES_FRISE = 13;
+const ligneFrise = (nom: string, debut: number, fin: number, continu = false) =>
+  `<div class="frise-ligne"><span class="frise-nom">${nom}</span><div class="frise-piste"><span class="frise-barre ${continu ? "frise-continu" : ""}" style="left:${(100 * (debut - 1) / SEMAINES_FRISE).toFixed(1)}%;width:${(100 * (Math.min(fin, SEMAINES_FRISE) - debut + 1) / SEMAINES_FRISE).toFixed(1)}%">${continu ? "en continu →" : `sem. ${debut}${fin > debut ? ` à ${fin}` : ""}`}</span></div></div>`;
 const resume0 = `
 <section class="page">
   <header class="entete">
@@ -432,21 +461,22 @@ const resume0 = `
   <p class="eyebrow">En bref</p>
   <h1>Votre diagnostic sur une page</h1>
   <div class="resume">
-    ${etapeResume("1", "Ce que vous coûte l'administratif", `${euros(coutMois)}`, `par mois aujourd'hui, ${heures(proj ? c.totaux.heuresMoisMesure : c.totaux.heuresMois)} h de votre temps${impayesMois > 0.5 ? `, et environ ${euros(impayesMois)} d'impayés par mois` : ""}${proj ? `. ${euros(c.totaux.coutAnnuel / 12)} selon votre estimation des douze prochains mois` : ""}`)}
+    ${etapeResume("1", "Ce que vous coûte l'administratif", `${euros(tempsAujourdhui + impayesMois)}`, `par mois aujourd'hui, ${euros(tempsAujourdhui)} de votre temps, ${heures(proj ? c.totaux.heuresMoisMesure : c.totaux.heuresMois)} h${impayesMois > 0.5 ? `, et ${euros(impayesMois)} d'impayés` : ""}`) .replace("</div>", `${barre([{ v: tempsAujourdhui, cls: "seg-temps" }, { v: impayesMois, cls: "seg-argent" }])}</div>`)}
     ${fleche}
-    ${b ? etapeResume("2", "Ce qu'Odegia vous apporte", `${euros(b.valeur)}`, `par mois, ${heures(b.heures)} h économisées${enc ? ` et ${euros(b.encaissement)} d'impayés récupérés` : ""}${hausse ? `. Jusqu'à ${euros(bProj!.valeur)} selon votre estimation` : ""}`, "resume-vert") : etapeResume("2", "Ce qu'Odegia vous apporte", "—", "aucune automatisation ne se justifie à ce volume")}
+    ${b ? etapeResume("2", "Ce qu'Odegia vous apporte", `${euros(b.valeur)}`, `par mois, ${heures(b.heures)} h et ${euros(b.valeur - b.encaissement)} de temps économisés${enc ? `, et ${euros(b.encaissement)} de revenus récupérés grâce aux relances` : ""}`, "resume-vert").replace("</div>", `${barre([{ v: b.valeur - b.encaissement, cls: "seg-temps" }, { v: b.encaissement, cls: "seg-argent" }])}</div>`) : etapeResume("2", "Ce qu'Odegia vous apporte", "—", "aucune automatisation ne se justifie à ce volume")}
     ${fleche}
-    ${b ? etapeResume("3", "Ce qu'Odegia vous coûte", `${euros(b.mensualite + b.outils)}`, `par mois${b.ensuite !== b.mensualite ? `, la première année, puis ${euros(b.ensuite + b.outils)}` : ""}, rien à payer d'avance${c.outils.liste.length ? (b.outils > 0.5 ? `, dont ${euros(b.outils)} d'outils à votre nom` : ", vos outils ne vous coûtent rien de plus") : ""}`) : etapeResume("3", "Ce qu'Odegia vous coûte", "0 €", "le diagnostic est offert")}
+    ${b ? etapeResume("3", "Ce qu'Odegia vous coûte", `${euros(b.mensualite + b.outils)}`, `par mois${b.ensuite !== b.mensualite ? `, la première année, puis ${euros(b.ensuite + b.outils)}` : ""}, rien à payer d'avance${c.outils.liste.length ? (b.outils > 0.5 ? `, dont ${euros(b.outils)} d'outils à votre nom` : ", vos outils ne vous coûtent rien de plus") : ""}`).replace("</div>", `${barre([{ v: b.mensualite + b.outils, cls: "seg-odegia" }])}</div>`) : etapeResume("3", "Ce qu'Odegia vous coûte", "0 €", "le diagnostic est offert")}
   </div>
-  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span>Ce que vous gagnez, une fois en service</span><strong>${solde(b.solde)} net par mois</strong>${b.ensuite !== b.mensualite ? `<span>puis ${solde(ensuiteNet(bProj!))} après ${c.parametres.ENGAGEMENT_MOIS} mois</span>` : ""}<span class="resume-an1">Sur la première année, construction comprise, ${solde(b.gainAn1)} au total.${hausse ? ` Selon votre estimation des douze prochains mois, ${solde(bProj!.solde)} par mois.` : ""}</span></div>` : ""}
+  ${b ? legende : ""}
+  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span>Ce que vous gagnez, une fois en service</span><strong>${solde(b.solde)} net par mois</strong>${b.ensuite !== b.mensualite ? `<span>puis ${solde(hausse ? bProj!.valeur - bProj!.ensuite - bProj!.outils : ensuiteNet(bProj!))} par mois sur les ${c.parametres.ENGAGEMENT_MOIS} mois suivants${hausse ? ", selon votre estimation" : ""}</span>` : ""}</div>` : ""}
   ${c.positions.length ? `<div class="resume-bloc"><span class="etiquette">Ce qui s'automatise</span><ul class="resume-chips">${c.positions.map((p) => `<li>${esc(uniteId.get(p.id)!.nom)}</li>`).join("")}</ul></div>` : ""}
-  ${fdr.briques.length ? `<div class="resume-bloc"><span class="etiquette">Comment ça se passe</span><div class="resume-temps">
-    <div><strong>Fondations</strong><span>${semaines(fdr.socle)}</span></div>${fleche}
-    <div><strong>Construction</strong><span>${semaines({ debut: fdr.briques[0].debut, fin: fdr.briques[fdr.briques.length - 1].fin })}</span></div>${fleche}
-    ${fdr.supervision ? `<div><strong>Calibrage</strong><span>${semaines(fdr.supervision)}</span></div>${fleche}` : ""}
-    ${fdr.calibrage ? `<div><strong>Supervision allégée</strong><span>dès la semaine ${fdr.calibrage}</span></div>` : ""}
+  ${fdr.briques.length ? `<div class="resume-bloc"><span class="etiquette">Comment ça se passe, sur trois mois</span><div class="frise">
+    <div class="frise-ligne frise-mois"><span class="frise-nom"></span><div class="frise-piste"><span style="left:0;width:30.8%">Mois 1</span><span style="left:30.8%;width:30.8%">Mois 2</span><span style="left:61.5%;width:38.5%">Mois 3</span></div></div>
+    ${ligneFrise("Fondations", fdr.socle.debut, fdr.socle.fin)}
+    ${ligneFrise("Construction", fdr.briques[0].debut, fdr.briques[fdr.briques.length - 1].fin)}
+    ${fdr.supervision ? ligneFrise("Calibrage", fdr.supervision.debut, fdr.supervision.fin) : ""}
+    ${fdr.calibrage ? ligneFrise("Supervision allégée", fdr.calibrage, SEMAINES_FRISE, true) : ""}
   </div></div>` : ""}
-  <p class="note">Le détail de chaque chiffre suit, page par page. Montants hors taxes. Méthode Odegia v${c.methode}.</p>
 </section>`;
 
 const html = `<!doctype html>
@@ -562,6 +592,25 @@ const html = `<!doctype html>
   .resume-temps > div { flex:1; border:1.5px solid var(--ink); border-radius:10px; padding:2.5mm 3mm; display:flex; flex-direction:column; gap:.5mm; }
   .resume-temps strong { font-size:9pt; }
   .resume-temps > div span { font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--vert); }
+  /* Barres et frise de la page En bref. */
+  .barre { display:flex; height:4mm; margin-top:auto; border:1.5px solid var(--ink); border-radius:3px; overflow:hidden; background:#fff; }
+  .barre span { display:block; height:100%; }
+  .seg-temps, .legende-barres i.seg-temps { background:var(--vert); }
+  .seg-argent, .legende-barres i.seg-argent { background:#e8590c; }
+  .seg-odegia, .legende-barres i.seg-odegia { background:var(--ink); }
+  .legende-barres { display:flex; gap:6mm; font-size:8pt; color:var(--soft); margin:-1mm 0 5mm; }
+  .legende-barres span { display:flex; align-items:center; gap:1.5mm; }
+  .legende-barres i { display:inline-block; width:3mm; height:3mm; border-radius:1px; }
+  .frise { display:flex; flex-direction:column; gap:1.5mm; margin-top:2mm; }
+  .frise-ligne { display:grid; grid-template-columns:32mm 1fr; align-items:center; }
+  .frise-nom { font-size:8.5pt; font-weight:600; }
+  .frise-piste { position:relative; height:6mm; background:var(--alt); border-radius:3px; }
+  .frise-mois .frise-piste { background:none; height:4mm; }
+  .frise-mois .frise-piste span { position:absolute; top:0; font: 500 6.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--soft); border-left:1px solid #c9d2cf; padding-left:1.5mm; }
+  .frise-barre { position:absolute; top:0; height:100%; border:1.5px solid var(--ink); border-radius:3px; background:var(--menthe); font: 500 6.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.06em; display:flex; align-items:center; padding-left:1.5mm; white-space:nowrap; overflow:hidden; }
+  .frise-continu { background:var(--banane); }
+  .flux-icone { color:var(--vert); display:flex; }
+  .flux-vous { background:var(--banane) !important; }
   /* Schema flechee des taches enchainees, page 3. */
   .flux { display:flex; align-items:stretch; gap:1.5mm; margin:2.5mm 0 2mm; }
   .flux-etape { flex:1; border:1.5px solid var(--ink); border-radius:9px; padding:2mm 2.5mm; background:var(--vert-soft); display:flex; flex-direction:column; justify-content:space-between; gap:1mm; }
@@ -572,7 +621,14 @@ const html = `<!doctype html>
 </style></head>
 <body>${resume0}${partie1}${partie2}${partie3}${partie5}${partie5Gain}${partie4}</body></html>`;
 
-writeFileSync(join(dossier, "rapport.html"), html, "utf-8");
+/* Tutoiement pour un client que le fondateur tutoie, decision d Adib du
+   19/10/2026. Toute phrase restee au vouvoiement est signalee. */
+const htmlFinal = (entree as { tutoiement?: boolean }).tutoiement ? tutoyer(html) : html;
+if ((entree as { tutoiement?: boolean }).tutoiement) {
+  const restes = restesVouvoiement(htmlFinal);
+  if (restes.length) console.error(["VOUVOIEMENT RESTANT", ...restes.map((x) => `- ${x}`)].join("\n"));
+}
+writeFileSync(join(dossier, "rapport.html"), htmlFinal, "utf-8");
 
 /* ── Etalon, pour Odegia seulement ───────────────────────────────────────── */
 const pct = (x: number | null) => (x === null ? "" : `${x > 0 ? "+" : ""}${Math.round(x * 100)} %`);

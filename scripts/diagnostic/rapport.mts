@@ -388,6 +388,7 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
     <li>Vos abonnements aux outils restent à votre nom et sont réglés par vous.</li>
     <li>Aucun accès à un compte bancaire ni à un moyen de paiement, y compris en lecture.</li>
     <li>Règles et limites de chaque automatisation écrites et validées avec vous avant construction.</li>
+    ${d.remiseGroupe ? d.remisesClient.filter((r) => r.condition).map((r) => `<li>${esc(r.condition!)}</li>`).join("") : ""}
     <li>Au terme des ${E} mois d'engagement, vous pouvez reprendre vos automatisations à votre compte. Nous vous les transférons contre des frais de mise en place égaux à ${c.parametres.RACHAT_MENSUALITES} mensualités, soit ${euros(d.mensualiteEnsuiteHT * c.parametres.RACHAT_MENSUALITES)} HT. Vous assurez ensuite vous-même les corrections, mises à jour et améliorations, et la mensualité s'arrête au transfert.</li>
   </ul>
   <div class="accord"><span>Bon pour accord, date et signature</span></div>
@@ -539,7 +540,7 @@ const html = `<!doctype html>
   .leger td { font-weight:400; border-top:none; color:var(--soft); }
   .suivi { margin:7mm 0 5mm; border:2px solid var(--ink); border-radius:14px; padding:4mm 5mm; background:var(--vert-soft); }
   .suivi p { margin:1mm 0 0; }
-  .conditions { margin:0; padding-left:4.5mm; font-size:8.5pt; color:var(--soft); }
+  .conditions { margin:0; padding-left:4.5mm; font-size:8pt; line-height:1.45; color:var(--soft); }
   .carte .etiquette { margin-bottom:1mm; }
   .plafond { margin:4mm 0 0; border-left:3px solid var(--banane-deep, #d4ae0a); background:#fdf8e1; padding:2.5mm 4mm; border-radius:0 10px 10px 0; }
   .plafond p { margin:1mm 0 0; font-size:8.6pt; line-height:1.5; }
@@ -623,7 +624,7 @@ const html = `<!doctype html>
   .flux-nom { font: 600 8pt/1.2 "Geist", sans-serif; }
   .flux-mode { font: 500 6.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--vert); }
   .flux-fleche { align-self:center; font: 800 13pt "Outfit", sans-serif; color:var(--ink); }
-  .accord { margin-top:5mm; border:1.5px dashed var(--soft); border-radius:12px; height:22mm; padding:3mm 4mm; font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); width:80mm; margin-left:auto; }
+  .accord { break-inside:avoid; margin-top:3mm; border:1.5px dashed var(--soft); border-radius:12px; height:18mm; padding:3mm 4mm; font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); width:80mm; margin-left:auto; }
 </style></head>
 <body>${resume0}${partie1}${partie2}${partie3}${partie5}${partie5Gain}${partie4}</body></html>`;
 

@@ -247,7 +247,7 @@ export type Entree = {
      motif, decision d Adib du 19/10/2026 pour Alteria, 25 % cliente Foot on
      the Moon et 25 % pour son temoignage. Elles s additionnent sur le prix
      apres remise de parc. Presentes, elles remplacent la remise du groupe. */
-  remisesClient?: { libelle: string; taux: number }[];
+  remisesClient?: { libelle: string; taux: number; condition?: string }[];
   /* offert, le cas courant depuis le 02/10/2026. deduit, un diagnostic paye
      dont le montant vaut les premieres mensualites. */
   diagnostic: { prix: number; deduit: boolean; offert?: boolean };

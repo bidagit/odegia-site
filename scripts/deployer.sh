@@ -35,6 +35,6 @@ ssh ubuntu@51.77.211.7 "cd /home/ubuntu/odegia-site && git pull -q && docker com
 for i in $(seq 1 40); do curl -sf -o /dev/null https://odegia.com/ && break; sleep 3; done
 curl -sf -o /dev/null https://odegia.com/ || { echo "le site ne repond toujours pas"; exit 1; }
 echo "== Releve des redites et des renvois sans geste, tous les etats"
-python "$HOME/.claude/skills/parcours/scripts/redondances.py" --site https://odegia.com --etats scripts/parcours-etats.txt
+python "/c/dev/orbis-equipages/plugins/orbis-socle/skills/parcours/scripts/redondances.py" --site https://odegia.com --etats scripts/parcours-etats.txt
 echo "== Captures de tous les etats, a regarder une par une dans captures/"
-python "$HOME/.claude/skills/parcours/scripts/captures.py" --site https://odegia.com --etats scripts/parcours-etats.txt --dossier captures
+python "/c/dev/orbis-equipages/plugins/orbis-socle/skills/parcours/scripts/captures.py" --site https://odegia.com --etats scripts/parcours-etats.txt --dossier captures

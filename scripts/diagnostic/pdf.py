@@ -19,8 +19,10 @@ except Exception:
     pass
 
 dossier = Path(sys.argv[1]).resolve()
-html = dossier / "rapport.html"
-pdf = dossier / "rapport.pdf"
+# v2.5, un second document peut sortir du meme dossier, le document d accueil.
+NOM = sys.argv[2] if len(sys.argv) > 2 else "rapport"
+html = dossier / f"{NOM}.html"
+pdf = dossier / f"{NOM}.pdf"
 
 PIED = (
     '<div style="width:100%;font:7px Geist Mono,monospace;letter-spacing:.12em;'
@@ -38,11 +40,11 @@ except PermissionError:
     from datetime import datetime
     # Une seule version de secours a la fois, les precedentes partent dans
     # archives avant d en ecrire une nouvelle.
-    for ancien in dossier.glob("rapport-*.pdf"):
+    for ancien in dossier.glob(f"{NOM}-*.pdf"):
         (dossier / "archives").mkdir(exist_ok=True)
-        ancien.replace(dossier / "archives" / f"rapport-{datetime.now():%Y-%m-%d}-{ancien.stem.split('-')[-1]}.pdf")
-    pdf = dossier / f"rapport-{datetime.now():%H%M}.pdf"
-    print(f"rapport.pdf est ouvert ailleurs, nouvelle version dans {pdf.name}")
+        ancien.replace(dossier / "archives" / f"{NOM}-{datetime.now():%Y-%m-%d}-{ancien.stem.split('-')[-1]}.pdf")
+    pdf = dossier / f"{NOM}-{datetime.now():%H%M}.pdf"
+    print(f"{NOM}.pdf est ouvert ailleurs, nouvelle version dans {pdf.name}")
 
 with sync_playwright() as p:
     nav = p.chromium.launch()
@@ -62,16 +64,16 @@ with sync_playwright() as p:
     )
     nav.close()
 
-(dossier / "dernier-rapport.txt").write_text(pdf.name, encoding="utf-8")
+(dossier / ("dernier-rapport.txt" if NOM == "rapport" else f"dernier-{NOM}.txt")).write_text(pdf.name, encoding="utf-8")
 print(f"ecrit {pdf}")
 
 # Un seul rapport a la racine du dossier client, demande d Adib du 19/10/2026.
 # Des que rapport.pdf s ecrit de nouveau, les versions de secours nees d un
 # verrou partent dans archives, datees, au lieu de s empiler a cote.
-if pdf.name == "rapport.pdf":
+if pdf.name == f"{NOM}.pdf":
     from datetime import date
-    for ancien in dossier.glob("rapport-*.pdf"):
+    for ancien in dossier.glob(f"{NOM}-*.pdf"):
         (dossier / "archives").mkdir(exist_ok=True)
-        cible = dossier / "archives" / f"rapport-{date.today():%Y-%m-%d}-{ancien.stem.split('-')[-1]}.pdf"
+        cible = dossier / "archives" / f"{NOM}-{date.today():%Y-%m-%d}-{ancien.stem.split('-')[-1]}.pdf"
         ancien.replace(cible)
         print(f"archive {ancien.name} -> archives/{cible.name}")

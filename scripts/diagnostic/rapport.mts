@@ -186,8 +186,8 @@ const groupes2 = ROUTES.map(({ route, titre }) => {
       const etiquettes = [
         route === "automatiser" ? autonomie(l.niveau).toLowerCase() : "",
         route === "automatiser" ? mode(l).toLowerCase() : "",
-        o.documenter ? "règle à écrire d'abord" : "",
       ].filter(Boolean).join(" · ");
+      void o;
       return `<tr><td><strong>${esc(l.nom)}</strong>${etiquettes ? `<span class="sous">${etiquettes}</span>` : ""}</td><td>${l.motif ? esc(l.motif) : ""}</td></tr>`;
     })
     .join("")}`;
@@ -211,7 +211,7 @@ const partie2 = c.lignes.length > 6 ? partie2Dense : `
       .map(
         (l) => `<article class="verdict">
       <div class="verdict-tete"><h3>${esc(l.nom)}</h3>${pastille(l)}</div>
-      ${(() => { const o = c.orientations.find((x) => x.id === l.id)!; return o.documenter ? `<p class="mode">Règle à écrire d'abord</p>` : o.route === "deleguer" ? `<p class="mode">À confier à quelqu'un</p>` : ""; })()}
+      ${(() => { const o = c.orientations.find((x) => x.id === l.id)!; return o.route === "deleguer" ? `<p class="mode">À confier à quelqu'un</p>` : ""; })()}
       ${mode(l) && c.orientations.find((x) => x.id === l.id)!.route === "automatiser" ? `<p class="mode">${mode(l)}${dansParcours(l) ? `, avec ${esc((entree.parcours?.[l.parcours!] ?? l.parcours!).charAt(0).toLowerCase() + (entree.parcours?.[l.parcours!] ?? l.parcours!).slice(1))}` : ""}${l.demandeClient && l.absorbee && !dansParcours(l) ? ", à votre demande" : ""}</p>` : ""}
       ${l.motif ? `<p>${esc(l.motif)}</p>` : ""}
     </article>`
@@ -304,7 +304,7 @@ const gainNet = b ? `
       ${c.outils.liste.length ? `<div><span class="valeur">${euros(b.outils)}</span><span class="legende">${b.outils > 0.5 ? "d'outils à votre nom" : "d'outils en plus, ceux qu'il faut sont gratuits, compris ou déjà payés"}</span></div>` : ""}
       <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois${b.ensuite !== b.mensualite ? `, la première année, puis ${solde(ensuiteNet(bProj!))}${hausse ? `, ou ${solde(bProj!.valeur - bProj!.ensuite - bProj!.outils)} selon votre estimation` : ""}` : ""}</span></div>
     </div>
-    <p class="note">${b.ttc ? `Vous ne récupérez pas la TVA, ces montants comptent donc la mensualité TTC, ${euros(b.mensualite)} au lieu de ${euros(b.mensualite / (1 + c.parametres.TAUX_TVA))} HT. ` : ""}${b.nouveauxClients ? `Un nouveau ${esc(b.nouveauxClients.mot.replace(/s$/, ""))} vous rapporte en moyenne ${euros(b.nouveauxClients.valeur)}. Votre première année Odegia, ${euros(b.coutAn1)}, se paie avec ${Math.ceil(b.nouveauxClients.an1)} de plus, chaque année suivante avec ${Math.ceil(b.nouveauxClients.anSuivant)}. ` : ""}${proj ? "Ces montants partent de votre volume d'aujourd'hui. " : ""}Sur la première année, chaque automatisation ne vous fait économiser qu'à partir de sa livraison${b.debutFacturation === "livraison" ? `, et la mensualité ne court qu'à partir de la première, en semaine ${b.premiereLivraison}` : ", alors que la mensualité court dès la signature"}. Construction comprise, vous gagnez ${solde(b.gainAn1)} sur cette première année.${hausse ? ` Si votre activité suit votre estimation, l'économie monte à ${euros(bProj!.valeur)} par mois et le gain net à ${solde(bProj!.solde)}.` : ""} Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia${b.outils > 0.5 ? " et pour vos outils" : ""}. Vous ne payez rien d'avance pour la construction.</p>
+    <p class="note">${b.ttc ? `Vous ne récupérez pas la TVA, ces montants comptent donc la mensualité TTC, ${euros(b.mensualite)} au lieu de ${euros(b.mensualite / (1 + c.parametres.TAUX_TVA))} HT. ` : ""}${b.nouveauxClients ? `Un nouveau ${esc(b.nouveauxClients.mot.replace(/s$/, ""))} vous rapporte en moyenne ${euros(b.nouveauxClients.valeur)}. Votre première année Odegia, ${euros(b.coutAn1)}, se paie avec ${Math.ceil(b.nouveauxClients.an1)} de plus, chaque année suivante avec ${Math.ceil(b.nouveauxClients.anSuivant)}. ` : ""}${proj ? "Ces montants partent de votre volume d'aujourd'hui. " : ""}Sur la première année, chaque automatisation ne vous fait économiser qu'à partir de sa livraison${b.debutFacturation === "livraison" ? `, et la mensualité ne court qu'à partir de la première, en semaine ${b.premiereLivraison}` : b.debutFacturation === "finMois1" ? ", et la mensualité ne court qu'à partir de la fin du premier mois de chantier" : ", alors que la mensualité court dès la signature"}. Construction comprise, vous gagnez ${solde(b.gainAn1)} sur cette première année.${hausse ? ` Si votre activité suit votre estimation, l'économie monte à ${euros(bProj!.valeur)} par mois et le gain net à ${solde(bProj!.solde)}.` : ""} Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia${b.outils > 0.5 ? " et pour vos outils" : ""}. Vous ne payez rien d'avance pour la construction.</p>
   </div>` : "";
 const tableNet = c.positions.length ? `
   <table class="dense">
@@ -381,7 +381,7 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
   </table>
   <div class="suivi">
     <span class="etiquette">Ce que la mensualité comprend, et sa durée</span>
-    <p><strong>La construction, la supervision, la correction des dérives et les ajustements.</strong> Vous ne payez rien d'avance${c.bilanMensuel?.debutFacturation === "livraison" ? `, la première mensualité est prélevée à la première livraison, et les ${E} mois d'engagement courent à partir de là` : ", la première mensualité est prélevée à la commande"}.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
+    <p><strong>La construction, la supervision, la correction des dérives et les ajustements.</strong> Vous ne payez rien d'avance${c.bilanMensuel?.debutFacturation === "livraison" ? `, la première mensualité est prélevée à la première livraison, et les ${E} mois d'engagement courent à partir de là` : c.bilanMensuel?.debutFacturation === "finMois1" ? `, la première mensualité est prélevée à la fin du premier mois de chantier, et les ${E} mois d'engagement courent à partir de là` : ", la première mensualité est prélevée à la commande"}.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
     <p>Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteEnsuiteHT)} HT.` : ""} Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis.</p>
   </div>
   <ul class="conditions">
@@ -420,7 +420,7 @@ const partie5 = `
   <p class="note">Délais indicatifs, comptés en semaines à partir de la signature.</p>
   <ol class="temps">
     <li><span class="rang">1</span><div><h3>Les fondations <span class="delai">${semaines(f.calendrier.socle)}</span></h3>${fondations}</div></li>
-    <li><span class="rang">2</span><div><h3>La construction ${f.calendrier.briques.length ? `<span class="delai">${semaines({ debut: f.calendrier.briques[0].debut, fin: f.calendrier.briques[f.calendrier.briques.length - 1].fin })}</span>` : ""}</h3>${f.construire.length ? `<p>Dans l'ordre de la page 3.</p><ul class="puces">${f.construire.map((u) => { const cal = f.calendrier.briques.find((x) => x.id === u.id)!; return `<li>${esc(uniteId.get(u.id)!.nom)}, ${autonomie(u.niveau).toLowerCase()}, ${semaines(cal)}</li>`; }).join("")}</ul>` : "<p>Au seul calcul du temps, aucune construction ne se justifie.</p>"}${f.deleguer.length ? `<p><strong>À confier à quelqu'un</strong>, avec des instructions écrites. ${f.construire.length ? "Ces tâches restent hors de la construction, trop légères pour couvrir ce qu'elles coûteraient." : "À ce volume, leur automatisation coûterait plus qu'elle ne fait économiser."}</p>${liste(f.deleguer)}` : ""}</div></li>
+    <li><span class="rang">2</span><div><h3>La construction ${f.calendrier.briques.length ? `<span class="delai">${semaines({ debut: f.calendrier.briques[0].debut, fin: f.calendrier.briques[f.calendrier.briques.length - 1].fin })}</span>` : ""}</h3>${f.construire.length ? `<p>${entree.rapportCourt ? "Dans l'ordre du rapport de diagnostic." : "Dans l'ordre de la page 3."}</p><ul class="puces">${f.construire.map((u) => { const cal = f.calendrier.briques.find((x) => x.id === u.id)!; return `<li>${esc(uniteId.get(u.id)!.nom)}, ${autonomie(u.niveau).toLowerCase()}, ${semaines(cal)}</li>`; }).join("")}</ul>` : "<p>Au seul calcul du temps, aucune construction ne se justifie.</p>"}${f.deleguer.length ? `<p><strong>À confier à quelqu'un</strong>, avec des instructions écrites. ${f.construire.length ? "Ces tâches restent hors de la construction, trop légères pour couvrir ce qu'elles coûteraient." : "À ce volume, leur automatisation coûterait plus qu'elle ne fait économiser."}</p>${liste(f.deleguer)}` : ""}</div></li>
     <li><span class="rang">3</span><div><h3>Le calibrage ${f.calendrier.supervision ? `<span class="delai">${semaines(f.calendrier.supervision)}</span>` : ""}</h3><p>${f.calendrier.supervision ? "Il commence dès la première livraison, pendant que la suite se construit, une semaine de mise en place puis quatre de rodage. " : ""}Tout passe par votre validation, et chaque retouche que vous faites sert à modifier et améliorer les règles, jusqu'à ce que le système produise ce que vous auriez fait.</p></div></li>
     <li><span class="rang">4</span><div><h3>La supervision allégée ${f.calendrier.calibrage ? `<span class="delai">dès la semaine ${f.calendrier.calibrage}, en continu</span>` : ""}</h3><p>${f.fileExceptions.length ? "Ce qui attend encore votre accord arrive dans une seule file, au lieu d'être éparpillé dans vos mails. " : ""}Un tableau montre ce qui tourne. Vous le regardez ${[[f.cadence.jour, "par jour"], [f.cadence.semaine, "par semaine"], [f.cadence.mois, "par mois"]].filter(([m]) => (m as number) > 0).map(([m, u]) => `${fmtCadence(m as number)} ${u}`).join(", ")}, et nous corrigeons les écarts mineurs au fil de l'eau.</p></div></li>
   </ol>
@@ -551,6 +551,7 @@ const html = `<!doctype html>
   table.cout th { white-space:nowrap; }
   table.dense td { padding:1.3mm 2mm; font-size:8.8pt; }
   table.orientations td { vertical-align:top; }
+  table.orientations + .prose { margin-top:5mm; }
   table.orientations td:first-child { width:42%; }
   table.orientations td:last-child { color:var(--soft); font-size:8.3pt; }
   tr.groupe td { font: 500 7.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.1em; color:var(--vert); border-bottom:2px solid var(--ink); padding-top:4mm; }
@@ -626,16 +627,38 @@ const html = `<!doctype html>
   .flux-fleche { align-self:center; font: 800 13pt "Outfit", sans-serif; color:var(--ink); }
   .accord { break-inside:avoid; margin-top:3mm; border:1.5px dashed var(--soft); border-radius:12px; height:18mm; padding:3mm 4mm; font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); width:80mm; margin-left:auto; }
 </style></head>
-<body>${resume0}${partie1}${partie2}${partie3}${partie5}${partie5Gain}${partie4}</body></html>`;
+<body>__CORPS__</body></html>`;
+
+/* v2.5, rapport court, decision d Adib du 20/10/2026. Trop de detail noyait le
+   message. Le rapport client garde En bref, le cout, l economie et le devis.
+   L orientation tache par tache, la feuille de route et le bilan detaille
+   partent dans un document d accueil, remis a la signature. Les numeros de
+   partie se refont dans chaque document. */
+const numeroter = (sections: string[]) =>
+  sections.map((s, i) => s.replace(/<p class="eyebrow">\d\d<\/p>/, `<p class="eyebrow">${String(i + 1).padStart(2, "0")}</p>`)).join("");
+const enteteDoc = (libelle: string) => `<header class="entete">
+    <img src="data:image/png;base64,${logo}" alt="Odegia" class="logo" />
+    <div class="meta"><span>${libelle}</span><span>${esc(entree.client.entite)}</span><span>${dateFr(dateRapport)}</span></div>
+  </header>`;
+const court = !!entree.rapportCourt;
+const documents: [string, string][] = court
+  ? [
+      ["rapport.html", html.replace("__CORPS__", resume0 + numeroter([partie1, partie3, partie4]))],
+      ["accueil.html", html.replace(/<title>[^<]*<\/title>/, `<title>Document d'accueil Odegia, ${esc(entree.client.entite)}</title>`)
+        .replace("__CORPS__", numeroter([partie2.replace('<section class="page">', `<section class="page">${enteteDoc("Document d'accueil")}`), partie5, partie5Gain]))],
+    ]
+  : [["rapport.html", html.replace("__CORPS__", resume0 + partie1 + partie2 + partie3 + partie5 + partie5Gain + partie4)]];
 
 /* Tutoiement pour un client que le fondateur tutoie, decision d Adib du
    19/10/2026. Toute phrase restee au vouvoiement est signalee. */
-const htmlFinal = (entree as { tutoiement?: boolean }).tutoiement ? tutoyer(html) : html;
-if ((entree as { tutoiement?: boolean }).tutoiement) {
-  const restes = restesVouvoiement(htmlFinal);
-  if (restes.length) console.error(["VOUVOIEMENT RESTANT", ...restes.map((x) => `- ${x}`)].join("\n"));
+for (const [nom, brut] of documents) {
+  const final = (entree as { tutoiement?: boolean }).tutoiement ? tutoyer(brut) : brut;
+  if ((entree as { tutoiement?: boolean }).tutoiement) {
+    const restes = restesVouvoiement(final);
+    if (restes.length) console.error([`VOUVOIEMENT RESTANT, ${nom}`, ...restes.map((x) => `- ${x}`)].join("\n"));
+  }
+  writeFileSync(join(dossier, nom), final, "utf-8");
 }
-writeFileSync(join(dossier, "rapport.html"), htmlFinal, "utf-8");
 
 /* ── Etalon, pour Odegia seulement ───────────────────────────────────────── */
 const pct = (x: number | null) => (x === null ? "" : `${x > 0 ? "+" : ""}${Math.round(x * 100)} %`);
@@ -696,7 +719,7 @@ console.log(
       mensualiteHT: c.devis.mensualiteHT,
       mensualiteEnsuiteHT: c.devis.mensualiteEnsuiteHT,
       engagementHT: c.devis.engagementHT,
-      ecrit: ["calcul.json", "rapport.html", "etalon.md"],
+      ecrit: ["calcul.json", ...documents.map(([n]) => n), "etalon.md"],
     },
     null,
     2

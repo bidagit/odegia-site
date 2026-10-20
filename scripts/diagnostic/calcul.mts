@@ -35,7 +35,16 @@ import {
    change a chaque regle de decision, definition de mesure ou grille modifiee,
    et le protocole du vault dit ce que chaque version contient. Un rapport se
    relit toujours avec les regles de sa version. */
-export const METHODE_VERSION = "2.4";
+export const METHODE_VERSION = "2.5";
+
+/* v2.5, decisions d Adib du 20/10/2026, diagnostic Alteria. La premiere
+   mensualite peut etre prelevee a la fin du premier mois de chantier, champ
+   debutFacturation a "finMois1". La construction peut etre resserree pour finir
+   a une semaine donnee, champ finConstructionSemaine, le calendrier se comprime
+   alors en proportion. Le rapport client peut s ecourter, champ rapportCourt,
+   les pages d orientation, de feuille de route et de bilan partent dans un
+   document d accueil a part. */
+export const SEMAINES_PAR_MOIS = 52 / 12;
 
 /* v2.4, decision d Adib du 19/10/2026, diagnostic Alteria. Un client en
    franchise de TVA, micro-entrepreneur ou association, ne recupere pas la TVA,
@@ -240,7 +249,11 @@ export type Entree = {
   /* v2.3, outils a la charge du client. */
   /* Debut de la facturation, decision d Adib du 19/10/2026 pour Alteria. A la
      premiere livraison, les douze mois d engagement courent a partir de la. */
-  debutFacturation?: "signature" | "livraison";
+  debutFacturation?: "signature" | "livraison" | "finMois1";
+  /* v2.5, semaine a laquelle la derniere brique doit etre livree. */
+  finConstructionSemaine?: number;
+  /* v2.5, rapport client ecourte et document d accueil a part. */
+  rapportCourt?: boolean;
   outils?: { nom: string; usage: string; prixMois: number; dejaPaye?: boolean; compris?: boolean; source?: string }[];
   remiseGroupeLibelle?: string;
   /* Plusieurs remises client cumulees pendant l engagement, chacune avec son
@@ -586,14 +599,30 @@ export function diagnostiquer(e: Entree) {
         ...orientations.filter((o) => o.documenter).map((o) => o.id)]).size;
       const socle = Math.min(SEMAINES_SOCLE_MAX, Math.max(1, Math.ceil(nSocle / SEMAINES_SOCLE_PAR)));
       let t = socle;
-      const briques = recommandees.map((u) => {
+      let briques = recommandees.map((u) => {
         const debut = t + 1;
         t += SEMAINES_PALIER[u.palier];
         return { id: u.id, debut, fin: t };
       });
+      let finSocle = socle;
+      /* v2.5, chaque borne de fin se ramene en proportion sur la semaine
+         visee, chaque etape gardant au moins une semaine. */
+      const cible = e.finConstructionSemaine;
+      if (cible && briques.length && t > cible) {
+        const k = cible / t;
+        const n = briques.length;
+        finSocle = Math.max(1, Math.min(Math.round(finSocle * k), cible - n));
+        let prec = finSocle;
+        briques = briques.map((x, i) => {
+          const fin = Math.min(cible - (n - 1 - i), Math.max(prec + 1, Math.round(x.fin * k)));
+          const y = { id: x.id, debut: prec + 1, fin };
+          prec = fin;
+          return y;
+        });
+      }
       const supervision = briques.length ? { debut: briques[0].fin + 1, fin: briques[0].fin + SEMAINES_SUPERVISION + SEMAINES_RODAGE } : null;
       const calibrage = supervision ? supervision.fin + 1 : null;
-      return { socle: { debut: 1, fin: socle }, briques, supervision, calibrage };
+      return { socle: { debut: 1, fin: finSocle }, briques, supervision, calibrage };
     })(),
   };
 
@@ -623,7 +652,8 @@ export function diagnostiquer(e: Entree) {
     /* Facturation a la premiere livraison, la premiere annee ne paie que les
        semaines qui suivent cette livraison. */
     const premiereLivraison = feuilleDeRoute.calendrier.briques.length ? feuilleDeRoute.calendrier.briques[0].fin : 0;
-    const semainesPayees = e.debutFacturation === "livraison" ? 52 - premiereLivraison : 52;
+    const semainesPayees = e.debutFacturation === "livraison" ? 52 - premiereLivraison
+      : e.debutFacturation === "finMois1" ? 52 - SEMAINES_PAR_MOIS : 52;
     const coutAn1 = 12 * (base.mensualite + outilsMois) * semainesPayees / 52;
     const an1 = (gain: (u: Unite) => number, plat: number) =>
       (base.recommande

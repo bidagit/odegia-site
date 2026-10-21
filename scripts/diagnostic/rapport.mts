@@ -651,14 +651,15 @@ const enteteDoc = (libelle: string) => `<header class="entete">
 const court = !!entree.rapportCourt;
 const documents: [string, string][] = court
   ? [
-      /* v2.6, demande d Adib du 21/10/2026, le prix s annonce en dernier. La
-         synthese, qui le porte, passe juste avant le devis, et l en-tete du
-         document monte sur la premiere page. */
+      /* v2.6, demande d Adib du 21/10/2026. La synthese, qui porte le prix,
+         ferme le rapport apres le devis, et l en-tete du document monte sur la
+         premiere page. */
       ["rapport.html", html.replace("__CORPS__", (() => {
         const tete = resume0.match(/<header class="entete">[\s\S]*?<\/header>/)?.[0] ?? "";
         const p1 = partie1.replace('<section class="page">', `<section class="page">${tete}`);
-        const devis = partie4.replace(/<p class="eyebrow">\d\d<\/p>/, '<p class="eyebrow">03</p>');
-        return numeroter([p1, partie3]) + resume0.replace(tete, "") + devis;
+        /* 21/10/2026 au soir, Adib, le devis s explique d abord et la synthese
+           ferme le rapport. */
+        return numeroter([p1, partie3, partie4]) + resume0.replace(tete, "");
       })())],
       ["accueil.html", html.replace(/<title>[^<]*<\/title>/, `<title>Document d'accueil Odegia, ${esc(entree.client.entite)}</title>`)
         .replace("__CORPS__", numeroter([partie2.replace('<section class="page">', `<section class="page">${enteteDoc("Document d'accueil")}`), partie5, partie5Gain]))],

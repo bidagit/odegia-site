@@ -506,7 +506,7 @@ const faq = (r.faq ?? []).length ? `
 <section class="page">
   <p class="eyebrow">05</p>
   <h1>Tes questions avant de signer</h1>
-  <div class="faq">${(r.faq ?? []).map((x: { q: string; r: string }) => `<div class="faq-item"><h2>${esc(x.q)}</h2><p>${esc(x.r)}</p></div>`).join("")}</div>
+  <div class="faq">${(r.faq ?? []).map((x: { q: string; r: string; tableau?: { entetes: string[]; lignes: string[][] } }) => `<div class="faq-item"><h2>${esc(x.q)}</h2><p>${esc(x.r)}</p>${x.tableau ? `<table class="dense comparatif"><thead><tr>${x.tableau.entetes.map((h, i) => `<th${i === x.tableau!.entetes.length - 1 ? ' class="odegia"' : ""}>${esc(h)}</th>`).join("")}</tr></thead><tbody>${x.tableau.lignes.map((l) => `<tr>${l.map((c, i) => `<td${i === l.length - 1 ? ' class="odegia"' : ""}>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>` : ""}</div>`).join("")}</div>
 </section>` : "";
 
 const html = `<!doctype html>
@@ -658,6 +658,9 @@ const html = `<!doctype html>
   .faq-item { border-top:2px solid var(--ink); padding-top:3mm; break-inside:avoid; }
   .faq-item h2 { font: 700 13pt/1.3 "Outfit", sans-serif; margin:0 0 1.5mm; }
   .faq-item p { margin:0; max-width:165mm; }
+  table.comparatif { margin-top:3mm; }
+  table.comparatif td:first-child { font-weight:600; width:24%; }
+  table.comparatif .odegia { background:var(--vert-soft); font-weight:600; }
   .net-cash { flex-basis:100%; font-size:10pt !important; font-weight:600; }
   tr.sous-total td { color:var(--soft); font-size:8.8pt; }
   .hypotheses { margin-top:2mm; max-width:none; }

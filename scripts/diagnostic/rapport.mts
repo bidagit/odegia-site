@@ -129,7 +129,7 @@ const cartes = proj
   ? `
     <div class="carte carte-passe"><span class="etiquette">Aujourd'hui, par mois</span><span class="valeur">${euros((c.totaux.coutAnnuelMesure + c.totaux.perteAnnuelleMesuree) / 12)}</span><span class="legende">${euros(c.totaux.coutAnnuelMesure / 12)} de votre temps${c.totaux.perteAnnuelleMesuree > 0.5 ? `, et ${euros(c.totaux.perteAnnuelleMesuree / 12)} d'impayés` : ""}</span></div>
     <div class="carte"><span class="etiquette">Votre temps</span><span class="valeur">${heures(c.totaux.heuresMoisMesure)} h</span><span class="legende">par mois, à ${euros(c.parametres.taux)} de l'heure${c.parametres.tauxHypothese ? ", hypothèse de travail" : ""}</span></div>
-    <div class="carte"><span class="etiquette">Dans un an</span><span class="valeur">${euros(c.totaux.coutAnnuel / 12)}</span><span class="legende">de temps par mois, ${heures(c.totaux.heuresMois)} h, si votre activité suit votre estimation, soit ${euros(c.totaux.coutAnnuel)} par an</span></div>`
+    <div class="carte"><span class="etiquette">Dans un an, par mois</span><span class="valeur">${euros((c.totaux.coutAnnuel + c.totaux.perteAnnuelle) / 12)}</span><span class="legende">${euros(c.totaux.coutAnnuel / 12)} de votre temps, ${heures(c.totaux.heuresMois)} h${c.totaux.perteAnnuelle > 0.5 ? `, et ${euros(c.totaux.perteAnnuelle / 12)} d'impayés` : ""}, si votre activité suit votre estimation</span></div>`
   : `
     <div class="carte"><span class="valeur">${heures(c.totaux.heuresMois)} h</span><span class="legende">par mois, toutes tâches relevées</span></div>
     <div class="carte"><span class="valeur">${euros(c.totaux.coutAnnuel)}</span><span class="legende">par an, au taux retenu</span></div>

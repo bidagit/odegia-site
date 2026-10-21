@@ -450,6 +450,11 @@ const legende = `<div class="legende-barres"><span><i class="seg-temps"></i>Temp
 const SEMAINES_FRISE = 13;
 const ligneFrise = (nom: string, debut: number, fin: number, continu = false) =>
   `<div class="frise-ligne"><span class="frise-nom">${nom}</span><div class="frise-piste"><span class="frise-barre ${continu ? "frise-continu" : ""}" style="left:${(100 * (debut - 1) / SEMAINES_FRISE).toFixed(1)}%;width:${(100 * (Math.min(fin, SEMAINES_FRISE) - debut + 1) / SEMAINES_FRISE).toFixed(1)}%">${continu ? "en continu →" : `sem. ${debut}${fin > debut ? ` à ${fin}` : ""}`}</span></div></div>`;
+/* v2.6, rentable des la premiere mensualite, au volume d aujourd hui quand une
+   projection existe, comme le reste de la synthese. */
+const pm = bProj?.premiereMensualite;
+const roi = pm && pm.livrees.length && (proj ? pm.valeurMesure : pm.valeur) > pm.paye
+  ? { valeur: proj ? pm.valeurMesure : pm.valeur, paye: pm.paye } : null;
 const resume0 = `
 <section class="page">
   <header class="entete">
@@ -470,6 +475,7 @@ const resume0 = `
     ${b ? etapeResume("3", "Ce qu'Odegia vous coûte", `${euros(b.mensualite + b.outils)}`, `par mois${b.ttc ? " TTC, la TVA comprise puisque vous ne la récupérez pas" : ""}${b.ensuite !== b.mensualite ? `, la première année, puis ${euros(b.ensuite + b.outils)}` : ""}, rien à payer d'avance${c.outils.liste.length ? (b.outils > 0.5 ? `, dont ${euros(b.outils)} d'outils à votre nom` : ", vos outils ne vous coûtent rien de plus") : ""}`).replace("</div>", `${barre([{ v: b.mensualite + b.outils, cls: "seg-odegia" }])}</div>`) : etapeResume("3", "Ce qu'Odegia vous coûte", "0 €", "le diagnostic est offert")}
   </div>
   ${b ? legende : ""}
+  ${roi ? `<div class="resume-roi"><strong>Rentable dès la première mensualité.</strong> Quand elle tombe, ce qui est déjà en service vous fait économiser ${euros(roi.valeur)} par mois, ${roi.valeur >= 2 * roi.paye ? `${["", "", "deux", "trois", "quatre", "cinq"][Math.min(5, Math.floor(roi.valeur / roi.paye))]} fois` : "plus que"} les ${euros(roi.paye)} que vous payez.</div>` : ""}
   ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span>Ce que vous gagnez, une fois en service</span><strong>${solde(b.solde)} net par mois</strong>${b.ensuite !== b.mensualite ? `<span>puis ${solde(hausse ? bProj!.valeur - bProj!.ensuite - bProj!.outils : ensuiteNet(bProj!))} par mois sur les ${c.parametres.ENGAGEMENT_MOIS} mois suivants${hausse ? ", selon votre estimation" : ""}</span>` : ""}${b.nouveauxClients ? `<span class="resume-an1">${Math.ceil(b.nouveauxClients.an1)} nouveaux ${esc(b.nouveauxClients.mot)} de plus dans l'année, et votre première année Odegia est payée.</span>` : ""}</div>` : ""}
   ${c.positions.length ? `<div class="resume-bloc"><span class="etiquette">Ce qui s'automatise</span><ul class="resume-chips">${c.positions.map((p) => `<li>${esc(uniteId.get(p.id)!.nom)}</li>`).join("")}</ul></div>` : ""}
   ${fdr.briques.length ? `<div class="resume-bloc"><span class="etiquette">Comment ça se passe, sur trois mois</span><div class="frise">
@@ -588,6 +594,8 @@ const html = `<!doctype html>
   .resume-net span { font-size:9pt; }
   .resume-negatif { background:var(--rose-soft); }
   .resume-an1 { flex-basis:100%; font-size:8.5pt; }
+  .resume-roi { border:2px solid var(--ink); border-radius:14px; background:var(--vert-soft); padding:4mm 5mm; margin:0 0 4mm; font-size:10.5pt; line-height:1.45; }
+  .resume-roi strong { font: 800 13pt "Outfit", sans-serif; display:block; margin-bottom:1mm; }
   .resume-bloc { margin-bottom:6mm; }
   .resume-chips { list-style:none; padding:0; margin:2mm 0 0; display:flex; flex-wrap:wrap; gap:2mm; }
   .resume-chips li { border:1.5px solid var(--ink); border-radius:999px; padding:1.2mm 3.5mm; font-size:8.5pt; background:var(--vert-soft); }
@@ -643,7 +651,15 @@ const enteteDoc = (libelle: string) => `<header class="entete">
 const court = !!entree.rapportCourt;
 const documents: [string, string][] = court
   ? [
-      ["rapport.html", html.replace("__CORPS__", resume0 + numeroter([partie1, partie3, partie4]))],
+      /* v2.6, demande d Adib du 21/10/2026, le prix s annonce en dernier. La
+         synthese, qui le porte, passe juste avant le devis, et l en-tete du
+         document monte sur la premiere page. */
+      ["rapport.html", html.replace("__CORPS__", (() => {
+        const tete = resume0.match(/<header class="entete">[\s\S]*?<\/header>/)?.[0] ?? "";
+        const p1 = partie1.replace('<section class="page">', `<section class="page">${tete}`);
+        const devis = partie4.replace(/<p class="eyebrow">\d\d<\/p>/, '<p class="eyebrow">03</p>');
+        return numeroter([p1, partie3]) + resume0.replace(tete, "") + devis;
+      })())],
       ["accueil.html", html.replace(/<title>[^<]*<\/title>/, `<title>Document d'accueil Odegia, ${esc(entree.client.entite)}</title>`)
         .replace("__CORPS__", numeroter([partie2.replace('<section class="page">', `<section class="page">${enteteDoc("Document d'accueil")}`), partie5, partie5Gain]))],
     ]

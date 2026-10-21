@@ -35,7 +35,7 @@ import {
    change a chaque regle de decision, definition de mesure ou grille modifiee,
    et le protocole du vault dit ce que chaque version contient. Un rapport se
    relit toujours avec les regles de sa version. */
-export const METHODE_VERSION = "2.5";
+export const METHODE_VERSION = "2.6";
 
 /* v2.5, decisions d Adib du 20/10/2026, diagnostic Alteria. La premiere
    mensualite peut etre prelevee a la fin du premier mois de chantier, champ
@@ -681,7 +681,23 @@ export function diagnostiquer(e: Entree) {
           an1: coutAn1 / e.valeurNouveauClient,
           anSuivant: (12 * (base.ensuite + outilsMois)) / e.valeurNouveauClient }
       : null;
-    return { ...base, outils: outilsMois, gainAn1, renduAn1, mesure, premiereLivraison, coutAn1, nouveauxClients,
+    /* v2.6, demande d Adib du 21/10/2026. Ce que les automatisations deja
+       livrees font economiser le jour ou tombe la premiere mensualite. Quand
+       cette valeur depasse ce que le client paie, l offre est rentable des la
+       premiere mensualite, argument mis en avant dans la synthese. Valeur au
+       sens du rapport, temps au taux horaire et impayes recuperes, pas de la
+       tresorerie. */
+    const semaineFacture = e.debutFacturation === "livraison" ? premiereLivraison
+      : e.debutFacturation === "finMois1" ? SEMAINES_PAR_MOIS : 0;
+    const livrees = base.recommande ? recommandees.filter((u) => finDe(u.id) <= semaineFacture) : [];
+    const premiereMensualite = {
+      semaine: semaineFacture,
+      livrees: livrees.map((u) => u.id),
+      valeurMesure: livrees.reduce((a, u) => a + u.gainMensuelMesure, 0),
+      valeur: livrees.reduce((a, u) => a + u.gainMensuel, 0),
+      paye: base.mensualite + outilsMois,
+    };
+    return { ...base, outils: outilsMois, gainAn1, renduAn1, mesure, premiereLivraison, coutAn1, nouveauxClients, premiereMensualite,
       ttc: fTVA > 1,
       debutFacturation: e.debutFacturation ?? "signature",
       solde: base.valeur - base.mensualite - outilsMois,

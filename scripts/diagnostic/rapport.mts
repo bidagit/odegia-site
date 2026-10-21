@@ -127,9 +127,9 @@ const reste = parCout.length > MAX_LIGNES_COUT + 1 ? parCout.slice(MAX_LIGNES_CO
 const somme = (ls: LigneDiag[], k: "heuresMois" | "coutAnnuel" | "heuresMoisMesure") => ls.reduce((a, l) => a + l[k], 0);
 const cartes = proj
   ? `
-    <div class="carte carte-passe"><span class="etiquette">Aujourd'hui</span><span class="valeur">${heures(c.totaux.heuresMoisMesure)} h</span><span class="legende">par mois, ${euros(c.totaux.coutAnnuelMesure)} par an sur les douze derniers mois</span></div>
-    <div class="carte"><span class="etiquette">Sur les douze prochains mois</span><span class="valeur">${heures(c.totaux.heuresMois)} h</span><span class="legende">par mois, selon votre estimation</span></div>
-    <div class="carte"><span class="etiquette">Ce que ça vous coûtera</span><span class="valeur">${euros(c.totaux.coutAnnuel)}</span><span class="legende">par an, à ${euros(c.parametres.taux)} de l'heure${c.parametres.tauxHypothese ? ", hypothèse de travail" : ""}</span></div>`
+    <div class="carte carte-passe"><span class="etiquette">Aujourd'hui, par mois</span><span class="valeur">${euros((c.totaux.coutAnnuelMesure + c.totaux.perteAnnuelleMesuree) / 12)}</span><span class="legende">${euros(c.totaux.coutAnnuelMesure / 12)} de votre temps${c.totaux.perteAnnuelleMesuree > 0.5 ? `, et ${euros(c.totaux.perteAnnuelleMesuree / 12)} d'impayés` : ""}</span></div>
+    <div class="carte"><span class="etiquette">Votre temps</span><span class="valeur">${heures(c.totaux.heuresMoisMesure)} h</span><span class="legende">par mois, à ${euros(c.parametres.taux)} de l'heure${c.parametres.tauxHypothese ? ", hypothèse de travail" : ""}</span></div>
+    <div class="carte"><span class="etiquette">Dans un an</span><span class="valeur">${euros(c.totaux.coutAnnuel / 12)}</span><span class="legende">de temps par mois, ${heures(c.totaux.heuresMois)} h, si votre activité suit votre estimation, soit ${euros(c.totaux.coutAnnuel)} par an</span></div>`
   : `
     <div class="carte"><span class="valeur">${heures(c.totaux.heuresMois)} h</span><span class="legende">par mois, toutes tâches relevées</span></div>
     <div class="carte"><span class="valeur">${euros(c.totaux.coutAnnuel)}</span><span class="legende">par an, au taux retenu</span></div>
@@ -148,7 +148,7 @@ const encadrePlafond = plafonnees.length || engagees.length
   ? `<div class="plafond"><span class="etiquette">Un plafond de prudence</span><p>Le calcul retient votre estimation des douze prochains mois, plafonnée à ${c.parametres.PLAFOND_PROJECTION} fois ce qui a été mesuré sur les douze derniers. ${plafonnees.length ? `Le plafond s'applique à ${nb(plafonnees.length, "tâche")}, marquées d'une étoile` : "Il ne s'applique à aucune tâche"}${engagees.length ? `, et pas aux ${nb(engagees.length, "tâche")} dont le volume est engagé, ${preuves}` : ""}. ${plafonnees.length ? `Votre estimation donnait ${heures(heuresEstimees)} h par mois, le calcul en retient ${heures(c.totaux.heuresMois)}. Les chiffres qui suivent sont donc prudents, et se recalculent sans frais dès que le volume se confirme.` : ""}${c.lignes.some((l) => (l.bascule ?? 0) > 0) ? " Les durées comprennent le temps pour s'y remettre et s'en défaire." : ""}</p></div>`
   : "";
 const ligneCout = (l: LigneDiag) =>
-  `<tr><td>${esc(l.nom)}</td><td>${frequence(l.frequenceAn)}${l.plafonnee ? "*" : ""}</td><td>${duree(l.dureeMinutes)}</td>${proj ? `<td class="n passe">${heures(l.heuresMoisMesure)}</td>` : ""}<td class="n">${heures(l.heuresMois)}</td><td class="n">${euros(l.coutAnnuel)}</td></tr>`;
+  `<tr><td>${esc(l.nom)}</td><td>${frequence(l.frequenceAn)}${l.plafonnee ? "*" : ""}</td><td>${l.dureeMinutes ? duree(l.dureeMinutes) : "pas faite"}</td>${proj ? `<td class="n passe">${heures(l.heuresMoisMesure)}</td>` : ""}<td class="n">${heures(l.heuresMois)}</td><td class="n">${euros(l.coutAnnuel)}</td></tr>`;
 const partie1 = `
 <section class="page">
   <p class="eyebrow">01</p>
@@ -157,14 +157,14 @@ const partie1 = `
   <div class="chiffres">${cartes}
   </div>
   <table class="cout ${c.lignes.length > 6 ? "dense" : ""}">
-    <thead><tr><th>Tâche</th><th>Rythme</th><th>Durée</th>${proj ? `<th class="n">Auj. h/mois</th><th class="n">À venir h/mois</th><th class="n">À venir €/an</th>` : `<th class="n">h / mois</th><th class="n">€ / an</th>`}</tr></thead>
+    <thead><tr><th>Tâche</th><th>Rythme</th><th>Durée</th>${proj ? `<th class="n">Aujourd'hui<span class="unite">h / mois</span></th><th class="n">Dans un an<span class="unite">h / mois</span></th><th class="n">Dans un an<span class="unite">€ / an</span></th>` : `<th class="n">h / mois</th><th class="n">€ / an</th>`}</tr></thead>
     <tbody>
       ${parCout.slice(0, reste.length ? MAX_LIGNES_COUT : parCout.length).map(ligneCout).join("")}
       ${reste.length ? `<tr><td colspan="3">${reste.length} autres tâches, chacune sous ${heures(reste[0].heuresMois)} h par mois, détaillées page 2</td>${proj ? `<td class="n passe">${heures(somme(reste, "heuresMoisMesure"))}</td>` : ""}<td class="n">${heures(somme(reste, "heuresMois"))}</td><td class="n">${euros(somme(reste, "coutAnnuel"))}</td></tr>` : ""}
     </tbody>
     <tfoot><tr><td colspan="3">Total</td>${proj ? `<td class="n passe">${heures(c.totaux.heuresMoisMesure)}</td>` : ""}<td class="n">${heures(c.totaux.heuresMois)}</td><td class="n">${euros(c.totaux.coutAnnuel)}</td></tr></tfoot>
   </table>
-  ${c.totaux.perteAnnuelleMesuree > 0.5 ? `<div class="plafond"><span class="etiquette">Ce que ces heures ne montrent pas</span><p>Environ <strong>${euros(c.totaux.perteAnnuelleMesuree)} par an</strong> restent dus sans être encaissés aujourd'hui, des forfaits commencés et jamais soldés. Les lignes à 0 min sont des tâches que vous ne faites pas encore, c'est là que cet argent se perd.</p></div>` : ""}
+  ${c.totaux.perteAnnuelleMesuree > 0.5 ? `<div class="plafond"><span class="etiquette">Ce que ces heures ne montrent pas</span><p>Environ <strong>${euros(c.totaux.perteAnnuelleMesuree)} par an</strong> restent dus sans être encaissés aujourd'hui, des forfaits commencés et jamais soldés. Les tâches marquées « pas faite » sont celles que vous ne faites pas encore, c'est là que cet argent se perd.</p></div>` : ""}
   ${encadrePlafond}
   ${encadrePlafond ? "" : `<p class="note">Durées relevées avec vous${c.lignes.some((l) => (l.bascule ?? 0) > 0) ? ", temps pour s'y remettre et s'en défaire compris" : ""}. ${proj ? "Les pages suivantes partent de votre volume d'aujourd'hui, votre estimation y figure en hausse possible." : "Le coût est celui du temps passé, avant toute automatisation."}</p>`}
 </section>`;
@@ -177,10 +177,11 @@ const ROUTES: { route: string; titre: string }[] = [
   { route: "eliminer", titre: "Se supprime" },
 ];
 const orientationDe = (id: string) => c.orientations.find((o) => o.id === id)!;
+const nGroupes = ROUTES.filter(({ route }) => c.lignes.some((l) => orientationDe(l.id).route === route)).length;
 const groupes2 = ROUTES.map(({ route, titre }) => {
   const ls = c.lignes.filter((l) => orientationDe(l.id).route === route);
   if (!ls.length) return "";
-  return `<tr class="groupe"><td colspan="2">${titre}</td></tr>${ls
+  return `${nGroupes > 1 ? `<tr class="groupe"><td colspan="2">${titre}</td></tr>` : ""}${ls
     .map((l) => {
       const o = orientationDe(l.id);
       const etiquettes = [
@@ -245,13 +246,20 @@ const enc = b ? b.encaissement > 0.5 : false;
 const accroche = !b
   ? `<div class="accroche accroche-neutre"><p>Au seul calcul du temps, aucune automatisation ne se justifie aujourd'hui.</p></div>`
   : `<div class="accroche"><p>Odegia peut vous faire économiser <strong>${heures(b.heures)} h et ${euros(b.valeur)} par mois</strong>${enc ? `, dont ${euros(b.encaissement)} d'impayés récupérés` : ""}${hausse ? `, à votre volume d'aujourd'hui. Jusqu'à ${euros(bProj!.valeur)} si votre activité suit votre estimation` : ""}.</p></div>`;
-const designationClient = (u: { parcours: boolean; taches: string[]; niveau: 3 | 4 }) =>
-  `${u.parcours ? `Automatisation de ${u.taches.length} tâches enchaînées` : "Automatisation"}, ${autonomie(u.niveau).toLowerCase()}${u.niveau === 3 ? ", vous validez avant envoi" : ""}`;
+/* Critique du 21/10/2026, un enchainement qui melange taches autonomes et
+   validees se dit tel quel, jamais « semi-autonome » au-dessus de deux etapes
+   marquees 100 % autonome. */
+const designationClient = (u: { parcours: boolean; taches: string[]; niveau: 3 | 4 }) => {
+  if (!u.parcours) return `${autonomie(u.niveau)}${u.niveau === 3 ? ", vous validez avant envoi" : ""}`;
+  const seules = u.taches.filter((t) => parId.get(t)!.niveau === 4).length;
+  const validees = u.taches.length - seules;
+  return `${u.taches.length} tâches enchaînées, ${seules && validees ? `${seules} partent seules, ${validees} attendent votre accord` : seules ? "toutes partent seules" : "vous validez chacune avant envoi"}`;
+};
 /* Une tache qu on ne fait pas aujourd hui n economise rien, elle ajoute un
    service. Le dire plutot qu afficher zero heure et zero euro. */
 const economie = (u: { heuresRecuperees: number; gainMensuel: number; encaissementMensuel: number }) =>
   u.gainMensuel < 0.5 ? "Ce que vous ne faites pas aujourd'hui, un service en plus plutôt qu'une économie" :
-  `${heures(u.heuresRecuperees)} h économisées par mois · ${u.encaissementMensuel > 0.5 ? `${euros(u.gainMensuel - u.encaissementMensuel)} de temps et ${euros(u.encaissementMensuel)} d'impayés récupérés par mois` : `${euros(u.gainMensuel)} de temps par mois`}`;
+  `${euros(u.gainMensuel)} économisés par mois, ${heures(u.heuresRecuperees)} h${u.encaissementMensuel > 0.5 ? `, ${euros(u.gainMensuel - u.encaissementMensuel)} de temps et ${euros(u.encaissementMensuel)} d'impayés récupérés` : ""}`;
 const ordreIds = c.positions.length ? c.positions.map((p) => ({ id: p.id, demande: p.demande })) : candidats.map((k) => ({ id: k.id, demande: false }));
 
 const partie3 = `
@@ -259,6 +267,7 @@ const partie3 = `
   <p class="eyebrow">03</p>
   <h1>Ce qu'Odegia vous fait économiser</h1>
   ${accroche}
+  ${c.positions.length ? `<p class="pivot">${c.positions.length} automatisations couvrent vos ${c.positions.reduce((a, p) => a + uniteId.get(p.id)!.taches.length, 0)} tâches.</p>` : ""}
   <ol class="ordre">
     ${ordreIds
       .map((p, i) => {
@@ -266,10 +275,10 @@ const partie3 = `
         return `<li class="etape">
         <span class="rang">${i + 1}</span>
         <div>
-          <h3>${esc(l.nom)}${p.demande ? ` <span class="delai">à votre demande</span>` : ""}</h3>
+          <h2 class="t3">${esc(l.nom)}${p.demande ? ` <span class="delai">ajoutée à votre demande, comprise au devis</span>` : ""}</h2>
           <p class="ligne-chiffres">${designationClient(l)}</p>
           ${l.parcours
-            ? `<div class="flux">${l.taches.map((t) => { const x = parId.get(t)! as LigneDiag & { icone?: string }; return `<div class="flux-etape"><span class="flux-icone">${icone(x.icone)}</span><span class="flux-nom">${esc(x.etiquette ?? x.nom)}</span><span class="flux-mode">${x.niveau === 4 ? "100 % autonome" : "vous validez"}</span></div>`; }).join(`<span class="flux-fleche">→</span>`)}</div>${l.taches.map((t) => { const x = parId.get(t)! as LigneDiag & { illustration?: Etape[] }; return x.illustration?.length ? `<p class="flux-zoom">Zoom, ${esc((x.etiquette ?? x.nom).toLowerCase())}</p><div class="flux flux-petit">${x.illustration.map((e) => `<div class="flux-etape ${e.vous ? "flux-vous" : ""}"><span class="flux-icone">${icone(e.icone)}</span><span class="flux-nom">${esc(e.texte)}</span></div>`).join(`<span class="flux-fleche">→</span>`)}</div>` : ""; }).join("")}`
+            ? `<div class="flux">${l.taches.map((t) => { const x = parId.get(t)! as LigneDiag & { icone?: string }; return `<div class="flux-etape"><span class="flux-icone">${icone(x.icone)}</span><span class="flux-nom">${esc(x.etiquette ?? x.nom)}</span><span class="flux-mode">${x.niveau === 4 ? "100 % autonome" : "vous validez"}</span></div>`; }).join(`<span class="flux-fleche">→</span>`)}</div>${l.taches.map((t) => { const x = parId.get(t)! as LigneDiag & { illustration?: Etape[] }; return x.illustration?.length ? `<p class="flux-zoom">${esc(x.etiquette ?? x.nom)}, étape par étape</p><div class="flux flux-petit">${x.illustration.map((e) => `<div class="flux-etape ${e.vous ? "flux-vous" : ""}"><span class="flux-icone">${icone(e.icone)}</span><span class="flux-nom">${esc(e.texte)}</span></div>`).join(`<span class="flux-fleche">→</span>`)}</div>` : ""; }).join("")}`
             : (() => { const x = parId.get(l.taches[0]) as (LigneDiag & { illustration?: Etape[] }) | undefined; return x?.illustration?.length ? `<div class="flux">${x.illustration.map((e) => `<div class="flux-etape ${e.vous ? "flux-vous" : ""}"><span class="flux-icone">${icone(e.icone)}</span><span class="flux-nom">${esc(e.texte)}</span></div>`).join(`<span class="flux-fleche">→</span>`)}</div>` : ""; })()}
           <p class="ligne-chiffres">${economie(vue(l))}${proj && l.gainMensuel - l.gainMensuelMesure > 0.5 ? `, jusqu'à ${euros(l.gainMensuel)} selon votre estimation` : ""}</p>
         </div>
@@ -287,7 +296,7 @@ const designation = (u: { parcours: boolean; taches: string[]; niveau: 3 | 4 }, 
 /* Une seule ligne, decision d Adib du 17/10/2026. Le client achete son
    administratif automatise, pas une liste de taches a prix separes. */
 const nTaches = c.recommandees.reduce((a, id) => a + uniteId.get(id)!.taches.length, 0);
-const lignesDevis = `<tr><td>Votre administratif automatisé, ${nTaches} tâches<span class="sous">${c.recommandees.map((id) => esc(uniteId.get(id)!.nom)).join(" · ")}</span></td><td class="n">${euros(c.devis.mensualitePleine)}</td></tr>`;
+const lignesDevis = `<tr><td>Votre administratif automatisé, ${c.recommandees.length} automatisations pour vos ${nTaches} tâches<span class="sous">${c.recommandees.map((id) => esc(uniteId.get(id)!.nom)).join(" · ")}</span></td><td class="n">${euros(c.devis.mensualitePleine)}</td></tr>`;
 const numero = entree.devis?.numero ?? "à attribuer";
 const E = c.parametres.ENGAGEMENT_MOIS;
 
@@ -304,7 +313,7 @@ const gainNet = b ? `
       ${c.outils.liste.length ? `<div><span class="valeur">${euros(b.outils)}</span><span class="legende">${b.outils > 0.5 ? "d'outils à votre nom" : "d'outils en plus, ceux qu'il faut sont gratuits, compris ou déjà payés"}</span></div>` : ""}
       <div class="${b.solde >= 0 ? "positif" : "negatif"}"><span class="valeur">${solde(b.solde)}</span><span class="legende">gagnés net chaque mois${b.ensuite !== b.mensualite ? `, la première année, puis ${solde(ensuiteNet(bProj!))}${hausse ? `, ou ${solde(bProj!.valeur - bProj!.ensuite - bProj!.outils)} selon votre estimation` : ""}` : ""}</span></div>
     </div>
-    <p class="note">${b.ttc ? `Vous ne récupérez pas la TVA, ces montants comptent donc la mensualité TTC, ${euros(b.mensualite)} au lieu de ${euros(b.mensualite / (1 + c.parametres.TAUX_TVA))} HT. ` : ""}${b.nouveauxClients ? `Un nouveau ${esc(b.nouveauxClients.mot.replace(/s$/, ""))} vous rapporte en moyenne ${euros(b.nouveauxClients.valeur)}. Votre première année Odegia, ${euros(b.coutAn1)}, se paie avec ${Math.ceil(b.nouveauxClients.an1)} de plus, chaque année suivante avec ${Math.ceil(b.nouveauxClients.anSuivant)}. ` : ""}${proj ? "Ces montants partent de votre volume d'aujourd'hui. " : ""}Sur la première année, chaque automatisation ne vous fait économiser qu'à partir de sa livraison${b.debutFacturation === "livraison" ? `, et la mensualité ne court qu'à partir de la première, en semaine ${b.premiereLivraison}` : b.debutFacturation === "finMois1" ? ", et la mensualité ne court qu'à partir de la fin du premier mois de chantier" : ", alors que la mensualité court dès la signature"}. Construction comprise, vous gagnez ${solde(b.gainAn1)} sur cette première année.${hausse ? ` Si votre activité suit votre estimation, l'économie monte à ${euros(bProj!.valeur)} par mois et le gain net à ${solde(bProj!.solde)}.` : ""} Sur trois ans, ${euros(b.valeurHorizon)} économisés pour ${euros(b.coutHorizon)} payés à Odegia${b.outils > 0.5 ? " et pour vos outils" : ""}. Vous ne payez rien d'avance pour la construction.</p>
+    <p class="note">${b.ttc ? "Vous ne récupérez pas la TVA, les montants sont donc TTC. " : ""}${(() => { const n = Math.round(b.coutAn1 / (b.mensualite + b.outils)); return `Votre première année Odegia coûte ${euros(b.coutAn1)}, ${n} mensualités${n < 12 ? (b.debutFacturation === "finMois1" ? ", la première tombant à la fin du premier mois de chantier" : ", la première tombant à la première livraison") : ""}${b.nouveauxClients ? `, et ${Math.ceil(b.nouveauxClients.an1)} nouveaux ${esc(b.nouveauxClients.mot)} la paient` : ""}.`; })()} Construction comprise, vous gagnez ${solde(b.gainAn1)} sur cette première année.</p>
   </div>` : "";
 const tableNet = c.positions.length ? `
   <table class="dense">
@@ -376,7 +385,7 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
     <tfoot>
       <tr><td>Mensualité HT</td><td class="n">${euros(d.mensualiteHT)}</td></tr>
       <tr class="leger"><td>TVA 20 %</td><td class="n">${euros(d.tva)}</td></tr>
-      <tr><td>Mensualité TTC</td><td class="n">${euros(d.mensualiteTTC)}</td></tr>
+      <tr class="${c.bilanMensuel?.ttc ? "paye" : ""}"><td>Mensualité TTC</td><td class="n">${euros(d.mensualiteTTC)}</td></tr>
     </tfoot>
   </table>
   <div class="suivi">
@@ -391,7 +400,7 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
     ${d.remiseGroupe ? d.remisesClient.filter((r) => r.condition).map((r) => `<li>${esc(r.condition!)}</li>`).join("") : ""}
     <li>Au terme des ${E} mois d'engagement, vous pouvez reprendre vos automatisations à votre compte. Nous vous les transférons contre des frais de mise en place égaux à ${c.parametres.RACHAT_MENSUALITES} mensualités, soit ${euros(d.mensualiteEnsuiteHT * c.parametres.RACHAT_MENSUALITES)} HT. Vous assurez ensuite vous-même les corrections, mises à jour et améliorations, et la mensualité s'arrête au transfert.</li>
   </ul>
-  <div class="accord"><span>Bon pour accord, date et signature</span></div>
+  <div class="accord"><div class="accord-champs"><span>Nom</span><span>Date</span><span>« Bon pour accord » et signature</span></div><p>Ou répondez simplement « bon pour accord » au mail qui accompagne ce devis.</p></div>
 </section>`;
 
 /* ── 5. La feuille de route, les quatre temps du livre ─────────────────────── */
@@ -419,10 +428,10 @@ const partie5 = `
   ${para(r.ordre)}
   <p class="note">Délais indicatifs, comptés en semaines à partir de la signature.</p>
   <ol class="temps">
-    <li><span class="rang">1</span><div><h3>Les fondations <span class="delai">${semaines(f.calendrier.socle)}</span></h3>${fondations}</div></li>
-    <li><span class="rang">2</span><div><h3>La construction ${f.calendrier.briques.length ? `<span class="delai">${semaines({ debut: f.calendrier.briques[0].debut, fin: f.calendrier.briques[f.calendrier.briques.length - 1].fin })}</span>` : ""}</h3>${f.construire.length ? `<p>${entree.rapportCourt ? "Dans l'ordre du rapport de diagnostic." : "Dans l'ordre de la page 3."}</p><ul class="puces">${f.construire.map((u) => { const cal = f.calendrier.briques.find((x) => x.id === u.id)!; return `<li>${esc(uniteId.get(u.id)!.nom)}, ${autonomie(u.niveau).toLowerCase()}, ${semaines(cal)}</li>`; }).join("")}</ul>` : "<p>Au seul calcul du temps, aucune construction ne se justifie.</p>"}${f.deleguer.length ? `<p><strong>À confier à quelqu'un</strong>, avec des instructions écrites. ${f.construire.length ? "Ces tâches restent hors de la construction, trop légères pour couvrir ce qu'elles coûteraient." : "À ce volume, leur automatisation coûterait plus qu'elle ne fait économiser."}</p>${liste(f.deleguer)}` : ""}</div></li>
-    <li><span class="rang">3</span><div><h3>Le calibrage ${f.calendrier.supervision ? `<span class="delai">${semaines(f.calendrier.supervision)}</span>` : ""}</h3><p>${f.calendrier.supervision ? "Il commence dès la première livraison, pendant que la suite se construit, une semaine de mise en place puis quatre de rodage. " : ""}Tout passe par votre validation, et chaque retouche que vous faites sert à modifier et améliorer les règles, jusqu'à ce que le système produise ce que vous auriez fait.</p></div></li>
-    <li><span class="rang">4</span><div><h3>La supervision allégée ${f.calendrier.calibrage ? `<span class="delai">dès la semaine ${f.calendrier.calibrage}, en continu</span>` : ""}</h3><p>${f.fileExceptions.length ? "Ce qui attend encore votre accord arrive dans une seule file, au lieu d'être éparpillé dans vos mails. " : ""}Un tableau montre ce qui tourne. Vous le regardez ${[[f.cadence.jour, "par jour"], [f.cadence.semaine, "par semaine"], [f.cadence.mois, "par mois"]].filter(([m]) => (m as number) > 0).map(([m, u]) => `${fmtCadence(m as number)} ${u}`).join(", ")}, et nous corrigeons les écarts mineurs au fil de l'eau.</p></div></li>
+    <li><span class="rang">1</span><div><h2 class="t3">Les fondations <span class="delai">${semaines(f.calendrier.socle)}</span></h2>${fondations}</div></li>
+    <li><span class="rang">2</span><div><h2 class="t3">La construction ${f.calendrier.briques.length ? `<span class="delai">${semaines({ debut: f.calendrier.briques[0].debut, fin: f.calendrier.briques[f.calendrier.briques.length - 1].fin })}</span>` : ""}</h2>${f.construire.length ? `<p>${entree.rapportCourt ? "Dans l'ordre du rapport de diagnostic." : "Dans l'ordre de la page 3."}</p><ul class="puces">${f.construire.map((u) => { const cal = f.calendrier.briques.find((x) => x.id === u.id)!; return `<li>${esc(uniteId.get(u.id)!.nom)}, ${autonomie(u.niveau).toLowerCase()}, ${semaines(cal)}</li>`; }).join("")}</ul>` : "<p>Au seul calcul du temps, aucune construction ne se justifie.</p>"}${f.deleguer.length ? `<p><strong>À confier à quelqu'un</strong>, avec des instructions écrites. ${f.construire.length ? "Ces tâches restent hors de la construction, trop légères pour couvrir ce qu'elles coûteraient." : "À ce volume, leur automatisation coûterait plus qu'elle ne fait économiser."}</p>${liste(f.deleguer)}` : ""}</div></li>
+    <li><span class="rang">3</span><div><h2 class="t3">Le calibrage ${f.calendrier.supervision ? `<span class="delai">${semaines(f.calendrier.supervision)}</span>` : ""}</h2><p>${f.calendrier.supervision ? "Il commence dès la première livraison, pendant que la suite se construit, une semaine de mise en place puis quatre de rodage. " : ""}Tout passe par votre validation, et chaque retouche que vous faites sert à modifier et améliorer les règles, jusqu'à ce que le système produise ce que vous auriez fait.</p></div></li>
+    <li><span class="rang">4</span><div><h2 class="t3">La supervision allégée ${f.calendrier.calibrage ? `<span class="delai">dès la semaine ${f.calendrier.calibrage}, en continu</span>` : ""}</h2><p>${f.fileExceptions.length ? "Ce qui attend encore votre accord arrive dans une seule file, au lieu d'être éparpillé dans vos mails. " : ""}Un tableau montre ce qui tourne. Vous le regardez ${[[f.cadence.jour, "par jour"], [f.cadence.semaine, "par semaine"], [f.cadence.mois, "par mois"]].filter(([m]) => (m as number) > 0).map(([m, u]) => `${fmtCadence(m as number)} ${u}`).join(", ")}, et nous corrigeons les écarts mineurs au fil de l'eau.</p></div></li>
   </ol>
   ${f.aVotreMain.length ? `<p class="note"><strong>Reste à votre main, par choix.</strong> ${noms(f.aVotreMain).join(" · ")}</p>` : ""}
 </section>`;
@@ -445,11 +454,11 @@ const tempsAujourdhui = coutMois;
 const echelle = Math.max(tempsAujourdhui + impayesMois, b ? b.valeur : 0, b ? b.mensualite + b.outils : 0, 1);
 const barre = (segments: { v: number; cls: string }[]) =>
   `<div class="barre">${segments.filter((x) => x.v > 0.5).map((x) => `<span class="${x.cls}" style="width:${(100 * x.v / echelle).toFixed(1)}%"></span>`).join("")}</div>`;
-const legende = `<div class="legende-barres"><span><i class="seg-temps"></i>Temps administratif</span><span><i class="seg-argent"></i>Revenus, impayés</span><span><i class="seg-odegia"></i>Odegia</span></div>`;
+const legende = `<div class="legende-barres"><span><i class="seg-temps"></i>Temps administratif</span><span><i class="seg-perdu"></i>Impayés perdus</span><span><i class="seg-recupere"></i>Impayés récupérés</span><span><i class="seg-odegia"></i>Odegia</span></div>`;
 /* Frise de trois mois, une ligne par temps, semaines en abscisse. */
 const SEMAINES_FRISE = 13;
 const ligneFrise = (nom: string, debut: number, fin: number, continu = false) =>
-  `<div class="frise-ligne"><span class="frise-nom">${nom}</span><div class="frise-piste"><span class="frise-barre ${continu ? "frise-continu" : ""}" style="left:${(100 * (debut - 1) / SEMAINES_FRISE).toFixed(1)}%;width:${(100 * (Math.min(fin, SEMAINES_FRISE) - debut + 1) / SEMAINES_FRISE).toFixed(1)}%">${continu ? "en continu →" : `sem. ${debut}${fin > debut ? ` à ${fin}` : ""}`}</span></div></div>`;
+  `<div class="frise-ligne"><span class="frise-nom">${nom}</span><div class="frise-piste"><span class="frise-barre ${continu ? "frise-continu" : ""}" style="left:${(100 * (debut - 1) / SEMAINES_FRISE).toFixed(1)}%;width:${(100 * (Math.min(fin, SEMAINES_FRISE) - debut + 1) / SEMAINES_FRISE).toFixed(1)}%">${continu ? "en continu →" : (fin > debut ? `sem. ${debut} à ${fin}` : `S${debut}`)}</span></div></div>`;
 /* v2.6, rentable des la premiere mensualite, au volume d aujourd hui quand une
    projection existe, comme le reste de la synthese. */
 const pm = bProj?.premiereMensualite;
@@ -468,16 +477,15 @@ const resume0 = `
   <p class="eyebrow">En bref</p>
   <h1>Votre diagnostic sur une page</h1>
   <div class="resume">
-    ${etapeResume("1", "Ce que vous coûte l'administratif", `${euros(tempsAujourdhui + impayesMois)}`, `par mois aujourd'hui, ${euros(tempsAujourdhui)} de votre temps, ${heures(proj ? c.totaux.heuresMoisMesure : c.totaux.heuresMois)} h${impayesMois > 0.5 ? `, et ${euros(impayesMois)} d'impayés` : ""}`) .replace("</div>", `${barre([{ v: tempsAujourdhui, cls: "seg-temps" }, { v: impayesMois, cls: "seg-argent" }])}</div>`)}
+    ${etapeResume("1", "Votre administratif", `${euros(tempsAujourdhui + impayesMois)}`, `par mois aujourd'hui, ${euros(tempsAujourdhui)} de votre temps, ${heures(proj ? c.totaux.heuresMoisMesure : c.totaux.heuresMois)} h${impayesMois > 0.5 ? `, et ${euros(impayesMois)} d'impayés` : ""}`) .replace("</div>", `${barre([{ v: tempsAujourdhui, cls: "seg-temps" }, { v: impayesMois, cls: "seg-perdu" }])}</div>`)}
     ${fleche}
-    ${b ? etapeResume("2", "Ce qu'Odegia vous apporte", `${euros(b.valeur)}`, `par mois, ${heures(b.heures)} h et ${euros(b.valeur - b.encaissement)} de temps économisés${enc ? `, et ${euros(b.encaissement)} de revenus récupérés grâce aux relances` : ""}`, "resume-vert").replace("</div>", `${barre([{ v: b.valeur - b.encaissement, cls: "seg-temps" }, { v: b.encaissement, cls: "seg-argent" }])}</div>`) : etapeResume("2", "Ce qu'Odegia vous apporte", "—", "aucune automatisation ne se justifie à ce volume")}
+    ${b ? etapeResume("2", "Odegia vous apporte", `${euros(b.valeur)}`, `par mois, ${heures(b.heures)} h et ${euros(b.valeur - b.encaissement)} de temps économisés${enc ? `, et ${euros(b.encaissement)} de revenus récupérés grâce aux relances` : ""}`, "resume-vert").replace("</div>", `${barre([{ v: b.valeur - b.encaissement, cls: "seg-temps" }, { v: b.encaissement, cls: "seg-recupere" }])}</div>`) : etapeResume("2", "Odegia vous apporte", "—", "aucune automatisation ne se justifie à ce volume")}
     ${fleche}
-    ${b ? etapeResume("3", "Ce qu'Odegia vous coûte", `${euros(b.mensualite + b.outils)}`, `par mois${b.ttc ? " TTC, la TVA comprise puisque vous ne la récupérez pas" : ""}${b.ensuite !== b.mensualite ? `, la première année, puis ${euros(b.ensuite + b.outils)}` : ""}, rien à payer d'avance${c.outils.liste.length ? (b.outils > 0.5 ? `, dont ${euros(b.outils)} d'outils à votre nom` : ", vos outils ne vous coûtent rien de plus") : ""}`).replace("</div>", `${barre([{ v: b.mensualite + b.outils, cls: "seg-odegia" }])}</div>`) : etapeResume("3", "Ce qu'Odegia vous coûte", "0 €", "le diagnostic est offert")}
+    ${b ? etapeResume("3", "Odegia vous coûte", `${euros(b.mensualite + b.outils)}`, `par mois${b.ttc ? " TTC, la TVA comprise puisque vous ne la récupérez pas" : ""}${b.ensuite !== b.mensualite ? `, la première année, puis ${euros(b.ensuite + b.outils)}` : ""}, rien à payer d'avance${c.outils.liste.length ? (b.outils > 0.5 ? `, dont ${euros(b.outils)} d'outils à votre nom` : ", vos outils ne vous coûtent rien de plus") : ""}`).replace("</div>", `${barre([{ v: b.mensualite + b.outils, cls: "seg-odegia" }])}</div>`) : etapeResume("3", "Odegia vous coûte", "0 €", "le diagnostic est offert")}
   </div>
   ${b ? legende : ""}
   ${roi ? `<div class="resume-roi"><strong>Rentable dès la première mensualité.</strong> Quand elle tombe, ce qui est déjà en service vous fait économiser ${euros(roi.valeur)} par mois, ${roi.valeur >= 2 * roi.paye ? `${["", "", "deux", "trois", "quatre", "cinq"][Math.min(5, Math.floor(roi.valeur / roi.paye))]} fois` : "plus que"} les ${euros(roi.paye)} que vous payez.</div>` : ""}
-  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span>Ce que vous gagnez, une fois en service</span><strong>${solde(b.solde)} net par mois</strong>${b.ensuite !== b.mensualite ? `<span>puis ${solde(hausse ? bProj!.valeur - bProj!.ensuite - bProj!.outils : ensuiteNet(bProj!))} par mois sur les ${c.parametres.ENGAGEMENT_MOIS} mois suivants${hausse ? ", selon votre estimation" : ""}</span>` : ""}${b.nouveauxClients ? `<span class="resume-an1">${Math.ceil(b.nouveauxClients.an1)} nouveaux ${esc(b.nouveauxClients.mot)} de plus dans l'année, et votre première année Odegia est payée.</span>` : ""}</div>` : ""}
-  ${c.positions.length ? `<div class="resume-bloc"><span class="etiquette">Ce qui s'automatise</span><ul class="resume-chips">${c.positions.map((p) => `<li>${esc(uniteId.get(p.id)!.nom)}</li>`).join("")}</ul></div>` : ""}
+  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span>Ce que vous gagnez, une fois en service</span><strong>${solde(b.solde)} net par mois</strong>${b.ensuite !== b.mensualite ? `<span>puis, les ${c.parametres.ENGAGEMENT_MOIS} mois suivants, ${solde(ensuiteNet(bProj!))} par mois à votre volume d'aujourd'hui${hausse ? `, jusqu'à ${solde(bProj!.valeur - bProj!.ensuite - bProj!.outils)} selon votre estimation` : ""}</span>` : ""}${b.nouveauxClients ? `<span class="resume-an1">${Math.ceil(b.nouveauxClients.an1)} nouveaux ${esc(b.nouveauxClients.mot)} dans l'année, et votre première année Odegia est payée.</span>` : ""}</div>` : ""}
   ${fdr.briques.length ? `<div class="resume-bloc"><span class="etiquette">Comment ça se passe, sur trois mois</span><div class="frise">
     <div class="frise-ligne frise-mois"><span class="frise-nom"></span><div class="frise-piste"><span style="left:0;width:30.8%">Mois 1</span><span style="left:30.8%;width:30.8%">Mois 2</span><span style="left:61.5%;width:38.5%">Mois 3</span></div></div>
     ${ligneFrise("Fondations", fdr.socle.debut, fdr.socle.fin)}
@@ -485,6 +493,7 @@ const resume0 = `
     ${fdr.supervision ? ligneFrise("Calibrage", fdr.supervision.debut, fdr.supervision.fin) : ""}
     ${fdr.calibrage ? ligneFrise("Supervision allégée", fdr.calibrage, SEMAINES_FRISE, true) : ""}
   </div></div>` : ""}
+  ${c.recommandees.length ? `<div class="prochaine"><strong>Votre prochaine étape</strong><p>Signez le devis ${entree.rapportCourt ? "page 3" : "qui précède"} avant le ${dateFr(validite)}, ou répondez « bon pour accord » au mail. La semaine 1 commence à la signature${bProj?.debutFacturation === "finMois1" ? ", et rien n'est à payer avant la fin du premier mois de chantier" : bProj?.debutFacturation === "livraison" ? ", et rien n'est à payer avant la première livraison" : ""}.</p></div>` : ""}
 </section>`;
 
 const html = `<!doctype html>
@@ -501,7 +510,7 @@ const html = `<!doctype html>
   .page:last-child { break-after: auto; }
   .entete { display:flex; justify-content:space-between; align-items:center; padding-bottom:10mm; border-bottom:2px solid var(--ink); margin-bottom:10mm; }
   .logo { height: 11mm; }
-  .meta { display:flex; flex-direction:column; align-items:flex-end; font: 500 7.5pt/1.5 "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); }
+  .meta { display:flex; flex-direction:column; align-items:flex-end; font: 500 8pt/1.5 "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); }
   .eyebrow { font: 500 8pt "Geist Mono", monospace; letter-spacing:.16em; color:var(--vert); margin:0 0 2mm; }
   h1 { font: 800 24pt/1.08 "Outfit", sans-serif; letter-spacing:-.03em; margin:0 0 6mm; text-wrap:balance; }
   h3 { font: 600 11pt/1.3 "Geist", sans-serif; margin:0; }
@@ -511,9 +520,9 @@ const html = `<!doctype html>
   .carte { border:2px solid var(--ink); border-radius:14px; padding:5mm; box-shadow:4px 4px 0 var(--ink); display:flex; flex-direction:column; gap:1mm; }
   .carte:first-child { background:var(--vert-soft); }
   .valeur { font: 800 20pt/1 "Outfit", sans-serif; letter-spacing:-.02em; font-variant-numeric: tabular-nums; }
-  .legende { font-size:8pt; color:var(--soft); }
+  .legende { font-size:8.5pt; color:var(--soft); }
   table { width:100%; border-collapse:collapse; font-variant-numeric: tabular-nums; }
-  th { text-align:left; font: 500 7.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); border-bottom:2px solid var(--ink); padding:2mm 2mm; }
+  th { text-align:left; font: 500 8pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); border-bottom:2px solid var(--ink); padding:2mm 2mm; }
   td { padding:2.2mm 2mm; border-bottom:1px solid #dfe5e2; vertical-align:top; }
   tfoot td { font-weight:600; border-bottom:none; border-top:2px solid var(--ink); }
   .n { text-align:right; white-space:nowrap; }
@@ -540,21 +549,22 @@ const html = `<!doctype html>
   .ligne-chiffres { margin:1mm 0 0; font-size:8.5pt; color:var(--soft); font-variant-numeric: tabular-nums; }
   .parties { display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:5mm; margin-bottom:5mm; font-size:8.5pt; }
   .parties p { margin:1mm 0 0; }
-  .etiquette { font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); }
+  .etiquette { font: 500 8pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); }
   .sous { display:block; font-size:8pt; color:var(--soft); }
   .remise td { color:var(--vert); }
   .leger td { font-weight:400; border-top:none; color:var(--soft); }
-  .suivi { margin:7mm 0 5mm; border:2px solid var(--ink); border-radius:14px; padding:4mm 5mm; background:var(--vert-soft); }
+  .suivi { margin:4mm 0 3mm; border:2px solid var(--ink); border-radius:14px; padding:4mm 5mm; background:var(--vert-soft); }
   .suivi p { margin:1mm 0 0; }
-  .conditions { margin:0; padding-left:4.5mm; font-size:8pt; line-height:1.45; color:var(--soft); }
+  .conditions { margin:0; padding-left:4.5mm; font-size:8.5pt; line-height:1.45; color:var(--ink); }
   .carte .etiquette { margin-bottom:1mm; }
-  .plafond { margin:4mm 0 0; border-left:3px solid var(--banane-deep, #d4ae0a); background:#fdf8e1; padding:2.5mm 4mm; border-radius:0 10px 10px 0; }
+  .plafond { margin:4mm 0 0; background:#fdf8e1; padding:3mm 4.5mm; border-radius:10px; }
   .plafond p { margin:1mm 0 0; font-size:8.6pt; line-height:1.5; }
   .carte-passe { background:var(--alt) !important; }
   .carte-passe + .carte { background:var(--vert-soft); }
   td.passe { color:var(--soft); }
   table.cout td:nth-child(2), table.cout td:nth-child(3) { white-space:nowrap; }
   table.cout th { white-space:nowrap; }
+  th .unite { display:block; font-size:7.5pt; letter-spacing:.06em; text-transform:none; margin-top:.5mm; }
   table.dense td { padding:1.3mm 2mm; font-size:8.8pt; }
   table.orientations td { vertical-align:top; }
   table.orientations + .prose { margin-top:5mm; }
@@ -572,7 +582,7 @@ const html = `<!doctype html>
   .bilan-grille .positif .valeur { color:var(--vert); }
   .bilan-grille .negatif .valeur { color:var(--rose); }
   .bilan .note { margin-top:3mm; }
-  .delai { font: 500 7.5pt "Geist Mono", monospace; letter-spacing:.08em; text-transform:uppercase; color:var(--vert); margin-left:2mm; }
+  .delai { font: 500 8pt "Geist Mono", monospace; letter-spacing:.08em; text-transform:uppercase; color:var(--vert); margin-left:2mm; }
   .definition { display:grid; grid-template-columns:repeat(3,1fr); gap:4mm; border:2px solid var(--ink); border-radius:14px; padding:3mm 4mm; margin:0 0 4mm; background:var(--alt); font-size:9pt; }
   .definition p { margin:1mm 0 0; }
   .temps { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:3mm; }
@@ -607,7 +617,8 @@ const html = `<!doctype html>
   .barre { display:flex; height:4mm; margin-top:auto; border:1.5px solid var(--ink); border-radius:3px; overflow:hidden; background:#fff; }
   .barre span { display:block; height:100%; }
   .seg-temps, .legende-barres i.seg-temps { background:var(--vert); }
-  .seg-argent, .legende-barres i.seg-argent { background:#e8590c; }
+  .seg-perdu, .legende-barres i.seg-perdu { background:var(--rose); }
+  .seg-recupere, .legende-barres i.seg-recupere { background:var(--banane); }
   .seg-odegia, .legende-barres i.seg-odegia { background:var(--ink); }
   .legende-barres { display:flex; gap:6mm; font-size:8pt; color:var(--soft); margin:-1mm 0 5mm; }
   .legende-barres span { display:flex; align-items:center; gap:1.5mm; }
@@ -617,13 +628,13 @@ const html = `<!doctype html>
   .frise-nom { font-size:8.5pt; font-weight:600; }
   .frise-piste { position:relative; height:6mm; background:var(--alt); border-radius:3px; }
   .frise-mois .frise-piste { background:none; height:4mm; }
-  .frise-mois .frise-piste span { position:absolute; top:0; font: 500 6.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--soft); border-left:1px solid #c9d2cf; padding-left:1.5mm; }
-  .frise-barre { position:absolute; top:0; height:100%; border:1.5px solid var(--ink); border-radius:3px; background:var(--menthe); font: 500 6.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.06em; display:flex; align-items:center; padding-left:1.5mm; white-space:nowrap; overflow:hidden; }
+  .frise-mois .frise-piste span { position:absolute; top:0; font: 500 7.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--soft); border-left:1px solid #c9d2cf; padding-left:1.5mm; }
+  .frise-barre { position:absolute; top:0; height:100%; border:1.5px solid var(--ink); border-radius:3px; background:var(--vert-soft); font: 500 7.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.06em; display:flex; align-items:center; padding-left:1.5mm; white-space:nowrap; overflow:hidden; }
   .frise-continu { background:var(--banane); }
   .flux-icone { color:var(--vert); display:flex; }
   /* Zoom sur une etape d une chaine, le devis d Alteria, demande d Adib du
      19/10/2026, c est la douleur que le client cite le plus. */
-  .flux-zoom { font: 500 6.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); margin:1.5mm 0 0; }
+  .flux-zoom { font: 500 8pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); margin:1.5mm 0 0; }
   .flux-petit { margin-top:1mm; }
   .flux-petit .flux-etape { padding:1.5mm 2mm; }
   .flux-vous { background:var(--banane) !important; }
@@ -631,9 +642,20 @@ const html = `<!doctype html>
   .flux { display:flex; align-items:stretch; gap:1.5mm; margin:1.5mm 0 1.5mm; }
   .flux-etape { flex:1; border:1.5px solid var(--ink); border-radius:9px; padding:1.5mm 2.2mm; background:var(--vert-soft); display:flex; flex-direction:column; justify-content:space-between; gap:.6mm; }
   .flux-nom { font: 600 8pt/1.2 "Geist", sans-serif; }
-  .flux-mode { font: 500 6.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--vert); }
+  .flux-mode { font: 500 7.5pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--vert); }
   .flux-fleche { align-self:center; font: 800 13pt "Outfit", sans-serif; color:var(--ink); }
-  .accord { break-inside:avoid; margin-top:3mm; border:1.5px dashed var(--soft); border-radius:12px; height:18mm; padding:3mm 4mm; font: 500 7pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); width:80mm; margin-left:auto; }
+  .accord { break-inside:avoid; margin-top:4mm; border:2px solid var(--ink); border-radius:14px; padding:3mm 4mm 2.5mm; }
+  .accord-champs { display:grid; grid-template-columns:1fr 1fr 2fr; gap:5mm; }
+  .accord-champs span { display:block; height:12mm; border-bottom:1.5px solid var(--ink); font: 500 8pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); }
+  .accord p { margin:2.5mm 0 0; font-size:9pt; }
+  tfoot tr.paye td { font: 800 13pt "Outfit", sans-serif; }
+  .pivot { margin:-4mm 0 5mm; font-weight:600; }
+  h2.t3 { font: 600 11pt/1.3 "Geist", sans-serif; margin:0; }
+  .prochaine { margin-top:6mm; background:var(--ink); color:#fff; border-radius:14px; padding:5mm 6mm; box-shadow:4px 4px 0 var(--banane); }
+  .prochaine strong { font: 800 15pt "Outfit", sans-serif; display:block; margin-bottom:1.5mm; }
+  .prochaine p { margin:0; font-size:10pt; line-height:1.5; }
+  .note + table.dense { margin-top:5mm; }
+  .chiffres, .resume, .bilan, .accroche { margin-right:1.5mm; }
 </style></head>
 <body>__CORPS__</body></html>`;
 
@@ -659,7 +681,7 @@ const documents: [string, string][] = court
         const p1 = partie1.replace('<section class="page">', `<section class="page">${tete}`);
         /* 21/10/2026 au soir, Adib, le devis s explique d abord et la synthese
            ferme le rapport. */
-        return numeroter([p1, partie3, partie4]) + resume0.replace(tete, "");
+        return numeroter([p1, partie3, partie4]) + resume0.replace(tete, "").replace('<p class="eyebrow">En bref</p>', '<p class="eyebrow">04, en bref</p>');
       })())],
       ["accueil.html", html.replace(/<title>[^<]*<\/title>/, `<title>Document d'accueil Odegia, ${esc(entree.client.entite)}</title>`)
         .replace("__CORPS__", numeroter([partie2.replace('<section class="page">', `<section class="page">${enteteDoc("Document d'accueil")}`), partie5, partie5Gain]))],

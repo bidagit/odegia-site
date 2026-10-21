@@ -9,6 +9,21 @@
    le controle de produire.sh la signale. */
 
 const TABLE: [string, string][] = [
+  ["vous rend", "te rend"],
+  ["en comptant votre heure à", "en comptant ton heure à"],
+  ["En comptant votre heure à", "En comptant ton heure à"],
+  ["Une fois tout en service, vous récupérez", "Une fois tout en service, tu récupères"],
+  ["vous gagnez en valeur", "tu gagnes en valeur"],
+  ["Votre temps compte à", "Ton temps compte à"],
+  ["le reste couvre vos validations", "le reste couvre tes validations"],
+  ["que vous ne récupérez pas", "que tu ne récupères pas"],
+  ["Aucun accès à votre compte bancaire", "Aucun accès à ton compte bancaire"],
+  ["Les abonnements d'outils restent à votre nom", "Les abonnements d'outils restent à ton nom"],
+  ["en jaune, ce que vous faites", "en jaune, ce que tu fais"],
+  ["On ajuste avec vous", "On ajuste avec toi"],
+  ["que vous validez", "que tu valides"],
+  ["répondez au mail et Adib vous rappelle", "réponds au mail et Adib te rappelle"],
+  ["Une question avant de signer, répondez", "Une question avant de signer, réponds"],
   ["Odegia vous apporte", "Odegia t'apporte"],
   ["Odegia vous coûte", "Odegia te coûte"],
   ["attendent votre accord", "attendent ton accord"],

@@ -694,6 +694,10 @@ export function diagnostiquer(e: Entree) {
       semaine: semaineFacture,
       livrees: livrees.map((u) => u.id),
       valeurMesure: livrees.reduce((a, u) => a + u.gainMensuelMesure, 0),
+      heuresMesure: livrees.reduce((a, u) => a + u.heuresRecupereesMesure, 0),
+      encaissementMesure: livrees.reduce((a, u) => a + u.encaissementMensuelMesure, 0),
+      heures: livrees.reduce((a, u) => a + u.heuresRecuperees, 0),
+      encaissement: livrees.reduce((a, u) => a + u.encaissementMensuel, 0),
       valeur: livrees.reduce((a, u) => a + u.gainMensuel, 0),
       paye: base.mensualite + outilsMois,
     };

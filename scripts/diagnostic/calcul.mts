@@ -35,7 +35,7 @@ import {
    change a chaque regle de decision, definition de mesure ou grille modifiee,
    et le protocole du vault dit ce que chaque version contient. Un rapport se
    relit toujours avec les regles de sa version. */
-export const METHODE_VERSION = "2.6";
+export const METHODE_VERSION = "2.7";
 
 /* v2.5, decisions d Adib du 20/10/2026, diagnostic Alteria. La premiere
    mensualite peut etre prelevee a la fin du premier mois de chantier, champ
@@ -260,7 +260,10 @@ export type Entree = {
      motif, decision d Adib du 19/10/2026 pour Alteria, 25 % cliente Foot on
      the Moon et 25 % pour son temoignage. Elles s additionnent sur le prix
      apres remise de parc. Presentes, elles remplacent la remise du groupe. */
-  remisesClient?: { libelle: string; taux: number; condition?: string }[];
+  remisesClient?: { libelle: string; taux: number; condition?: string; tant?: string }[];
+  /* v2.7, decision d Adib du 21/10/2026. Les remises client restent au-dela
+     des douze premiers mois, sous les conditions ecrites dans tant. */
+  remisesSansDuree?: boolean;
   /* offert, le cas courant depuis le 02/10/2026. deduit, un diagnostic paye
      dont le montant vaut les premieres mensualites. */
   diagnostic: { prix: number; deduit: boolean; offert?: boolean };
@@ -635,7 +638,7 @@ export function diagnostiquer(e: Entree) {
   const outilsMoisHT = (e.outils ?? []).filter((o) => !o.dejaPaye).reduce((a, o) => a + o.prixMois, 0);
   const bilanMensuel = (() => {
     const base = recommandees.length
-      ? { recommande: true, heures: recommandees.reduce((a, u) => a + u.heuresRecuperees, 0), valeur: gainMensuelPerimetre, encaissement: recommandees.reduce((a, u) => a + u.encaissementMensuel, 0), mensualite: mensualiteEngagement * fTVA, ensuite: mensualiteEnsuite * fTVA }
+      ? { recommande: true, heures: recommandees.reduce((a, u) => a + u.heuresRecuperees, 0), valeur: gainMensuelPerimetre, encaissement: recommandees.reduce((a, u) => a + u.encaissementMensuel, 0), mensualite: mensualiteEngagement * fTVA, ensuite: (e.remisesSansDuree ? mensualiteEngagement : mensualiteEnsuite) * fTVA }
       : unites.length
         ? (() => {
             const u = [...unites].sort((a, b) => b.gainMensuel - a.gainMensuel)[0];

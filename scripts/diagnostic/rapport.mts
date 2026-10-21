@@ -381,7 +381,7 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
     <tbody>
       ${lignesDevis}
       ${d.remisePack ? `<tr class="remise"><td>Remise de ${Math.round(c.parametres.REMISE_PACK * 100)} % dès la troisième automatisation</td><td class="n">− ${euros(d.remisePackEuros)}</td></tr><tr class="sous-total"><td>Après remise de volume</td><td class="n">${euros(c.devis.mensualitePleine - d.remisePackEuros)}</td></tr>` : ""}
-      ${d.remiseGroupe && d.remisesClient.length ? d.remisesClient.map((r) => `<tr class="remise"><td>${esc(r.libelle)}, ${Math.round(r.taux * 100)} % pendant les ${E} premiers mois</td><td class="n">− ${euros(r.euros)}</td></tr>`).join("") : ""}
+      ${d.remiseGroupe && d.remisesClient.length ? d.remisesClient.map((r) => `<tr class="remise"><td>${esc(r.libelle)}, ${Math.round(r.taux * 100)} % ${r.tant ? esc(r.tant) : `pendant les ${E} premiers mois`}</td><td class="n">− ${euros(r.euros)}</td></tr>`).join("") : ""}
       ${d.remiseGroupe && !d.remisesClient.length ? `<tr class="remise"><td>${d.remiseGroupeLibelle ? esc(d.remiseGroupeLibelle) : "Remise client du groupe Orbis Optima"}, ${Math.round(d.remiseGroupeTaux * 100)} % pendant les ${E} premiers mois</td><td class="n">− ${euros(d.remiseGroupeEuros)}</td></tr>` : ""}
       ${offert ? `<tr class="remise"><td>Diagnostic d'une valeur de ${euros(entree.diagnostic.prix)}, offert</td><td class="n">inclus</td></tr>` : ""}
     </tbody>
@@ -394,13 +394,13 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
   <div class="suivi">
     <span class="etiquette">Ce que la mensualité comprend, et sa durée</span>
     <p><strong>La construction, la surveillance, les corrections et les ajustements.</strong> Vous ne payez rien d'avance${c.bilanMensuel?.debutFacturation === "livraison" ? `, la première mensualité est prélevée à la première livraison, et les ${E} mois d'engagement courent à partir de là` : c.bilanMensuel?.debutFacturation === "finMois1" ? `, la première mensualité est prélevée à la fin du premier mois de chantier, et les ${E} mois d'engagement courent à partir de là` : ", la première mensualité est prélevée à la commande"}.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
-    <p>Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteEnsuiteHT)} HT.` : ""} Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis.</p>
+    <p>${d.remiseGroupe && entree.remisesSansDuree ? `Engagement de ${E} mois. Ensuite ${euros(d.mensualiteHT)} HT tant que les conditions des remises tiennent, sinon ${euros(d.mensualiteEnsuiteHT)} HT, et vous arrêtez quand vous voulez avec trente jours de préavis.` : `Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteEnsuiteHT)} HT.` : ""} Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis.`}</p>
     <p>Aucun accès à votre compte bancaire ni à un moyen de paiement, y compris en lecture. Les abonnements d'outils restent à votre nom, ceux qu'héberge Odegia sont compris.</p>
   </div>
   <ul class="conditions">
     <li>Règles et limites de chaque automatisation écrites et validées avec vous avant construction.</li>
     ${d.remiseGroupe ? d.remisesClient.filter((r) => r.condition).map((r) => `<li>${esc(r.condition!)}</li>`).join("") : ""}
-    <li>Au terme des ${E} mois d'engagement, vous pouvez reprendre vos automatisations à votre compte. Nous vous les transférons contre des frais de mise en place égaux à ${c.parametres.RACHAT_MENSUALITES} mensualités de ${euros(d.mensualiteEnsuiteHT)} HT. Vous assurez ensuite vous-même les corrections, mises à jour et améliorations, et la mensualité s'arrête au transfert.</li>
+    <li>Au terme des ${E} mois, vous pouvez reprendre vos automatisations à votre compte contre ${euros(d.mensualiteEnsuiteHT * c.parametres.RACHAT_MENSUALITES)} HT de mise en place. Vous assurez ensuite vous-même leur entretien, et la mensualité s'arrête.</li>
   </ul>
   <div class="accord"><div class="accord-champs"><span>Nom</span><span>Date</span><span>« Bon pour accord » et signature</span></div><p>Ou répondez simplement « bon pour accord » au mail qui accompagne ce devis.</p></div>
 </section>`;
@@ -484,11 +484,12 @@ const resume0 = `
     ${fleche}
     ${b ? etapeResume("2", "Odegia vous apporte", `${euros(b.valeur)}`, `par mois, ${heures(b.heures)} h et ${euros(b.valeur - b.encaissement)} de temps économisés${enc ? `, et ${euros(b.encaissement)} de revenus récupérés grâce aux relances` : ""}`, "resume-vert").replace("</div>", `${barre([{ v: b.valeur - b.encaissement, cls: "seg-temps" }, { v: b.encaissement, cls: "seg-recupere" }])}</div>`) : etapeResume("2", "Odegia vous apporte", "—", "aucune automatisation ne se justifie à ce volume")}
     ${fleche}
-    ${b ? etapeResume("3", "Odegia vous coûte", `${euros(b.mensualite + b.outils)}`, `par mois${b.ttc ? " TTC" : ""} la première année${b.ensuite !== b.mensualite ? `, puis ${euros(b.ensuite + b.outils)}` : ""}. Rien à payer d'avance${b.outils > 0.5 ? `, dont ${euros(b.outils)} d'outils` : ""}.`).replace("</div>", `${barre([{ v: b.mensualite + b.outils, cls: "seg-odegia" }])}</div>`) : etapeResume("3", "Odegia vous coûte", "0 €", "le diagnostic est offert")}
+    ${b ? etapeResume("3", "Odegia vous coûte", `${euros(b.mensualite + b.outils)}`, `par mois${b.ttc ? " TTC" : ""}${b.ensuite !== b.mensualite ? ` la première année, puis ${euros(b.ensuite + b.outils)}` : entree.remisesSansDuree ? ", sans hausse après un an, aux conditions du devis" : ""}. Rien à payer d'avance${b.outils > 0.5 ? `, dont ${euros(b.outils)} d'outils` : ""}.`).replace("</div>", `${barre([{ v: b.mensualite + b.outils, cls: "seg-odegia" }])}</div>`) : etapeResume("3", "Odegia vous coûte", "0 €", "le diagnostic est offert")}
   </div>
   ${b ? legende : ""}
   ${roi ? `<div class="resume-roi"><strong>Rentable dès la première mensualité.</strong> Quand elle tombe, ce qui est déjà en service vous rend ${heures(roi.heures)} h${roi.encaissement > 0.5 ? ` et ${euros(roi.encaissement)} d'impayés` : ""} par mois, soit ${euros(roi.valeur)} en comptant votre heure à ${euros(c.parametres.taux)}, ${roi.valeur >= 2 * roi.paye ? `${["", "", "deux", "trois", "quatre", "cinq"][Math.min(5, Math.floor(roi.valeur / roi.paye))]} fois` : "plus que"} les ${euros(roi.paye)} que vous payez.</div>` : ""}
-  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span class="net-cash">Une fois tout en service, vous récupérez ${heures(b.heures)} h${enc ? ` et ${euros(b.encaissement)} d'impayés` : ""} par mois, pour ${euros(b.mensualite + b.outils)}.</span><span>En comptant votre heure à ${euros(c.parametres.taux)}</span><strong>${solde(b.solde)} par mois</strong>${b.ensuite !== b.mensualite ? `<span>puis, après la première année, ${solde(ensuiteNet(bProj!))} par mois à votre volume d'aujourd'hui${hausse ? `, jusqu'à ${solde(bProj!.valeur - bProj!.ensuite - bProj!.outils)} selon votre estimation` : ""}</span>` : ""}${b.nouveauxClients ? `<span class="resume-an1">${Math.ceil(b.nouveauxClients.an1)} nouveaux ${esc(b.nouveauxClients.mot)} dans l'année, à ${euros(b.nouveauxClients.valeur)} en moyenne, et votre première année Odegia est payée.</span>` : ""}</div>` : ""}
+  ${r.comparaison ? `<p class="resume-compare">${esc(r.comparaison)}</p>` : ""}
+  ${b ? `<div class="resume-net ${b.solde >= 0 ? "" : "resume-negatif"}"><span class="net-cash">Une fois tout en service, vous récupérez ${heures(b.heures)} h${enc ? ` et ${euros(b.encaissement)} d'impayés` : ""} par mois, pour ${euros(b.mensualite + b.outils)}.</span><span>En comptant votre heure à ${euros(c.parametres.taux)}</span><strong>${solde(b.solde)} par mois</strong>${b.ensuite === b.mensualite && hausse ? `<span>jusqu'à ${solde(bProj!.solde)} par mois si votre activité suit votre estimation</span>` : ""}${b.ensuite !== b.mensualite ? `<span>puis, après la première année, ${solde(ensuiteNet(bProj!))} par mois à votre volume d'aujourd'hui${hausse ? `, jusqu'à ${solde(bProj!.valeur - bProj!.ensuite - bProj!.outils)} selon votre estimation` : ""}</span>` : ""}${b.nouveauxClients ? `<span class="resume-an1">${Math.ceil(b.nouveauxClients.an1)} nouveaux ${esc(b.nouveauxClients.mot)} dans l'année, à ${euros(b.nouveauxClients.valeur)} en moyenne, et votre première année Odegia est payée.</span>` : ""}</div>` : ""}
   ${fdr.briques.length ? `<div class="resume-bloc"><span class="etiquette">Comment ça se passe, sur trois mois</span><div class="frise">
     <div class="frise-ligne frise-mois"><span class="frise-nom"></span><div class="frise-piste"><span style="left:0;width:30.8%">Mois 1</span><span style="left:30.8%;width:30.8%">Mois 2</span><span style="left:61.5%;width:38.5%">Mois 3</span></div></div>
     ${ligneFrise("On prépare", fdr.socle.debut, fdr.socle.fin)}
@@ -496,8 +497,17 @@ const resume0 = `
     ${fdr.supervision ? ligneFrise("On ajuste avec vous", fdr.supervision.debut, fdr.supervision.fin) : ""}
     ${fdr.calibrage ? ligneFrise("Ça tourne, on veille", fdr.calibrage, SEMAINES_FRISE, true) : ""}
   </div></div>` : ""}
-  ${c.recommandees.length ? `<div class="prochaine"><strong>Votre prochaine étape</strong><p>Signez le devis ${entree.rapportCourt ? "page 3" : "qui précède"} avant le ${dateFr(validite)}, ou répondez « bon pour accord » au mail. La semaine 1 commence à la signature${bProj?.debutFacturation === "finMois1" ? ", et rien n'est à payer avant la fin du premier mois de chantier" : bProj?.debutFacturation === "livraison" ? ", et rien n'est à payer avant la première livraison" : ""}. Une question avant de signer, répondez au mail et Adib vous rappelle.</p></div>` : ""}
+  ${c.recommandees.length ? `<div class="prochaine"><strong>Votre prochaine étape</strong><p>Signez le devis ${entree.rapportCourt ? "page 3" : "qui précède"} avant le ${dateFr(validite)}, ou répondez « bon pour accord » au mail.${bProj?.debutFacturation === "finMois1" ? " Rien à payer avant la fin du premier mois de chantier." : bProj?.debutFacturation === "livraison" ? " Rien à payer avant la première livraison." : ""} Une question, répondez au mail et Adib vous rappelle.</p></div>` : ""}
 </section>`;
+
+/* v2.7, demande d Adib du 21/10/2026. Les questions qu un client se pose
+   avant de signer, ecrites dans redaction.faq de l entree. */
+const faq = (r.faq ?? []).length ? `
+<section class="page">
+  <p class="eyebrow">05</p>
+  <h1>Tes questions avant de signer</h1>
+  <div class="faq">${(r.faq ?? []).map((x: { q: string; r: string }) => `<div class="faq-item"><h2>${esc(x.q)}</h2><p>${esc(x.r)}</p></div>`).join("")}</div>
+</section>` : "";
 
 const html = `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8" />
@@ -601,7 +611,7 @@ const html = `<!doctype html>
   .resume-n { font: 800 11pt "Outfit", sans-serif; width:7mm; height:7mm; border-radius:50%; border:2px solid var(--ink); display:flex; align-items:center; justify-content:center; background:var(--banane); }
   .resume-valeur { font: 800 22pt/1 "Outfit", sans-serif; letter-spacing:-.02em; font-variant-numeric: tabular-nums; }
   .resume-fleche { align-self:center; font: 800 18pt "Outfit", sans-serif; }
-  .resume-net { border:2px solid var(--ink); border-radius:14px; background:var(--banane); box-shadow:4px 4px 0 var(--ink); padding:5mm 6mm; display:flex; align-items:baseline; gap:4mm; flex-wrap:wrap; margin-bottom:7mm; }
+  .resume-net { border:2px solid var(--ink); border-radius:14px; background:var(--banane); box-shadow:4px 4px 0 var(--ink); padding:4mm 6mm; display:flex; align-items:baseline; gap:2mm 4mm; flex-wrap:wrap; margin-bottom:5mm; }
   .resume-net strong { font: 800 22pt/1 "Outfit", sans-serif; }
   .resume-net span { font-size:9pt; }
   .resume-negatif { background:var(--rose-soft); }
@@ -643,6 +653,11 @@ const html = `<!doctype html>
   .flux-vous .flux-nom { font-weight:700; }
   .cle-geste { font-weight:400; font-size:8.5pt; color:var(--soft); margin-left:3mm; white-space:nowrap; }
   .cle-geste i { display:inline-block; width:3.2mm; height:3.2mm; background:var(--banane); border:2px solid var(--ink); border-radius:2px; vertical-align:-0.5mm; margin-right:1.5mm; }
+  .resume-compare { margin:-1mm 0 4mm; font-size:9.5pt; font-weight:600; }
+  .faq { display:flex; flex-direction:column; gap:5mm; margin-top:2mm; }
+  .faq-item { border-top:2px solid var(--ink); padding-top:3mm; break-inside:avoid; }
+  .faq-item h2 { font: 700 13pt/1.3 "Outfit", sans-serif; margin:0 0 1.5mm; }
+  .faq-item p { margin:0; max-width:165mm; }
   .net-cash { flex-basis:100%; font-size:10pt !important; font-weight:600; }
   tr.sous-total td { color:var(--soft); font-size:8.8pt; }
   .hypotheses { margin-top:2mm; max-width:none; }
@@ -689,12 +704,12 @@ const documents: [string, string][] = court
         const p1 = partie1.replace('<section class="page">', `<section class="page">${tete}`);
         /* 21/10/2026 au soir, Adib, le devis s explique d abord et la synthese
            ferme le rapport. */
-        return numeroter([p1, partie3, partie4]) + resume0.replace(tete, "").replace('<p class="eyebrow">En bref</p>', '<p class="eyebrow">04, en bref</p>');
+        return numeroter([p1, partie3, partie4]) + resume0.replace(tete, "").replace('<p class="eyebrow">En bref</p>', '<p class="eyebrow">04, en bref</p>') + faq;
       })())],
       ["accueil.html", html.replace(/<title>[^<]*<\/title>/, `<title>Document d'accueil Odegia, ${esc(entree.client.entite)}</title>`)
         .replace("__CORPS__", numeroter([partie2.replace('<section class="page">', `<section class="page">${enteteDoc("Document d'accueil")}`), partie5, partie5Gain]))],
     ]
-  : [["rapport.html", html.replace("__CORPS__", resume0 + partie1 + partie2 + partie3 + partie5 + partie5Gain + partie4)]];
+  : [["rapport.html", html.replace("__CORPS__", resume0 + partie1 + partie2 + partie3 + partie5 + partie5Gain + partie4 + faq)]];
 
 /* Tutoiement pour un client que le fondateur tutoie, decision d Adib du
    19/10/2026. Toute phrase restee au vouvoiement est signalee. */

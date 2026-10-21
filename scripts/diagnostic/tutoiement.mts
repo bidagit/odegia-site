@@ -9,6 +9,11 @@
    le controle de produire.sh la signale. */
 
 const TABLE: [string, string][] = [
+  ["vous arrêtez quand vous voulez avec trente jours", "tu arrêtes quand tu veux avec trente jours"],
+  ["Une question, répondez au mail et Adib vous rappelle", "Une question, réponds au mail et Adib te rappelle"],
+  ["Vous assurez ensuite vous-même leur entretien", "Tu assures ensuite toi-même leur entretien"],
+  ["Au terme des 12 mois, vous pouvez reprendre vos automatisations à votre compte", "Au terme des 12 mois, tu peux reprendre tes automatisations à ton compte"],
+  ["si votre activité suit votre estimation", "si ton activité suit ton estimation"],
   ["vous rend", "te rend"],
   ["en comptant votre heure à", "en comptant ton heure à"],
   ["En comptant votre heure à", "En comptant ton heure à"],

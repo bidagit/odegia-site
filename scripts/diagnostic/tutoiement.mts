@@ -9,6 +9,7 @@
    le controle de produire.sh la signale. */
 
 const TABLE: [string, string][] = [
+  ["Les outils nécessaires sont à votre charge et à votre nom", "Les outils nécessaires sont à ta charge et à ton nom"],
   ["vous arrêtez quand vous voulez avec trente jours", "tu arrêtes quand tu veux avec trente jours"],
   ["Une question, répondez au mail et Adib vous rappelle", "Une question, réponds au mail et Adib te rappelle"],
   ["Vous assurez ensuite vous-même leur entretien", "Tu assures ensuite toi-même leur entretien"],

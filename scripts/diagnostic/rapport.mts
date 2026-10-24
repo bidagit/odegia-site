@@ -394,10 +394,11 @@ const partie4 = c.recommandees.length === 0 ? partie4Vide : `
   <div class="suivi">
     <span class="etiquette">Ce que la mensualité comprend, et sa durée</span>
     <p><strong>La construction, la surveillance, les corrections et les ajustements.</strong> Vous ne payez rien d'avance${c.bilanMensuel?.debutFacturation === "livraison" ? `, la première mensualité est prélevée à la première livraison, et les ${E} mois d'engagement courent à partir de là` : c.bilanMensuel?.debutFacturation === "finMois1" ? `, la première mensualité est prélevée à la fin du premier mois de chantier, et les ${E} mois d'engagement courent à partir de là` : ", la première mensualité est prélevée à la commande"}.${d.creditDiagnostic ? ` Le diagnostic déjà réglé, ${euros(d.creditDiagnostic)}, vaut vos premières mensualités.` : ""}</p>
-    <p>${d.remiseGroupe && entree.remisesSansDuree ? `Engagement de ${E} mois. Ensuite ${euros(d.mensualiteHT)} HT tant que les conditions des remises tiennent, sinon ${euros(d.mensualiteEnsuiteHT)} HT, et vous arrêtez quand vous voulez avec trente jours de préavis.` : `Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteEnsuiteHT)} HT.` : ""} Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis.`}</p>
-    <p>Aucun accès à votre compte bancaire ni à un moyen de paiement, y compris en lecture. Les abonnements d'outils restent à votre nom, ceux qu'héberge Odegia sont compris.</p>
+    <p>${d.remiseGroupe && entree.remisesSansDuree ? `Engagement de ${E} mois. Ensuite ${euros(d.mensualiteHT)} HT tant que les conditions des remises tiennent, sinon ${euros(d.mensualiteEnsuiteHT)} HT, et vous arrêtez quand vous voulez avec trente jours de préavis.` : `Engagement de ${E} mois, soit ${euros(d.engagementHT)} HT.${d.remiseGroupe ? ` À partir du treizième mois, la mensualité est de ${euros(d.mensualiteSuivanteHT)} HT${d.mensualiteSuivanteHT < d.mensualiteEnsuiteHT ? `, ${esc((d.remisesClient.find((r) => r.sansDuree)?.tant) ?? "aux conditions de la remise qui reste")}, sinon ${euros(d.mensualiteEnsuiteHT)} HT` : ""}.` : ""} Ensuite vous arrêtez quand vous voulez, avec trente jours de préavis.`}</p>
+    ${r.outils ? `<p>${esc(r.outils)}</p>` : c.outils.liste.length ? (() => { const charge = c.outils.liste.filter((o) => !o.compris).map((o) => esc(o.nom.replace(/, .*$/, "")).toLowerCase()); const compris = c.outils.liste.filter((o) => o.compris).map((o) => esc(o.nom).toLowerCase()); return `<p>Les outils nécessaires sont à votre charge et à votre nom${charge.length ? `, à titre indicatif ${charge.join(", ")}` : ""}.${compris.length ? ` Ceux qu'héberge Odegia sont compris, ${compris.join(", ")}.` : ""}</p>`; })() : ""}
   </div>
   <ul class="conditions">
+    <li>Aucun accès à votre compte bancaire ni à un moyen de paiement, y compris en lecture.</li>
     <li>Règles et limites de chaque automatisation écrites et validées avec vous avant construction.</li>
     ${d.remiseGroupe ? d.remisesClient.filter((r) => r.condition).map((r) => `<li>${esc(r.condition!)}</li>`).join("") : ""}
     <li>Au terme des ${E} mois, vous pouvez reprendre vos automatisations à votre compte contre ${euros(d.mensualiteEnsuiteHT * c.parametres.RACHAT_MENSUALITES)} HT de mise en place. Vous assurez ensuite vous-même leur entretien, et la mensualité s'arrête.</li>
@@ -559,14 +560,14 @@ const html = `<!doctype html>
   .etape { display:flex; gap:4mm; align-items:flex-start; border-bottom:1px solid #dfe5e2; padding-bottom:1.5mm; }
   .rang { flex-shrink:0; width:9mm; height:9mm; border-radius:99px; border:2px solid var(--ink); display:flex; align-items:center; justify-content:center; font: 600 9pt "Geist Mono", monospace; background:var(--vert-soft); }
   .ligne-chiffres { margin:1mm 0 0; font-size:8.5pt; color:var(--soft); font-variant-numeric: tabular-nums; }
-  .parties { display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:5mm; margin-bottom:3mm; font-size:8.5pt; line-height:1.45; }
+  .parties { display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:5mm; margin-bottom:2mm; font-size:8.3pt; line-height:1.4; }
   .parties p { margin:1mm 0 0; }
   .etiquette { font: 500 8pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.12em; color:var(--soft); }
   .sous { display:block; font-size:8pt; color:var(--soft); }
   .remise td { color:var(--vert); }
   .leger td { font-weight:400; border-top:none; color:var(--soft); }
   .suivi { margin:3mm 0 2.5mm; border:2px solid var(--ink); border-radius:14px; padding:4mm 5mm; background:var(--vert-soft); }
-  .suivi p { margin:1mm 0 0; }
+  .suivi p { margin:1mm 0 0; font-size:9pt; line-height:1.5; }
   .conditions { margin:0; padding-left:4.5mm; font-size:8.5pt; line-height:1.45; color:var(--ink); }
   .carte .etiquette { margin-bottom:1mm; }
   .plafond { margin:4mm 0 0; background:#fdf8e1; padding:3mm 4.5mm; border-radius:10px; }
@@ -672,7 +673,7 @@ const html = `<!doctype html>
   .flux-fleche { align-self:center; font: 800 13pt "Outfit", sans-serif; color:var(--ink); }
   .accord { break-inside:avoid; margin-top:4mm; border:2px solid var(--ink); border-radius:14px; padding:3mm 4mm 2.5mm; }
   .accord-champs { display:grid; grid-template-columns:1fr 1fr 2fr; gap:5mm; }
-  .accord-champs span { display:block; height:10mm; border-bottom:1.5px solid var(--ink); font: 500 8pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); }
+  .accord-champs span { display:block; height:9mm; border-bottom:1.5px solid var(--ink); font: 500 8pt "Geist Mono", monospace; text-transform:uppercase; letter-spacing:.1em; color:var(--soft); }
   .accord p { margin:2.5mm 0 0; font-size:9pt; }
   tfoot tr.paye td { font: 800 13pt "Outfit", sans-serif; }
   .pivot { margin:-2mm 0 3.5mm; font-weight:600; }
